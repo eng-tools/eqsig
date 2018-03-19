@@ -112,22 +112,47 @@ def test_fourier_spectra_with_motion():
 
     rec2 = np.zeros(2 ** 13)
     rec2[:len(rec)] = rec
-    acc_signal = AccSignal(rec2, motion_dt)
+    acc_signal = AccSignal(-rec, motion_dt)
 
     nfreq = len(acc_signal.fa_spectrum)
     test_filename = 'test_motion_true_fourier_spectra.csv'
     data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
     freqs = data[:nfreq - 1, 0]
     fa = data[:nfreq - 1, 1]
+    phase = data[:nfreq - 1, 2]
 
     fa_eqsig = abs(acc_signal.fa_spectrum)
     freq_eqsig = acc_signal.fa_frequencies
+    org_phases = np.angle(acc_signal.fa_spectrum)
+    ss_phases = np.angle(np.fft.rfft(rec2))[:len(org_phases)] + 0.0001
+
+    for i in range(10):
+        print(phase[i], acc_signal.fa_spectrum[i + 1], org_phases[i + 1])
 
     assert ct.isclose(freqs[0], freq_eqsig[1], rel_tol=0.001), freqs[0]
     assert ct.isclose(freqs[20], freq_eqsig[21], rel_tol=0.0001)
     assert ct.isclose(freqs[-1], freq_eqsig[-1], rel_tol=0.001)
     for i in range(len(fa)):
         assert ct.isclose(fa[i], fa_eqsig[i + 1], abs_tol=0.00001), i
+
+    # bf, sp = plt.subplots(2)
+    # sp[0].plot(freqs, fa, lw=0.5)
+    # sp[0].plot(freq_eqsig, abs(acc_signal.fa_spectrum), lw=0.5)
+    # sp[1].plot(freqs, phase, lw=0.5)
+    # sp[1].plot(freq_eqsig, org_phases, lw=0.5)
+    # sp[1].plot(freq_eqsig, ss_phases, lw=0.5)
+    # plt.show()
+
+
+# def test_fourier_with_sine_wave():
+#     time = np.linspace(0, 10, 1000)
+#     dt = time[1]
+#     rec = np.sin(2 * np.pi * time)
+#     acc = AccSignal(rec, dt)
+#     bf, sp = plt.subplots(2)
+#     sp[0].plot(time, rec)
+#     sp[1].plot(acc.fa_frequencies, np.angle(acc.fa_spectrum))
+#     plt.show()
 
 
 def test_fourier_spectra_stable_against_aliasing():
@@ -204,7 +229,10 @@ def show_fourier_spectra_stable_against_aliasing():
 
 
 if __name__ == '__main__':
-    rewrite_fourier_spectra_test_file()
+    # test_fourier_with_sine_wave()
+    test_fourier_spectra_with_motion()
+
+    # test_fourier_spectra_with_motion()
     # rewrite_fourier_spectra_test_file()
     # rewrite_response_spectra_test_file()
     # test_response_spectra()
