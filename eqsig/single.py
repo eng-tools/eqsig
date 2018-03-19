@@ -69,9 +69,10 @@ class Signal(object):
         return self._fa_spectrum
 
     def generate_fa_spectrum(self):
-        fa = scipy.fft(self.values) / self.npts
-        self._fa_spectrum = fa[range(int(self.npts / 2))]
-        points = int(len(self.values) / 2)
+        n_factor = 2 ** int(np.ceil(np.log2(self.npts)))
+        fa = scipy.fft(self.values, n=n_factor)
+        points = int(n_factor / 2)
+        self._fa_spectrum = fa[range(points)] * self.dt
         self._fa_frequencies = np.arange(points) / (2 * points * self.dt)
         self._cached_fa = True
 

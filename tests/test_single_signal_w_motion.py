@@ -103,11 +103,108 @@ def test_fourier_spectra():
         assert line == paras[i], i
 
 
+def test_fourier_spectra_with_motion():
+    record_path = TEST_DATA_DIR
+
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_dt = 0.01
+    rec = np.loadtxt(record_path + record_filename)
+
+    rec2 = np.zeros(2 ** 13)
+    rec2[:len(rec)] = rec
+    acc_signal = AccSignal(rec2, motion_dt)
+
+    nfreq = len(acc_signal.fa_spectrum)
+    test_filename = 'test_motion_true_fourier_spectra.csv'
+    data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
+    freqs = data[:nfreq - 1, 0]
+    fa = data[:nfreq - 1, 1]
+
+    fa_eqsig = abs(acc_signal.fa_spectrum)
+    freq_eqsig = acc_signal.fa_frequencies
+
+    assert ct.isclose(freqs[0], freq_eqsig[1], rel_tol=0.001), freqs[0]
+    assert ct.isclose(freqs[20], freq_eqsig[21], rel_tol=0.0001)
+    assert ct.isclose(freqs[-1], freq_eqsig[-1], rel_tol=0.001)
+    for i in range(len(fa)):
+        assert ct.isclose(fa[i], fa_eqsig[i + 1], abs_tol=0.00001), i
+
+
+def test_fourier_spectra_stable_against_aliasing():
+    record_path = TEST_DATA_DIR
+
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_step = 0.01
+    rec = np.loadtxt(record_path + record_filename)
+    rec2 = np.zeros(2 ** 13)
+    rec2[:len(rec)] = rec
+    org_signal = AccSignal(rec, motion_step)
+    extended_signal = AccSignal(rec2, motion_step)
+
+    rec_split = []
+    for i in range(int(len(rec2) / 2)):
+        rec_split.append(rec2[i * 2])
+
+    acc_split = AccSignal(rec_split, motion_step * 2)
+
+    org_fa = abs(org_signal.fa_spectrum)
+    split_fa = abs(acc_split.fa_spectrum)
+    ext_fa = abs(extended_signal.fa_spectrum)
+
+    org_freq = abs(org_signal.fa_frequencies)
+    split_freq = abs(acc_split.fa_frequencies)
+    ext_freq = abs(extended_signal.fa_frequencies)
+
+    for i in range(len(org_signal.fa_spectrum)):
+
+        if i > 1830:
+            abs_tol = 0.03
+        else:
+            abs_tol = 0.02
+
+        assert ct.isclose(org_freq[i], ext_freq[i])
+        assert ct.isclose(org_fa[i], ext_fa[i])
+
+        if i < 2048:
+            assert ct.isclose(org_freq[i], split_freq[i])
+            assert ct.isclose(org_fa[i], split_fa[i], abs_tol=abs_tol), i
+
+
+def show_fourier_spectra_stable_against_aliasing():
+    record_path = TEST_DATA_DIR
+
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_step = 0.01
+    rec = np.loadtxt(record_path + record_filename)
+    rec2 = np.zeros(2 ** 13)
+    rec2[:len(rec)] = rec
+    org_signal = AccSignal(rec, motion_step)
+    extended_signal = AccSignal(rec2, motion_step)
+
+    rec_split = []
+    for i in range(int(len(rec2) / 2)):
+        rec_split.append(rec2[i * 2])
+
+    acc_split = AccSignal(rec_split, motion_step * 2)
+
+    bf, sp = plt.subplots(2)
+    sp[0].plot(org_signal.time, org_signal.values)
+    sp[0].plot(extended_signal.time, extended_signal.values)
+    sp[0].plot(acc_split.time, acc_split.values)
+
+    sp[1].plot(org_signal.fa_frequencies, abs(org_signal.fa_spectrum), lw=0.7, label="original")
+    sp[1].plot(acc_split.fa_frequencies, abs(acc_split.fa_spectrum), lw=0.7, label="split")
+    sp[1].plot(extended_signal.fa_frequencies, abs(extended_signal.fa_spectrum), lw=0.7, label="full")
+
+
+    plt.legend()
+    plt.show()
 
 
 
 
 if __name__ == '__main__':
+    rewrite_fourier_spectra_test_file()
     # rewrite_fourier_spectra_test_file()
     # rewrite_response_spectra_test_file()
     # test_response_spectra()

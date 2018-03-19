@@ -155,10 +155,10 @@ def test_duration_stats():
     acc_signal = AccSignal(rec, motion_step)
     acc_signal.generate_duration_stats()
 
-    assert ct.isclose(acc_signal.t_595, 20.99)
-    assert ct.isclose(acc_signal.t_b01, 38.27)
-    assert ct.isclose(acc_signal.t_b05, 15.41)
-    assert ct.isclose(acc_signal.t_b10, 8.41)
+    assert ct.isclose(acc_signal.t_595, 20.99)  # eqsig==0.5.0
+    assert ct.isclose(acc_signal.t_b01, 38.27)  # eqsig==0.5.0
+    assert ct.isclose(acc_signal.t_b05, 15.41)  # eqsig==0.5.0
+    assert ct.isclose(acc_signal.t_b10, 8.41)  # eqsig==0.5.0
 
 
 if __name__ == '__main__':
