@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='eqsig',
-      version='0.5.1',
+      version='0.5.2',
       description='Signal processing for field and experimental data for earthquake engineering',
       url='',
       author='Maxim Millen',
