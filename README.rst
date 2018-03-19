@@ -1,3 +1,18 @@
+.. image:: https://travis-ci.org/eng-tools/eqsig.svg?branch=master
+   :target: https://travis-ci.org/eng-tools/eqsig
+   :alt: Testing Status
+
+.. image:: https://img.shields.io/pypi/v/eqsig.svg
+   :target: https://pypi.python.org/pypi/eqsig
+   :alt: PyPi version
+
+.. image:: https://coveralls.io/repos/github/eng-tools/eqsig/badge.svg
+   :target: https://coveralls.io/github/eng-tools/eqsig
+
+.. image:: https://img.shields.io/badge/license-MIT-blue.svg
+    :target: https://github.com/eng-tools/eqsig/blob/master/LICENSE
+    :alt: License
+
 *****
 eqsig
 *****
