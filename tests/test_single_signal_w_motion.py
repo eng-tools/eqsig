@@ -39,8 +39,8 @@ def test_remove_polyfit_1():
     acc_signal.remove_poly(poly_fit=1)
     ssq_corrected = np.sum(acc_signal.values ** 2)
 
-    assert ssq_cleaned != ssq_w_linear
-    assert ssq_cleaned == ssq_corrected
+    assert not ct.isclose(ssq_cleaned, ssq_w_linear)
+    assert ct.isclose(ssq_cleaned, ssq_corrected)
 
 
 def test_butterpass():
