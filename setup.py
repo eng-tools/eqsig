@@ -1,7 +1,11 @@
 from setuptools import setup, find_packages
 
+about = {}
+with open("__about__.py") as fp:
+    exec(fp.read(), about)
+
 setup(name='eqsig',
-      version='0.5.2',
+      version=about['__version__'],
       description='Signal processing for field and experimental data for earthquake engineering',
       url='',
       author='Maxim Millen',
