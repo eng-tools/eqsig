@@ -7,7 +7,7 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "__about__.py" }}
+          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "eqsig/__about__.py" }}
 
       - run:
           name: install python dependencies
@@ -17,7 +17,7 @@ jobs:
             pip install -r requirements.txt
             pip install -r deploy-requirements.txt
       - save_cache:
-          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "__about__.py" }}
+          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "eqsig/__about__.py" }}
           paths:
             - "venv"
 
@@ -36,7 +36,7 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "__about__.py" }}
+          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "eqsig/__about__.py" }}
 
       - run:
           name: install python dependencies
@@ -46,7 +46,7 @@ jobs:
             pip install -r requirements.txt
             pip install -r deploy-requirements.txt
       - save_cache:
-          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "__about__.py" }}
+          key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "eqsig/__about__.py" }}
           paths:
             - "venv"
 
@@ -74,7 +74,7 @@ workflows:
             tags:
               only: /[0-9]+(\.[0-9]+)*/
             branches:
-              only: pypi
+              ignore: /.*/
       - deploy:
           requires:
             - build

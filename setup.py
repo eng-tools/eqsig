@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 about = {}
-with open("__about__.py") as fp:
+with open("eqsig/__about__.py") as fp:
     exec(fp.read(), about)
 
 setup(name='eqsig',
