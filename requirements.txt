@@ -3,4 +3,6 @@ scipy
 matplotlib
 bwplot
 engformat
+
+# testing
 pytest
