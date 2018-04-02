@@ -340,7 +340,9 @@ class AccSignal(Signal):
     a_rms01 = 0.0
     a_rms05 = 0.0
     a_rms10 = 0.0
-    t_595 = 0.0
+    t_595 = 0.0  # significant duration
+    sd_start = 0.0  # start time of significant duration
+    sd_end = 0.0  # end time of significant duration
     arias_intensity_series = None
     arias_intensity = 0.0
     cav_series = None
@@ -369,7 +371,7 @@ class AccSignal(Signal):
 
     def generate_response_spectrum(self, response_times=None, xi=-1):
         """
-        Generate the response spectrum for the ResponseTimes for a given
+        Generate the response spectrum for the response_times for a given
         damping (xi). default xi = 0.05
         """
         if self.verbose:
@@ -497,9 +499,9 @@ class AccSignal(Signal):
             self.a_rms10 = -1.
 
         # Trifunac and Brady
-        sd_start, sd_end = sm.significant_duration(self.values, self.dt)
+        self.sd_start, self.sd_end = sm.significant_duration(self.values, self.dt)
 
-        self.t_595 = sd_end - sd_start
+        self.t_595 = self.sd_end - self.sd_start
 
     def generate_cumulative_stats(self):
         """
@@ -539,6 +541,8 @@ class AccSignal(Signal):
         self.a_rms05 = 0.0
         self.a_rms10 = 0.0
         self.t_595 = 0.0
+        self.sd_start = 0.0
+        self.sd_end = 0.0
         self.arias_intensity = 0.0
 
     # deprecated

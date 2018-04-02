@@ -1,4 +1,5 @@
 import subprocess
+import py
 
 about = {}
 with open("eqsig/__about__.py") as fp:
@@ -6,5 +7,7 @@ with open("eqsig/__about__.py") as fp:
 
 version = about['__version__']
 
-subprocess.check_call(["git", "tag", version, "-m", "version %s" % version])
-subprocess.check_call(["git", "push", "--tags", "origin", "master"])
+failures = py.test.cmdline.main()
+if failures == 0:
+    subprocess.check_call(["git", "tag", version, "-m", "version %s" % version])
+    subprocess.check_call(["git", "push", "--tags", "origin", "master"])
