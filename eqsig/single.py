@@ -439,12 +439,12 @@ class AccSignal(Signal):
         self._values -= acceleration_correction
         self.clear_cache()
 
-    def generate_displacement_and_velocity_series(self, forward=True):
+    def generate_displacement_and_velocity_series(self, trap=True):
         """
         Calculates the displacement and velocity
         """
         self._velocity, self._displacement = sd.velocity_and_displacement_from_acceleration(self.values,
-                                                                                          self.dt, forward=forward)
+                                                                                          self.dt, trap=trap)
         self._cached_disp_and_velo = True
 
     @property

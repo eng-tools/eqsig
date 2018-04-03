@@ -1,24 +1,29 @@
 
 import numpy as np
+import scipy
 
 
-def velocity_and_displacement_from_acceleration(acceleration, dt, forward=True):
+def velocity_and_displacement_from_acceleration(acceleration, dt, trap=True):
     """
     Computes the velocity and acceleration of an acceleration time series, using numerical integration.
     :param acceleration: acceleration time series
     :param dt: time step
-    :param forward: if True then uses forward integration
+    :param trap: if True then uses trapezium integration
     :return:
     """
-    npts = len(acceleration)
-    velocity = np.zeros(npts)
-    displacement = np.zeros(npts)
 
-    for i in range(npts - 1):
-        velocity[i + 1] = ((acceleration[i + 1] + acceleration[i]) * dt / 2 + velocity[i])
-        displacement[i + 1] = ((velocity[i + 1] + velocity[i]) * dt / 2 + displacement[i])
-        if forward is False:
-            velocity[i + 1] = ((acceleration[i + 1]) * dt + velocity[i])
-            displacement[i + 1] = ((velocity[i + 1]) * dt + displacement[i])
+    if trap is False:
+        vel_inc = acceleration * dt
+        velocity = np.cumsum(vel_inc)
+        np.insert(velocity, 0, 0)
+        velocity = velocity[:-1]
+        disp_inc = velocity * dt
+        displacement = np.cumsum(disp_inc)
+        np.insert(displacement, 0, 0)
+        displacement = displacement[:-1]
+    else:
+
+        velocity = scipy.integrate.cumtrapz(acceleration, dx=dt, initial=0)
+        displacement = scipy.integrate.cumtrapz(velocity, dx=dt, initial=0)
 
     return velocity, displacement
