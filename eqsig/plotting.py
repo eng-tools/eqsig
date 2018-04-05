@@ -9,8 +9,16 @@ from eqsig.exceptions import SignalProcessingError
 # from bwplot import spectra as cbox
 from bwplot import cbox
 
+import warnings
+
+
+def deprecation(message):
+    warnings.warn(message, stacklevel=3)
+
 
 def plot_response_spectrum(rec, **kwargs):
+    deprecation('Deprecated, switch to: plotting functions moved to engformat package')
+
     rec.generate_response_spectrum()
     plot_on = 1
     legend_off = kwargs.get('legend_off', False)
@@ -81,6 +89,7 @@ def plot_response_spectrum(rec, **kwargs):
 
 
 def plot_time_series(rec, **kwargs):
+    deprecation('Deprecated, switch to: plotting functions moved to engformat package')
     plot_on = kwargs.get('plot_on', False)
     legend_off = kwargs.get('legend_off', False)
     info_str = kwargs.get('info_str', '')
@@ -155,6 +164,7 @@ def plot_avd(rec, sub_plots=None, ccbox=0, **kwargs):
     Plot acceleration, velocity and displacement
     :return:
     """
+    deprecation('Deprecated, switch to: plotting functions moved to engformat package')
     label = kwargs.get('label', rec.label)
     legend_off = kwargs.get('legend_off', False)
     if sub_plots is None:
@@ -172,6 +182,7 @@ def plot_avd(rec, sub_plots=None, ccbox=0, **kwargs):
 
     
 def plot_fa_spectrum(rec, **kwargs):
+    deprecation('Deprecated, switch to: plotting functions moved to engformat package')
     plot_on = kwargs.get('plot_on', False)
     legend_off = kwargs.get('legend_off', False)
     smooth = kwargs.get('smooth', False)
@@ -233,6 +244,7 @@ def plot_transfer_function(base_rec, recs, **kwargs):
     :param kwargs:
     :return:
     """
+    deprecation('Deprecated, switch to: plotting functions moved to engformat package')
     plot_on = kwargs.get('plot_on', False)
     legend_off = kwargs.get('legend_off', False)
     smooth = kwargs.get('smooth', False)
@@ -255,7 +267,6 @@ def plot_transfer_function(base_rec, recs, **kwargs):
         base_rec.generate_smooth_fa_spectrum(band=band)
         base_spectrum = abs(base_rec.smooth_fa_spectrum)
         base_frequencies = base_rec.smooth_fa_frequencies
-
 
     if sub_plot == 0:
         sub_plot = plt.figure().add_subplot(111)
