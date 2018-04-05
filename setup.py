@@ -22,7 +22,7 @@ setup(name='eqsig',
       install_requires=[
         "numpy",
         "scipy",
-        "matplotlib",
+        "matplotlib",  # to be removed
         "bwplot",
         "engformat"
     ],
