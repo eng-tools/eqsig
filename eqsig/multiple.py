@@ -186,26 +186,58 @@ class Cluster(object):
                                          self.response_times) / centre_freq)))
 
 
+def combine_at_angle(acc_sig_ns, acc_sig_we, angle):
+    off_rad = np.radians(angle)
+    combo = acc_sig_ns.values * np.cos(off_rad) + acc_sig_we.values * np.sin(off_rad)
+    new_sig = AccSignal(combo, acc_sig_ns.dt)
+    return new_sig
+
+
 def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter="arias_intensity", points=100):
     """
     Computes the rotated value of a parameter.
     :param acc_sig_ns:
     :param acc_sig_we:
-    :param angle: Angle from North in degrees of the primary signal.
-    :return:
+    :param angle_off_ns: Angle from North in degrees of the primary signal.
+    :return: tuple, (angle to rotate, rotated)
     """
     assert isinstance(acc_sig_ns, AccSignal)
     assert isinstance(acc_sig_we, AccSignal)
     assert acc_sig_ns.dt == acc_sig_we.dt
+    assert acc_sig_ns.npts == acc_sig_we.npts, (acc_sig_ns.npts, acc_sig_we.npts)
 
-    radians = np.linspace(0, 2. * np.pi, points)
-    off_rad = np.radians(angle_off_ns)
+    degrees = np.linspace(0 - angle_off_ns, 180. - angle_off_ns, points)
+    degrees = np.mod(degrees, 360)
     pvalues = []
-    for i in range(len(radians)):
-        combo = acc_sig_ns.values * np.sin(radians[i] + off_rad) + \
-                acc_sig_we.values * np.cos(radians[i] + off_rad)
-        new_sig = AccSignal(combo, acc_sig_ns.dt)
+    for i in range(len(degrees)):
+        new_sig = combine_at_angle(acc_sig_ns, acc_sig_we, degrees[i])
+        new_sig.generate_all_motion_stats()
         pvalues.append(getattr(new_sig, parameter))
-    max_index = pvalues.index(max(pvalues))
-    return np.degrees(radians[max_index]), pvalues
 
+    return degrees, np.array(pvalues)
+
+
+def run_combine():
+    import matplotlib.pyplot as plt
+    time = np.linspace(0, 100, 1000)
+    w = 0.2
+    amp = 1.0
+    x = amp * np.sin(w * time)
+    y = amp / 2 * np.cos(w * time)
+
+    off_rad = np.radians(45.)
+    adj = x * np.cos(off_rad) + y * np.sin(off_rad)
+    adj_alt = y * np.cos(off_rad) - x * np.sin(off_rad)
+    off_rad = np.radians(90.)
+    adj2 = x * np.cos(off_rad) + y * np.sin(off_rad)
+    plt.plot(x, y)
+    plt.plot(adj, adj_alt, ls="--")
+    plt.show()
+    plt.plot(time, x)
+    plt.plot(time, y)
+    plt.plot(time, adj)
+    plt.plot(time, adj2, ls="--")
+    plt.show()
+
+if __name__ == '__main__':
+    run_combine()
