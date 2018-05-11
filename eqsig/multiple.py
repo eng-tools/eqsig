@@ -53,8 +53,8 @@ class Cluster(object):
 
     @property
     def time(self):
-        key_value_pair = self.signals.items()[0]
-        return key_value_pair[1].time
+        sig0 = self.signal_by_index(0)
+        return sig0.time
 
     def same_start(self, **kwargs):
         """
