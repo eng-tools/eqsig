@@ -239,7 +239,7 @@ def true_response_spectra(motion, step, periods, xi):
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple floats, (spectral displacement, spectral velocity, spectral acceleration)
     """
-    resp_a, resp_v, resp_u = nigam_and_jennings_response(motion, periods, step, xi)
+    resp_u, resp_v, resp_a = nigam_and_jennings_response(motion, periods, step, xi)
     sas = absmax(resp_a, axis=1)
     svs = absmax(resp_v, axis=1)
     sds = absmax(resp_u, axis=1)
