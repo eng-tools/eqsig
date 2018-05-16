@@ -1,14 +1,4 @@
-'''
-Created on Jul 11, 2013
-
-@author: mmi46
-'''
-# import scipy.signal
-# from scipy import special
 import numpy as np
-import matplotlib.pyplot as plt
-# from maxbox.bwplot import cbox
-import eqsig.displacements as sd
 
 
 def single_elastic_response(motion, step, period, xi):
@@ -53,7 +43,7 @@ def all_at_once_response_spectra(motion, step, periods, xi):
     :param xi:
     :return:
     """
-    xi = xis[0]
+
     w_ns = (2.0 * np.pi) / periods
     w_ds = w_ns * np.sqrt(1 - xi ** 2)
     x_w_ns = xi * w_ns
@@ -246,25 +236,26 @@ def true_response_spectra(motion, step, periods, xi):
     return sds, svs, sas
 
 
-def plot_response_spectra():
-    step = 0.01
-    xis = [0.05]
-    periods = np.arange(1, 5, 0.5)
-    motion = np.sin(0.1 * np.arange(1000)) * 0.01
-    s_d, s_v, s_a = response_spectra(motion, step, periods, xis)
-
-    plt.plot(periods, s_a)
-    plt.show()
-
-
-def time_the_generation_of_response_spectra():
-    step = 0.01
-    xi = 0.05
-    periods = np.linspace(1, 5, 50)
-    periods = np.array([0.01])
-    motion = np.sin(0.1 * np.arange(10000)) * 0.01
-    # s_d, s_v, s_a = all_at_once_response_spectra(values, step, periods, xis)
-    s_d, s_v, s_a = response_spectra(motion, step, periods, xi)
+# def plot_response_spectra():
+#     import matplotlib.pyplot as plt
+#     step = 0.01
+#     xis = [0.05]
+#     periods = np.arange(1, 5, 0.5)
+#     motion = np.sin(0.1 * np.arange(1000)) * 0.01
+#     s_d, s_v, s_a = response_spectra(motion, step, periods, xis)
+#
+#     plt.plot(periods, s_a)
+#     plt.show()
+#
+#
+# def time_the_generation_of_response_spectra():
+#     step = 0.01
+#     xi = 0.05
+#     periods = np.linspace(1, 5, 50)
+#     periods = np.array([0.01])
+#     motion = np.sin(0.1 * np.arange(10000)) * 0.01
+#     # s_d, s_v, s_a = all_at_once_response_spectra(values, step, periods, xis)
+#     s_d, s_v, s_a = response_spectra(motion, step, periods, xi)
 
 
 if __name__ == '__main__':
