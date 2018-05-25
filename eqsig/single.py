@@ -328,6 +328,7 @@ class AccSignal(Signal):
     _cached_response_spectra = False
     _cached_disp_and_velo = False
     _cached_xi = 0.05
+    _cached_params = {}
     _s_a = None
     _s_v = None
     _s_d = None
@@ -519,7 +520,43 @@ class AccSignal(Signal):
         abs_acc = np.abs(self.values)
         self.cav_series = scipy.integrate.cumtrapz(abs_acc, dx=self.dt, initial=0)
         self.cav = self.cav_series[-1]
-        # self.arias_intensity = np.pi / (2 * 9.81) * np.trapz(acc2, dx=self.dt)
+
+    @property
+    def isv(self):
+        """
+        Integral of the squared velocity at the end of the motion
+
+        See Kokusho (2013)
+        :return:
+        """
+        if "isv_series" in self._cached_params:
+            return self._cached_params["isv_series"][-1]
+        else:
+            return self._calculate_isv_series()[-1]
+
+    @property
+    def isv_series(self):
+        """
+        Integral of the squared velocity at each time step
+
+        See Kokusho (2013)
+        :return:
+        """
+        if "isv_series" in self._cached_params:
+            return self._cached_params["isv_series"]
+        else:
+            return self._calculate_isv_series()
+
+    def _calculate_isv_series(self):
+        """
+        Calculates the integral of the squared velocity
+
+         See Kokusho (2013)
+        :return:
+        """
+        isv_series = scipy.integrate.cumtrapz(self.velocity ** 2, dx=self.dt, initial=0)
+        self._cached_params["isv_series"] = isv_series
+        return isv_series
 
     def generate_all_motion_stats(self):
         """
@@ -544,6 +581,7 @@ class AccSignal(Signal):
         self.sd_start = 0.0
         self.sd_end = 0.0
         self.arias_intensity = 0.0
+        self._cached_params = {}
 
     # deprecated
     def relative_displacement_response(self, period, xi):
