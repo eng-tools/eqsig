@@ -145,7 +145,7 @@ def compute_a_and_b(xi, w, dt):
     return a, b
 
 
-def nigam_and_jennings_response(acc, periods, dt, xi):
+def nigam_and_jennings_response(acc, dt, periods, xi):
     """
     Implementation of the response spectrum calculation from Nigam and Jennings (1968).
 
@@ -189,47 +189,47 @@ def absmax(a, axis=None):
     return abs(np.where(-amin > amax, amin, amax))
 
 
-def pseudo_response_spectra(motion, step, periods, xi):
+def pseudo_response_spectra(motion, dt, periods, xi):
     """
     Computes the maximum response displacement, pseudo velocity and pseudo acceleration.
 
      :param motion: array floats, acceleration in m/s2
-    :param step: float, the time step
+    :param dt: float, the time step
     :param periods: array floats, The period of SDOF oscilator
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple floats, (spectral displacement, pseudo spectral velocity, pseudo spectral acceleration)
     """
     periods = np.array(periods)
-    resp_u, resp_v, resp_a = nigam_and_jennings_response(motion, periods, step, xi)
+    resp_u, resp_v, resp_a = nigam_and_jennings_response(motion, dt, periods, xi)
     sds = absmax(resp_u, axis=1)
     svs = 2 * np.pi / periods * sds
     sas = (2 * np.pi / periods) ** 2 * sds
     return sds, svs, sas
 
 
-def response_series(motion, step, periods, xi):
+def response_series(motion, dt, periods, xi):
     """
     Computes the elastic response to the acceleration time series
 
      :param motion: array floats, acceleration in m/s2
-    :param step: float, the time step
+    :param dt: float, the time step
     :param periods: array floats, The period of SDOF oscilator
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple of float arrays, (response displacements, response velocities, response accelerations)
     """
-    return nigam_and_jennings_response(motion, periods, step, xi)
+    return nigam_and_jennings_response(motion, dt, periods, xi)
 
 
-def true_response_spectra(motion, step, periods, xi):
+def true_response_spectra(motion, dt, periods, xi):
     """
     Computes the actual maximum response values, not the pseudo values
      :param motion: array floats, acceleration in m/s2
-    :param step: float, the time step
+    :param dt: float, the time step
     :param periods: array floats, The period of SDOF oscilator
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple floats, (spectral displacement, spectral velocity, spectral acceleration)
     """
-    resp_u, resp_v, resp_a = nigam_and_jennings_response(motion, periods, step, xi)
+    resp_u, resp_v, resp_a = nigam_and_jennings_response(motion, dt, periods, xi)
     sas = absmax(resp_a, axis=1)
     svs = absmax(resp_v, axis=1)
     sds = absmax(resp_u, axis=1)
