@@ -9,46 +9,48 @@ from eqsig.single import Signal, AccSignal
 
 class Cluster(object):
 
-    def __init__(self, signals, dt, names=[], master_index=0, stypes="custom", **kwargs):
+    def __init__(self, values, dt, names=[], master_index=0, stypes="custom", **kwargs):
 
         self.freq_range = np.array(kwargs.get('freq_range', [0.1, 20]))
         lvt = np.log10(1.0 / self.freq_range)
         if stypes == "custom" or stypes == "acc":
-            stypes = [stypes] * len(signals)
+            stypes = [stypes] * len(values)
         self.response_times = kwargs.get('resp_times', np.logspace(lvt[1], lvt[0], 31, base=10))
         if master_index < 0:
             raise ValueError("master_index must be positive")
-        if master_index > len(signals) - 1:
+        if master_index > len(values) - 1:
             raise ValueError("master_index: %i, out of bounds, maximum value: %i" % (master_index, len(signals) - 1))
         self.master_index = master_index
         # if len(signals) != len(steps):
         #     raise ValueError("Length of signals: %i, must match length of steps: %i" % (len(signals), len(steps)))
 
         # self.master = Record(master_motion, master_step, response_times=self.response_times)
-        shortage = len(signals) - len(names)
+        shortage = len(values) - len(names)
         self.names = list(names)
         for i in range(shortage):
             self.names.append("m%i" % (len(names) + i))
         self.master = self.names[master_index]
         self.dt = dt
         self.signals = OrderedDict()
-        for s in range(len(signals)):
+        for s in range(len(values)):
             if stypes[s] == "acc":
-                self.signals[names[s]] = Signal(signals[s], dt, names[s], response_times=self.response_times)
+                self.signals[self.names[s]] = AccSignal(values[s], dt, self.names[s], response_times=self.response_times)
+            else:
+                self.signals[self.names[s]] = Signal(values[s], dt, self.names[s])
 
     def values_by_index(self, index):
-        key_value_pair = self.signals.items()[index]
+        key_value_pair = list(self.signals.items())[index]
         return key_value_pair[1].values
 
     def signal_by_index(self, index):
-        key_value_pair = self.signals.items()[index]
+        key_value_pair = list(self.signals.items())[index]
         return key_value_pair[1]
 
     def values(self, name):
         return self.signals[name].values
 
     def name_by_index(self, index):
-        key_value_pair = self.signals.items()[index]
+        key_value_pair = list(self.signals.items())[index]
         return key_value_pair[0]
 
     @property
@@ -73,7 +75,7 @@ class Cluster(object):
                 if verbose:
                     print('Same start the records')
                     print('old difference in starts: ', diff)
-                slave_signal.values -= diff
+                slave_signal.reset_values(slave_signal.values - diff)
 
     def combine_motions(self, f_ch, low_index=0, high_index=1, **kwargs):
         """
@@ -110,15 +112,18 @@ class Cluster(object):
                 print('length m0: ', self.signal_by_index(0).npts)
                 print('length m1: ', self.signal_by_index(1).npts)
             length_check = min(self.signal_by_index(0).npts, self.signal_by_index(1).npts)
-            bm = self.signal_by_index(self.master_index).motion[:length_check]
+            bm = self.signal_by_index(self.master_index).values[:length_check]
             for s in range(len(self.signals)):
                 if s != self.master_index:
-                    om = self.signal_by_index(s).motion[:length_check]
+                    slave_signal = self.signal_by_index(s)
+                    om = slave_signal.values[:length_check]
                     squares = (bm[0:-steps] - om[0:-steps]) ** 2
                     min_diff = np.sum(squares)
                     min_ind = 0
                     if verbose:
                             print('mi: ', min_ind, ' min_diff: ', min_diff)
+                else:
+                    continue
                 # Check other values lags base values
                 for i in range(steps):
                     squares = (om[i:-steps + i] - bm[0:-steps]) ** 2
@@ -137,19 +142,24 @@ class Cluster(object):
                     if diff < min_diff:
                         min_diff = diff
                         min_ind = -i - 0
+                if verbose:
+                    print('lag index: ', min_ind)
+
+                if min_ind < 0:  # pad with initial value
+                    m_temp = [om[0]] * abs(min_ind) + list(om[:min_ind])
+                elif min_ind > 0:  # pad with final value
+                    m_temp = list(om[min_ind:]) + [om[-1]] * abs(min_ind)
+                else:
+                    continue
+                slave_signal.reset_values(m_temp)
+
 
         # else:
         #     min_ind = set_step
         # if verbose:
         #     print('time step lag: ', min_ind)
-        # if min_ind == 0:
-        #     if verbose:
-        #         print('no time lag')
-        # elif min_ind < 0:
-        #     m_temp = self.motions([np.mod(base + 1, 2)]).motion[:min_ind]
-        # elif min_ind > 0:
-        #     m_temp = self.motions([np.mod(base + 1, 2)]).motion[min_ind:]
-        # # pad other record with constant
+
+        # pad other record with constant
         # if verbose:
         #     print('m_temp[0]: ', m_temp[0])
         # if min_ind != 0:

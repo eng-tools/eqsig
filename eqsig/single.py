@@ -44,6 +44,10 @@ class Signal(object):
     def values(self):
         return self._values
 
+    def reset_values(self, new_values):
+        self._values = new_values
+        self.clear_cache()
+
     @property
     def dt(self):
         """ The time step """
@@ -219,8 +223,7 @@ class Signal(object):
         # removing extra zeros from gibbs effect
         mote = mote[s_len:f_len]  # TODO: don't use -1
 
-        self._values = mote
-        self.clear_cache()
+        self.reset_values(mote)
 
     def remove_average(self, section=-1, verbose=-1):
         """
@@ -231,11 +234,10 @@ class Signal(object):
             verbose = self.verbose
 
         average = np.mean(self.values[:section])
-        self._values = self.values - average
+        self.reset_values(self.values - average)
 
         if verbose:
             print('removed av.: ', average)
-        self.clear_cache()
 
     def remove_poly(self, poly_fit=0):
         """
@@ -248,8 +250,8 @@ class Signal(object):
         for co in range(len(cofs)):
             mods = x ** (poly_fit - co)
             y_cor += cofs[co] * mods
-        self._values = self.values - y_cor
-        self.clear_cache()
+
+        self.reset_values(self.values - y_cor)
 
     def get_section_average(self, start=0, end=-1, index=False):
         """
@@ -270,8 +272,7 @@ class Signal(object):
         :param constant:
         :return:
         """
-        self._values = self.values + constant
-        self.clear_cache()
+        self.reset_values(self.values + constant)
 
     def add_series(self, series):
         """
@@ -280,10 +281,9 @@ class Signal(object):
         :return:
         """
         if len(series) == self.npts:
-            self._values = self.values + series
+            self.reset_values(self.values + series)
         else:
             raise exceptions.SignalProcessingError("new series has different length to Signal")
-        self.clear_cache()
 
     def add_signal(self, new_signal):
         """
@@ -426,8 +426,7 @@ class AccSignal(Signal):
         for i in range(self.npts - 1):  # MEANS THAT ACC has a pulse at the end.
             vel[i + 1] = (disp[i + 1] - disp[i]) / self.dt
             acc[i + 1] = (vel[i + 1] - vel[i]) / self.dt
-        self._values = acc
-        self.clear_cache()
+        self.reset_values(acc)
 
     def rebase_displacement(self):
         """
