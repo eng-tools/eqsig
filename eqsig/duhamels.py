@@ -204,6 +204,7 @@ def pseudo_response_spectra(motion, dt, periods, xi):
     sds = absmax(resp_u, axis=1)
     svs = 2 * np.pi / periods * sds
     sas = (2 * np.pi / periods) ** 2 * sds
+    sas = np.where(periods < dt * 6, absmax(motion), sas)
     return sds, svs, sas
 
 
@@ -233,6 +234,7 @@ def true_response_spectra(motion, dt, periods, xi):
     sas = absmax(resp_a, axis=1)
     svs = absmax(resp_v, axis=1)
     sds = absmax(resp_u, axis=1)
+    sas = np.where(periods < dt * 6, absmax(motion), sas)
     return sds, svs, sas
 
 

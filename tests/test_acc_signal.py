@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from eqsig.single import Signal, AccSignal
 from eqsig import checking_tools as ct
 from tests.conftest import TEST_DATA_DIR
+from eqsig import duhamels as dh
 
 
 def test_arias_intensity():
@@ -147,6 +148,54 @@ def test_response_spectra():
     assert srss1 < 0.105, srss1  # TODO: improve this at low frequencies!!!
 
 
+def test_response_spectra_at_high_frequencies():
+    record_path = TEST_DATA_DIR
+    test_filename = 'test_motion_true_spectra_acc.csv'
+    data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
+    times = data[:40, 0]
+    ss_s_a = data[:40, 1]
+
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_step = 0.01
+    rec = np.loadtxt(record_path + record_filename)
+    acc_signal = AccSignal(rec, motion_step, response_times=times)
+    s_a = acc_signal.s_a
+    s_a_in_g = s_a / 9.81
+    a_times = acc_signal.response_times
+    assert len(times) == len(a_times)
+    srss1 = sum(abs(s_a_in_g - ss_s_a))
+    assert srss1 < 0.01 * 40, srss1
+
+
+def show_response_spectra_at_high_frequencies():
+    record_path = TEST_DATA_DIR
+    test_filename = 'test_motion_true_spectra_acc.csv'
+    data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
+    times = data[:40, 0]
+    ss_s_a = data[:40, 1]
+
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_step = 0.01
+    rec = np.loadtxt(record_path + record_filename)
+    # acc_signal = AccSignal(rec, motion_step, response_times=times)
+    # s_a = acc_signal.s_a
+    #
+    # a_times = acc_signal.response_times
+    # s_d, s_v, s_a = dh.pseudo_response_spectra(rec, motion_step, times, xi=0.05)
+    # s_d, s_v, s_a = dh.true_response_spectra(rec, motion_step, times, xi=0.05)
+    acc_signal = AccSignal(rec, motion_step, response_times=times)
+    s_a = acc_signal.s_a
+
+    s_a_in_g = s_a / 9.81
+
+    # srss1 = sum(abs(s_a_in_g - ss_s_a))
+    plt.plot(times, s_a_in_g, label="eqsig")
+    plt.plot(times, ss_s_a, label="true-ish")
+    plt.legend()
+    plt.show()
+
+
+
 def test_duration_stats():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
@@ -162,4 +211,4 @@ def test_duration_stats():
 
 
 if __name__ == '__main__':
-    test_response_spectra()
+    show_response_spectra_at_high_frequencies()
