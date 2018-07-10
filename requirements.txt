@@ -1,8 +1,8 @@
 numpy
 scipy
-matplotlib
-bwplot
-engformat
 
 # testing
 pytest
+matplotlib
+bwplot
+engformat

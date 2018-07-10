@@ -256,7 +256,6 @@ class Signal(object):
     def get_section_average(self, start=0, end=-1, index=False):
         """
         Gets the average value of a part of series.
-
         Common use is so that it can be patched with another record.
 
         :param start: int or float, optional, Section start point
@@ -269,6 +268,7 @@ class Signal(object):
     def add_constant(self, constant):
         """
         Adds a single value from every value in the signal.
+
         :param constant:
         :return:
         """
@@ -277,6 +277,7 @@ class Signal(object):
     def add_series(self, series):
         """
         Adds a single value from every value in the signal.
+
         :param series: A series of values
         :return:
         """
@@ -288,6 +289,7 @@ class Signal(object):
     def add_signal(self, new_signal):
         """
         Combines a signal.
+
         :param new_signal: Signal object
         :return:
         """
@@ -352,6 +354,7 @@ class AccSignal(Signal):
     def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, response_times=(0.1, 5), ccbox=0):
         """
         A time series object
+
         :param values: An acceleration time series, type=acceleration, should be in m/s2
         :param dt: time step
         """

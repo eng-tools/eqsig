@@ -2,7 +2,11 @@
 .idea/
 eqsig/.idea/
 eqsig/__pycache__/
+eqsig.egg-info/
 tests/matplotlibrc
 .cache/
 tests/__pycache__/
 .pytest_cache/
+dist/
+venv/
+docs/_build/
