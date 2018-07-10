@@ -4,9 +4,13 @@ about = {}
 with open("eqsig/__about__.py") as fp:
     exec(fp.read(), about)
 
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
+
 setup(name='eqsig',
       version=about['__version__'],
       description='Signal processing for field and experimental data for earthquake engineering',
+      long_description=readme,
       url='',
       author='Maxim Millen',
       author_email='mmi46@uclive.ac.nz',
