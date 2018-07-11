@@ -225,29 +225,3 @@ def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter="arias_i
         pvalues.append(getattr(new_sig, parameter))
 
     return degrees, np.array(pvalues)
-
-
-def run_combine():
-    import matplotlib.pyplot as plt
-    time = np.linspace(0, 100, 1000)
-    w = 0.2
-    amp = 1.0
-    x = amp * np.sin(w * time)
-    y = amp / 2 * np.cos(w * time)
-
-    off_rad = np.radians(45.)
-    adj = x * np.cos(off_rad) + y * np.sin(off_rad)
-    adj_alt = y * np.cos(off_rad) - x * np.sin(off_rad)
-    off_rad = np.radians(90.)
-    adj2 = x * np.cos(off_rad) + y * np.sin(off_rad)
-    plt.plot(x, y)
-    plt.plot(adj, adj_alt, ls="--")
-    plt.show()
-    plt.plot(time, x)
-    plt.plot(time, y)
-    plt.plot(time, adj)
-    plt.plot(time, adj2, ls="--")
-    plt.show()
-
-if __name__ == '__main__':
-    run_combine()

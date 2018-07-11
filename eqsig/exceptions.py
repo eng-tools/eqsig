@@ -7,3 +7,7 @@ class SignalProcessingError(Exception):
 
 class SignalProcessingWarning(Warning):
     pass
+
+
+def deprecation(message):
+    warnings.warn(message, stacklevel=3)

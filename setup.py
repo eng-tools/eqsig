@@ -26,9 +26,6 @@ setup(name='eqsig',
       install_requires=[
         "numpy",
         "scipy",
-        "matplotlib",  # to be removed
-        "bwplot",
-        "engformat"
     ],
       # List additional groups of dependencies here (e.g. development
       # dependencies). You can install these using the following syntax,

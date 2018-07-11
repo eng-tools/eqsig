@@ -1,10 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-from eqsig.single import Signal, AccSignal
-from eqsig import checking_tools as ct
+from eqsig.single import AccSignal
 from tests.conftest import TEST_DATA_DIR
-from eqsig import duhamels as dh
 
 
 def test_arias_intensity():
@@ -15,7 +12,7 @@ def test_arias_intensity():
     acc_signal = AccSignal(rec, motion_step)
     acc_signal.generate_cumulative_stats()
     true_arias_intensity = 0.63398
-    assert ct.isclose(acc_signal.arias_intensity, true_arias_intensity, rel_tol=0.0001)
+    assert np.isclose(acc_signal.arias_intensity, true_arias_intensity, rtol=0.0001)
 
 
 def test_cumulative_absolute_velocity():
@@ -26,7 +23,7 @@ def test_cumulative_absolute_velocity():
     acc_signal = AccSignal(rec, motion_step)
     acc_signal.generate_cumulative_stats()
     true_cav = 8.53872
-    assert ct.isclose(acc_signal.cav, true_cav, rel_tol=0.0001)
+    assert np.isclose(acc_signal.cav, true_cav, rtol=0.0001)
 
 
 def test_peak_values():
@@ -39,9 +36,9 @@ def test_peak_values():
     true_pga = 1.41
     true_pgv = 0.26006
     true_pgd = 0.07278134  # eqsig==0.4.12
-    assert ct.isclose(acc_signal.pga, true_pga, rel_tol=0.001)
-    assert ct.isclose(acc_signal.pgv, true_pgv, rel_tol=0.0001), acc_signal.pgv
-    assert ct.isclose(acc_signal.pgd, true_pgd, rel_tol=0.0001), acc_signal.pgd
+    assert np.isclose(acc_signal.pga, true_pga, rtol=0.001)
+    assert np.isclose(acc_signal.pgv, true_pgv, rtol=0.0001), acc_signal.pgv
+    assert np.isclose(acc_signal.pgd, true_pgd, rtol=0.0001), acc_signal.pgd
 
 
 def test_displacement_velocity():
@@ -167,35 +164,6 @@ def test_response_spectra_at_high_frequencies():
     assert srss1 < 0.01 * 40, srss1
 
 
-def show_response_spectra_at_high_frequencies():
-    record_path = TEST_DATA_DIR
-    test_filename = 'test_motion_true_spectra_acc.csv'
-    data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
-    times = data[:40, 0]
-    ss_s_a = data[:40, 1]
-
-    record_filename = 'test_motion_dt0p01.txt'
-    motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
-    # acc_signal = AccSignal(rec, motion_step, response_times=times)
-    # s_a = acc_signal.s_a
-    #
-    # a_times = acc_signal.response_times
-    # s_d, s_v, s_a = dh.pseudo_response_spectra(rec, motion_step, times, xi=0.05)
-    # s_d, s_v, s_a = dh.true_response_spectra(rec, motion_step, times, xi=0.05)
-    acc_signal = AccSignal(rec, motion_step, response_times=times)
-    s_a = acc_signal.s_a
-
-    s_a_in_g = s_a / 9.81
-
-    # srss1 = sum(abs(s_a_in_g - ss_s_a))
-    plt.plot(times, s_a_in_g, label="eqsig")
-    plt.plot(times, ss_s_a, label="true-ish")
-    plt.legend()
-    plt.show()
-
-
-
 def test_duration_stats():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
@@ -204,11 +172,11 @@ def test_duration_stats():
     acc_signal = AccSignal(rec, motion_step)
     acc_signal.generate_duration_stats()
 
-    assert ct.isclose(acc_signal.t_595, 20.99)  # eqsig==0.5.0
-    assert ct.isclose(acc_signal.t_b01, 38.27)  # eqsig==0.5.0
-    assert ct.isclose(acc_signal.t_b05, 15.41)  # eqsig==0.5.0
-    assert ct.isclose(acc_signal.t_b10, 8.41)  # eqsig==0.5.0
+    assert np.isclose(acc_signal.t_595, 20.99)  # eqsig==0.5.0
+    assert np.isclose(acc_signal.t_b01, 38.27)  # eqsig==0.5.0
+    assert np.isclose(acc_signal.t_b05, 15.41)  # eqsig==0.5.0
+    assert np.isclose(acc_signal.t_b10, 8.41)  # eqsig==0.5.0
 
-
-if __name__ == '__main__':
-    show_response_spectra_at_high_frequencies()
+# 
+# if __name__ == '__main__':
+#     show_response_spectra_at_high_frequencies()
