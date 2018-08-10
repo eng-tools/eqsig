@@ -46,6 +46,21 @@ def clean_out_non_changing(values):
 
 
 def determine_delta_peak_only_series(values):
+    """
+    Creates an array with only the changes in the peak values and zeros for non-peak values.
+
+    Parameters
+    ----------
+    :param values: array_like, array of values
+    :return:
+
+    Examples
+    --------
+    >>> values = np.array([0, 2, 1, 2, 0, 1, 0, -1, 0, 1, 0])
+    np.array([0, 2, 1, 2, 0.3, 1, 0.3, -1, 0.4, 1, 0])
+    >>> determine_delta_peak_only_series(values)
+    array([0,  2, -1,  2,  0,  1,  0,  1,  0,  1,  0])
+    """
     # enforce array type
     values = np.array(values)
     # rebase to zero as first value
