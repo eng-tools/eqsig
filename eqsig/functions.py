@@ -1,4 +1,6 @@
 import numpy as np
+import scipy
+from eqsig.single import Signal, AccSignal
 
 
 def time_series_from_motion(motion, dt):
@@ -74,3 +76,94 @@ def determine_delta_peak_only_series(values):
     delta_peaks_series = np.zeros_like(values)
     np.put(delta_peaks_series, non_zero_indices, cleaned_delta_peak_series)
     return delta_peaks_series
+
+
+def fas2signal(fas, dt, stype="signal"):
+    """
+    Convert a fourier spectrum to time series signal
+
+    :param fas: positive part only
+    :param dt: time step of time series
+    :return:
+    """
+    n = 2 * len(fas)
+    # fa = scipy.fft(self.values, n=n)
+    # points = int(n_factor / 2)
+    a = np.zeros(n)
+    a[0:n // 2] = fas
+    a[n // 2:] = np.flip(fas, axis=0)
+    a /= dt
+    a *= 2
+    # fa_spectrum = fa[range(points)] * self.dt
+    # fa_frequencies = np.arange(points) / (2 * points * self.dt)
+    s = np.fft.ifft(a)
+    s = s[:int(len(s) / 2)]
+    if stype == 'signal':
+        return Signal(s, dt)
+    else:
+        return AccSignal(s, dt)
+
+
+def generate_fa_spectrum(sig):
+    npts = len(sig.values)
+    n_factor = 2 ** int(np.ceil(np.log2(npts)))
+    fa = scipy.fft(sig.values, n=n_factor)
+    points = int(n_factor / 2)
+    assert len(fa) == n_factor
+    fa_spectrum = fa[range(points)] * sig.dt
+    fa_frequencies = np.arange(points) / (2 * points * sig.dt)
+    return fa_spectrum, fa_frequencies
+
+
+def acc2acc(values, dt):
+    npts = len(values)
+    n_factor = 2 ** int(np.ceil(np.log2(npts)))
+    fa = scipy.fft(values, n=n_factor)
+    points = int(n_factor / 2)
+    # assert len(fa) == n_factor
+    fas = fa[range(points)] * dt
+    fa_zero = fa[points]
+    fa_frequencies = np.arange(points) / (2 * points * dt)
+    n = 2 * len(fas)
+    # fa = scipy.fft(self.values, n=n)
+    # points = int(n_factor / 2)
+    a = np.zeros(len(fa), dtype=complex)
+    # a[0] = 0
+    a[1:n // 2] = fas[1:]
+    a[n // 2 + 1:] = np.flip(np.conj(fas[1:]), axis=0)
+    a /= dt
+    # plt.plot(fa)
+    # plt.plot(a)
+    plt.plot(np.imag(fa), np.imag(a))
+    # plt.plot(fas / dt)
+    plt.show()
+    # fa_spectrum = fa[range(points)] * self.dt
+    # fa_frequencies = np.arange(points) / (2 * points * self.dt)
+    s = np.fft.ifft(fa, n=n_factor)
+    # s = s[:int(len(s) / 2)]
+    s = s[:len(values)]
+    plt.plot(values)
+    plt.plot(s)
+    plt.show()
+
+    # return fa_spectrum, fa_frequencies
+
+
+
+if __name__ == '__main__':
+    from tests.conftest import TEST_DATA_DIR
+    import matplotlib.pyplot as plt
+    import eqsig
+    record_path = TEST_DATA_DIR
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_step = 0.01
+    rec = np.loadtxt(record_path + record_filename)
+    acc2acc(rec, motion_step)
+    # acc_signal = eqsig.AccSignal(rec, motion_step)
+    # fa_spectrum, fa_frequencies = generate_fa_spectrum(acc_signal)
+    # asig2 = fas2signal(fa_spectrum, motion_step, stype="acc-signal")
+    # plt.plot(acc_signal.time, acc_signal.values)
+    # plt.plot(asig2.time, asig2.values)
+    #
+    # plt.semilogx(fa_frequencies, abs(fa_spectrum))
+    # plt.show()
