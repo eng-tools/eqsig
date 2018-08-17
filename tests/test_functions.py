@@ -1,5 +1,7 @@
 import numpy as np
 import eqsig
+import scipy
+from eqsig import functions
 
 from tests.conftest import TEST_DATA_DIR
 
@@ -75,10 +77,42 @@ def test_determine_peaks_only_series_with_nonchanging_values():
     assert np.isclose(cum_peaks, expected_sum), cum_peaks
 
 
+def test_fa_spectrum_conversion():
+    record_path = TEST_DATA_DIR
+    record_filename = 'test_motion_dt0p01.txt'
+    dt = 0.01
+    values = np.loadtxt(record_path + record_filename)
+
+    npts = len(values)
+    n_factor = 2 ** int(np.ceil(np.log2(npts)))
+    fa = scipy.fft(values, n=n_factor)
+    points = int(n_factor / 2)
+    fas = fa[range(points)] * dt
+    faf = np.arange(points) / (2 * points * dt)
+    n = 2 * len(fas)
+    asig = eqsig.AccSignal(values, dt)
+    fas_eqsig, faf_eqsig = functions.generate_fa_spectrum(asig)
+
+    assert np.isclose(fas, fas_eqsig).all()
+    assert np.isclose(faf, faf_eqsig).all()
+
+    a = np.zeros(len(fa), dtype=complex)
+    a[1:n // 2] = fas[1:]
+    a[n // 2 + 1:] = np.flip(np.conj(fas[1:]), axis=0)
+    a /= dt
+    sig = np.fft.ifft(fa, n=n_factor)
+    sig = sig[:len(values)]
+    assert np.isclose(np.sum(np.abs(sig)), np.sum(np.abs(values)))
+    asig2 = functions.fas2signal(fas_eqsig, dt, stype="signal")
+    trimmed = asig2.values[:len(values)]
+    assert np.isclose(np.sum(np.abs(trimmed)), np.sum(np.abs(values)))
+
+
 if __name__ == '__main__':
-    test_determine_peaks_only_series_with_sine_wave()
-    test_determine_peaks_only_series_with_triangle_series()
-    test_determine_peaks_only_series_with_ground_motion()
-    test_determine_peaks_only_series_with_a_double_peak_and_offset()
-    test_determine_peaks_only_series_with_nonchanging_values()
-    test_determine_peaks_only_series_with_non_zero_end()
+    test_fa_spectrum_conversion()
+    # test_determine_peaks_only_series_with_sine_wave()
+    # test_determine_peaks_only_series_with_triangle_series()
+    # test_determine_peaks_only_series_with_ground_motion()
+    # test_determine_peaks_only_series_with_a_double_peak_and_offset()
+    # test_determine_peaks_only_series_with_nonchanging_values()
+    # test_determine_peaks_only_series_with_non_zero_end()
