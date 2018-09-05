@@ -8,7 +8,7 @@ def time_series_from_motion(motion, dt):
     return np.linspace(0, dt * (npts + 1), npts)
 
 
-def determine_indices_of_peaks(values):
+def determine_indices_of_peaks_for_cleaned(values):
     """
     Determines the position of values that form a local peak in a signal.
 
@@ -27,17 +27,6 @@ def determine_indices_of_peaks(values):
     return peak_indices
 
 
-# def determine_peaks_only_series(values):
-#     diff = np.diff(values)
-#     # if negative then direction has switched
-#     direction_switch = diff[1:] * diff[:-1]
-#     peaks = np.where(direction_switch < 0, 1, 0)
-#     # peaks array is shorter by two, indices refer +1, add zeros at start and end
-#     peaks = np.insert(peaks, 0, 0)
-#     peaks = np.insert(peaks, len(peaks), 0)  # don't use -1 here
-#     return values * peaks
-
-
 def determine_peak_only_series_4_cleaned_data(values):
     """
     Determines the
@@ -47,7 +36,7 @@ def determine_peak_only_series_4_cleaned_data(values):
     :param values:
     :return:
     """
-    peak_indices = determine_indices_of_peaks(values)
+    peak_indices = determine_indices_of_peaks_for_cleaned(values)
     peak_values = np.take(values, peak_indices)
     signs = np.where(np.mod(np.arange(len(peak_values)), 2), -1, 1)
     delta_peaks = np.where(-signs * peak_values < 0, -np.abs(peak_values), np.abs(peak_values))
@@ -66,7 +55,7 @@ def determine_peak_only_delta_series_4_cleaned_data(values):
     :param values:
     :return:
     """
-    peak_indices = determine_indices_of_peaks(values)
+    peak_indices = determine_indices_of_peaks_for_cleaned(values)
     peak_values = np.take(values, peak_indices)
     delta_peaks = np.diff(peak_values)
     delta_peaks = np.insert(delta_peaks, 0, 0)
@@ -91,6 +80,32 @@ def clean_out_non_changing(values):
 
     cleaned_values = np.take(values, non_zero_indices)
     return cleaned_values, non_zero_indices
+
+
+def get_peak_indices(values):
+    """
+    Creates an array with the indices of peaks.
+
+    Parameters
+    ----------
+    :param values: array_like, array of values
+    :return:
+
+    Examples
+    --------
+    >>> values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
+    np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
+    >>> determine_indices_of_peaks_for_cleaned(values)
+    np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
+    """
+    # enforce array type
+    values = np.array(values, dtype=float)
+    # remove all non-changing values
+    cleaned_values, non_zero_indices = clean_out_non_changing(values)
+    # cleaned_values *= np.sign(cleaned_values[1])  # ensure first value is increasing
+    peak_cleaned_indices = determine_indices_of_peaks_for_cleaned(cleaned_values)
+    peak_full_indices = np.take(non_zero_indices, peak_cleaned_indices)
+    return peak_full_indices
 
 
 def determine_peaks_only_delta_series(values):
@@ -186,3 +201,15 @@ def generate_fa_spectrum(sig):
     fa_spectrum = fa[range(points)] * sig.dt
     fa_frequencies = np.arange(points) / (2 * points * sig.dt)
     return fa_spectrum, fa_frequencies
+
+
+if __name__ == '__main__':
+    values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
+    peak_indices = get_peak_indices(values)
+    peaks_series = np.zeros_like(values)
+    np.put(peaks_series, peak_indices, values)
+    expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
+    assert np.sum(abs(peak_indices - expected)) == 0
+    # print(indices)
+    # print(values)
+    # print(peaks_series)

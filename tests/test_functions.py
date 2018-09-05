@@ -161,6 +161,14 @@ def test_fa_spectrum_conversion():
     assert np.isclose(np.sum(np.abs(trimmed)), np.sum(np.abs(values)))
 
 
+def test_get_peak_indices():
+    values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
+    peak_indices = functions.get_peak_indices(values)
+    peaks_series = np.zeros_like(values)
+    np.put(peaks_series, peak_indices, values)
+    expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
+    assert np.sum(abs(peak_indices - expected)) == 0
+
 if __name__ == '__main__':
     test_determine_peaks_only_series_with_non_zero_end()
     # test_fa_spectrum_conversion()
