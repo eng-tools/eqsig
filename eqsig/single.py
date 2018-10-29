@@ -132,23 +132,12 @@ class Signal(object):
         :param band: range to smooth over
         """
         lf = np.log10(self.smooth_freq_range)
-        smooth_fa_frequencies = np.logspace(lf[0], lf[1], self.smooth_freq_points, base=10)
+
         fa_frequencies = self.fa_frequencies
         fa_spectrum = self.fa_spectrum
-        for i in range(smooth_fa_frequencies.size):
-            f_centre = smooth_fa_frequencies[i]
-            amp_array = np.log10((fa_frequencies / f_centre) ** band)
-
-            amp_array[0] = 0
-
-            wb_vals = np.zeros((len(amp_array)))
-            for j in range(len(amp_array)):
-                if amp_array[j] == 0:
-                    wb_vals[j] = 1
-                else:
-                    wb_vals[j] = (np.sin(amp_array[j]) / amp_array[j]) ** 4
-
-            self._smooth_fa_spectrum[i] = (sum(abs(fa_spectrum) * wb_vals) / sum(wb_vals))
+        smooth_fa_frequencies = np.logspace(lf[0], lf[1], self.smooth_freq_points, base=10)
+        self._smooth_fa_spectrum = generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies,
+                                                               fa_spectrum, band=band)
         self._smooth_fa_frequencies = smooth_fa_frequencies
         self._cached_smooth_fa = True
 
@@ -420,8 +409,8 @@ class AccSignal(Signal):
         This provides a correction to an acceleration time series
         """
 
-        self.remove_average()
-        self.butter_pass([0.1, 10])
+        # self.remove_average()
+        # self.butter_pass([0.1, 10])
 
         disp = ss.detrend(self.displacement)
         vel = np.zeros(self.npts)
@@ -430,6 +419,41 @@ class AccSignal(Signal):
             vel[i + 1] = (disp[i + 1] - disp[i]) / self.dt
             acc[i + 1] = (vel[i + 1] - vel[i]) / self.dt
         self.reset_values(acc)
+
+    def remove_rolling_average(self, mtype="velocity", freq_window=5):
+        """
+
+        :param mtype:
+        :param freq_window: float, window for applying the rolling average
+        :return:
+        """
+        if mtype == "velocity":
+            mot = self.velocity
+        else:
+            mot = self.values
+        width = int(1. / (freq_window * self.dt))
+        if width < 1:
+            raise ValueError("freq_window to high")
+        roll = np.zeros_like(mot)
+        for i in range(len(mot)):
+            if i < width / 2:
+                cc = i + int(width / 2) + 1
+                roll[i] = np.mean(mot[:cc])
+            elif i > len(mot) - width / 2:
+                cc = i - int(width / 2)
+                roll[i] = np.mean(mot[cc:])
+            else:
+                cc1 = i - int(width / 2)
+                cc2 = i + int(width / 2) + 1
+                roll[i] = np.mean(mot[cc1:cc2])
+        if mtype == "velocity":
+            velocity = self.velocity - roll
+            acc = np.diff(velocity) / self.dt
+            acc = np.insert(acc, 0, velocity[0] / self.dt)
+            self._values = acc
+        else:
+            self._values -= roll
+        self.clear_cache()
 
     def rebase_displacement(self):
         """
@@ -509,7 +533,7 @@ class AccSignal(Signal):
     def generate_cumulative_stats(self):
         """
 
-        CAV:
+        CAV: Cumulative Absolute velocity
 
         ref:
         Electrical Power Research Institute. Standardization of the Cumulative
@@ -645,6 +669,25 @@ def time_indices(npts, dt, start, end, index):
     if e_index > npts:
         raise exceptions.SignalProcessingWarning("Cut point is greater than time series length")
     return s_index, e_index
+
+
+def generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies, fa_spectrum, band=40):
+    smooth_fa_spectrum = np.zeros_like(smooth_fa_frequencies)
+    for i in range(smooth_fa_frequencies.size):
+        f_centre = smooth_fa_frequencies[i]
+        amp_array = np.log10((fa_frequencies / f_centre) ** band)
+
+        amp_array[0] = 0
+
+        wb_vals = np.zeros((len(amp_array)))
+        for j in range(len(amp_array)):
+            if amp_array[j] == 0:
+                wb_vals[j] = 1
+            else:
+                wb_vals[j] = (np.sin(amp_array[j]) / amp_array[j]) ** 4
+
+        smooth_fa_spectrum[i] = (sum(abs(fa_spectrum) * wb_vals) / sum(wb_vals))
+    return smooth_fa_spectrum
 
 
 def significant_range(fas1_smooth, ratio=15):  # TODO: move to signalpy
