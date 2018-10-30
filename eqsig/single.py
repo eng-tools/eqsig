@@ -8,6 +8,7 @@ from eqsig import exceptions
 import eqsig.duhamels as dh
 import eqsig.displacements as sd
 import eqsig.measures as sm
+from eqsig import measures
 
 
 class Signal(object):
@@ -526,7 +527,7 @@ class AccSignal(Signal):
             self.a_rms10 = -1.
 
         # Trifunac and Brady
-        self.sd_start, self.sd_end = sm.significant_duration(self.values, self.dt)
+        self.sd_start, self.sd_end = sm.calc_significant_duration(self.values, self.dt)
 
         self.t_595 = self.sd_end - self.sd_start
 
@@ -540,11 +541,9 @@ class AccSignal(Signal):
         Absolute Velocity. 1991. EPRI TR-100082-1'2, Palo Alto, California.
         """
         # Arias intensity in m/s
-        acc2 = self.values ** 2
-        self.arias_intensity_series = np.pi / (2 * 9.81) * scipy.integrate.cumtrapz(acc2, dx=self.dt, initial=0)
+        self.arias_intensity_series = measures.calc_arias_intensity(self)
         self.arias_intensity = self.arias_intensity_series[-1]
-        abs_acc = np.abs(self.values)
-        self.cav_series = scipy.integrate.cumtrapz(abs_acc, dx=self.dt, initial=0)
+        self.cav_series = measures.calc_cav(self)
         self.cav = self.cav_series[-1]
 
     @property
@@ -571,18 +570,9 @@ class AccSignal(Signal):
         if "isv_series" in self._cached_params:
             return self._cached_params["isv_series"]
         else:
-            return self._calculate_isv_series()
-
-    def _calculate_isv_series(self):
-        """
-        Calculates the integral of the squared velocity
-
-         See Kokusho (2013)
-        :return:
-        """
-        isv_series = scipy.integrate.cumtrapz(self.velocity ** 2, dx=self.dt, initial=0)
-        self._cached_params["isv_series"] = isv_series
-        return isv_series
+            isv_series = measures.calc_isv(self)
+            self._cached_params["isv_series"] = isv_series
+            return isv_series
 
     def generate_all_motion_stats(self):
         """
