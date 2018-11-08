@@ -203,7 +203,7 @@ def combine_at_angle(acc_sig_ns, acc_sig_we, angle):
     return new_sig
 
 
-def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter="arias_intensity", points=100):
+def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter=None, func=None, points=100):
     """
     Computes the rotated value of a parameter.
     :param acc_sig_ns:
@@ -221,7 +221,19 @@ def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter="arias_i
     pvalues = []
     for i in range(len(degrees)):
         new_sig = combine_at_angle(acc_sig_ns, acc_sig_we, degrees[i])
-        new_sig.generate_all_motion_stats()
-        pvalues.append(getattr(new_sig, parameter))
+        if parameter == "arias_intensity":
+            new_sig.generate_all_motion_stats()
+        if parameter is not None:
+            assert func is None
+            pvalues.append(getattr(new_sig, parameter))
+        elif func is not None:
+            val = func(new_sig)
+            if hasattr(val, "__len__"):
+                pvalues.append(val[-1])
+            else:
+                pvalues.append(val)
+        else:
+            raise ValueError("parameter or func must be not None")
 
     return degrees, np.array(pvalues)
+
