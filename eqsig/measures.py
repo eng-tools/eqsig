@@ -181,3 +181,21 @@ def max_fa_period(asig):
     max_index = np.argmax(asig.fa_spectrum)
     max_period = 1. / asig.fa_frequencies[max_index]
     return max_period
+
+
+def calc_bandwidth_f_min(asig, ratio=0.707):
+    fas1_smooth = asig.smooth_fa_spectrum
+    max_fas1 = max(fas1_smooth)
+    lim_fas = max_fas1 * ratio
+    ind2 = np.where(fas1_smooth > lim_fas)
+    min_freq = asig.smooth_fa_frequencies[ind2[0][0]]
+    return min_freq
+
+
+def calc_bandwidth_f_max(asig, ratio=0.707):
+    fas1_smooth = asig.smooth_fa_spectrum
+    max_fas1 = max(fas1_smooth)
+    lim_fas = max_fas1 * ratio
+    ind2 = np.where(fas1_smooth > lim_fas)
+    max_freq = asig.smooth_fa_frequencies[ind2[0][-1]]
+    return max_freq
