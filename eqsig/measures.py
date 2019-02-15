@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.integrate
 from eqsig import duhamels
+from eqsig.exceptions import deprecation
 
 
 def calc_significant_duration(motion, dt, start=0.05, end=0.95):
@@ -25,6 +26,7 @@ def calc_significant_duration(motion, dt, start=0.05, end=0.95):
 
 def calculate_peak(motion):
     """Calculates the peak absolute response"""
+    deprecation("Use calc_peak instead of calculate_peak")
     return max(abs(min(motion)), max(motion))
 
 
@@ -199,3 +201,20 @@ def calc_bandwidth_f_max(asig, ratio=0.707):
     ind2 = np.where(fas1_smooth > lim_fas)
     max_freq = asig.smooth_fa_frequencies[ind2[0][-1]]
     return max_freq
+
+
+def calc_bracketed_duration(asig, threshold):
+    abs_motion = abs(asig.values)
+
+    time = np.arange(asig.npts) * asig.dt
+    # Bracketed duration
+    ind01 = np.where(abs_motion / 9.8 > threshold)
+    time2 = time[ind01]
+    try:
+        t_bracket = time2[-1] - time2[0]
+        # rms acceleration in m/s/s
+        a_rms01 = np.sqrt(1 / asig.t_b01 * np.trapz((asig.values[ind01[0][0]:ind01[0][-1]]) ** 2, dx=asig.dt))
+    except IndexError:
+        t_bracket = -1.
+        a_rms01 = -1.
+    return t_bracket

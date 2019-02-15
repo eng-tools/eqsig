@@ -1,5 +1,3 @@
-__author__ = 'maximmillen'
-
 import numpy as np
 import scipy.signal as ss
 import scipy
@@ -9,6 +7,7 @@ import eqsig.duhamels as dh
 import eqsig.displacements as sd
 import eqsig.measures as sm
 from eqsig import measures
+from eqsig.exceptions import deprecation
 
 
 class Signal(object):
@@ -47,6 +46,7 @@ class Signal(object):
 
     def reset_values(self, new_values):
         self._values = new_values
+        self._npts = len(new_values)
         self.clear_cache()
 
     @property
@@ -324,9 +324,6 @@ class AccSignal(Signal):
     _s_a = None
     _s_v = None
     _s_d = None
-    pga = 0.0
-    pgv = 0.0
-    pgd = 0.0
     t_b01 = 0.0
     t_b05 = 0.0
     t_b10 = 0.0
@@ -491,9 +488,34 @@ class AccSignal(Signal):
         """
         Determines the peak signal values
         """
-        self.pga = sm.calculate_peak(self.values)
-        self.pgv = sm.calculate_peak(self.velocity)
-        self.pgd = sm.calculate_peak(self.displacement)
+        deprecation("generate_peak_values() is no longer in use, all peak values are lazy loaded.")
+
+    @property
+    def pga(self):
+        if "pga" in self._cached_params:
+            return self._cached_params["pga"]
+        else:
+            pga = sm.calc_peak(self.values)
+            self._cached_params["pga"] = pga
+            return pga
+
+    @property
+    def pgv(self):
+        if "pgv" in self._cached_params:
+            return self._cached_params["pgv"]
+        else:
+            pgv = sm.calc_peak(self.velocity)
+            self._cached_params["pgv"] = pgv
+            return pgv
+
+    @property
+    def pgd(self):
+        if "pgd" in self._cached_params:
+            return self._cached_params["pgd"]
+        else:
+            pgd = sm.calc_peak(self.displacement)
+            self._cached_params["pgd"] = pgd
+            return pgd
 
     def generate_duration_stats(self):
         abs_motion = abs(self.values)
@@ -509,6 +531,7 @@ class AccSignal(Signal):
         except IndexError:
             self.t_b01 = -1.
             self.a_rms01 = -1.
+
         ind05 = np.where(abs_motion / 9.8 > 0.05)  # 0.05g
         time05 = time[ind05]
         try:
@@ -584,9 +607,6 @@ class AccSignal(Signal):
         self.generate_cumulative_stats()
 
     def reset_all_motion_stats(self):
-        self.pga = 0.0
-        self.pgv = 0.0
-        self.pgd = 0.0
         self.t_b01 = 0.0
         self.t_b05 = 0.0
         self.t_b10 = 0.0

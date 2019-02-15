@@ -1,4 +1,4 @@
-__author__ = 'maximmillen'
+import warnings
 
 
 class SignalProcessingError(Exception):

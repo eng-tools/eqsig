@@ -1,5 +1,7 @@
 import numpy as np
 import scipy
+
+import eqsig
 from eqsig.single import Signal, AccSignal
 
 
@@ -213,3 +215,20 @@ if __name__ == '__main__':
     # print(indices)
     # print(values)
     # print(peaks_series)
+
+
+def interp_to_approx_dt(asig, target_dt=0.01, even=True):
+    factor = asig.dt / target_dt
+    if factor == 1:
+        pass
+    elif factor > 1:
+        factor = int(np.ceil(factor))
+    else:
+        factor = 1 / np.floor(1 / factor)
+    t_int = np.arange(len(asig.values))
+    new_npts = factor * len(asig.values)
+    if even:
+        new_npts = 2 * int(new_npts / 2)
+    t_db = np.arange(new_npts) / factor
+    acc_interp = np.interp(t_db, t_int, asig.values)
+    return eqsig.AccSignal(acc_interp, asig.dt / factor)

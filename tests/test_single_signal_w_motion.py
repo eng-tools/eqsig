@@ -111,9 +111,6 @@ def test_fourier_spectra_with_motion():
     org_phases = np.angle(acc_signal.fa_spectrum)
     ss_phases = np.angle(np.fft.rfft(rec2))[:len(org_phases)] + 0.0001
 
-    for i in range(10):
-        print(phase[i], acc_signal.fa_spectrum[i + 1], org_phases[i + 1])
-
     assert ct.isclose(freqs[0], freq_eqsig[1], rel_tol=0.001), freqs[0]
     assert ct.isclose(freqs[20], freq_eqsig[21], rel_tol=0.0001)
     assert ct.isclose(freqs[-1], freq_eqsig[-1], rel_tol=0.001)

@@ -32,7 +32,6 @@ def test_peak_values():
     motion_step = 0.01
     rec = np.loadtxt(record_path + record_filename)
     acc_signal = AccSignal(rec, motion_step)
-    acc_signal.generate_peak_values()
     true_pga = 1.41
     true_pgv = 0.26006
     true_pgd = 0.07278134  # eqsig==0.4.12

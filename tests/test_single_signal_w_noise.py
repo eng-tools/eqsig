@@ -14,7 +14,6 @@ def load_test_record_from_file(record_path, record_filename, scale=1):
 
     acc = []
     motion_step = float(b[0].split("=")[1])
-    print('values dt: ', motion_step)
     for i in range(len(b)):
         if i > 3:
             dat = b[i].split()

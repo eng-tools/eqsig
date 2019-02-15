@@ -12,7 +12,6 @@ def test_determine_pseudo_cyclic_peak_only_series_with_triangle_series():
     expected_sum = cum_abs_delta_values / 2
     peaks_only = eqsig.determine_pseudo_cyclic_peak_only_series(values)
     cum_peaks = np.sum(np.abs(peaks_only))
-    print(cum_peaks, expected_sum)
     assert np.isclose(cum_peaks, expected_sum)
 
 
@@ -119,7 +118,6 @@ def test_determine_peaks_only_series_with_nonchanging_values():
 
     peaks_only = eqsig.determine_pseudo_cyclic_peak_only_series(values)
     cum_peaks = np.sum(peaks_only)
-    print(cum_peaks, expected_sum)
     assert np.isclose(cum_peaks, expected_sum), cum_peaks
 
     values = np.array([0, 1, 1, 3, -5, 0])  # constant the no reverse
