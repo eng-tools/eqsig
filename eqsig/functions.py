@@ -232,3 +232,29 @@ def interp_to_approx_dt(asig, target_dt=0.01, even=True):
     t_db = np.arange(new_npts) / factor
     acc_interp = np.interp(t_db, t_int, asig.values)
     return eqsig.AccSignal(acc_interp, asig.dt / factor)
+
+
+def get_switched_peak_indices(asig):
+    values = asig
+    if hasattr(asig, "values"):
+        values = asig.values
+    peak_indices = eqsig.get_peak_indices(values)
+    peak_values = np.take(values, peak_indices)
+
+    last = peak_values[0]
+    new_peak_indices = []
+    peak_values_set = [0]
+    peak_indices_set = [0]
+    for i in range(1, len(peak_values)):
+        if peak_values[i] * last <= 0:  # only add index if sign changes (negative number)
+            i_max_set = np.argmax(np.abs(peak_values_set))
+            new_peak_indices.append(peak_indices_set[i_max_set])
+
+            last = peak_values[i]
+            peak_values_set = []  # reset set
+            peak_indices_set = []
+
+        peak_values_set.append(peak_values[i])
+        peak_indices_set.append(i)
+    switched_peak_indices = np.take(peak_indices, new_peak_indices)
+    return switched_peak_indices
