@@ -22,17 +22,25 @@ class Signal(object):
         """
         A time series object
 
-        :param values: values of the time series
-        :param dt: the time step
-        :param label: A name for the signal
-        :param smooth_freq_range: the frequency range for plotting
-        :param verbose: level of console output
-        :param ccbox: colour id
+        Parameters
+        ----------
+        values: array_like
+            values of the time series
+        dt: float
+            the time step
+        label: str, optional
+            A name for the signal
+        smooth_freq_range: tuple, optional
+            The frequency range for computing the smooth FAS
+        verbose: int, optional
+            Level of console output
+        ccbox: int, optional
+            colour id for plotting
         :return:
         """
         self.verbose = verbose
         self._dt = dt
-        self._values = np.array(values)  # TODO: auto computes all properties (maybe just in debugger), make them lazy
+        self._values = np.array(values)
         self.label = label
         self._smooth_freq_range = smooth_freq_range
         self._npts = len(self.values)
@@ -66,9 +74,7 @@ class Signal(object):
 
     @property
     def fa_spectrum(self):
-        """
-        Generate the one-sided Fourier Amplitude spectrum
-        """
+        """Generate the one-sided Fourier Amplitude spectrum"""
         if not self._cached_fa:
             self.generate_fa_spectrum()
         return self._fa_spectrum
@@ -118,10 +124,7 @@ class Signal(object):
         return self._smooth_fa_spectrum
 
     def clear_cache(self):
-        """
-        Resets the dynamically calculated properties.
-        :return:
-        """
+        """Resets the dynamically calculated properties."""
         self._cached_smooth_fa = False
         self._cached_fa = False
 
@@ -130,7 +133,10 @@ class Signal(object):
         Calculates the smoothed Fourier Amplitude Spectrum
         using the method by Konno and Ohmachi 1998
 
-        :param band: range to smooth over
+        Parameters
+        ----------
+        band: int
+            range to smooth over
         """
         lf = np.log10(self.smooth_freq_range)
 
@@ -156,7 +162,7 @@ class Signal(object):
         :param kwargs:
         :return:
         """
-        if isinstance(cut_off, list) or isinstance(cut_off, tuple) or isinstance(cut_off, np.array):
+        if isinstance(cut_off, list) or isinstance(cut_off, tuple) or isinstance(cut_off, np.Array):
             pass
         else:
             raise ValueError("cut_off must be list, tuple or array.")
@@ -246,12 +252,23 @@ class Signal(object):
     def get_section_average(self, start=0, end=-1, index=False):
         """
         Gets the average value of a part of series.
-        Common use is so that it can be patched with another record.
 
-        :param start: int or float, optional, Section start point
-        :param end: int or float, optional, Section end point
-        :param index: bool, optional, if False then start and end are considered values in time.
-        :return float, The mean value of the section.
+        Common use is so that it can be patched
+        with another record.
+
+        Parameters
+        ----------
+        start: int or float, optional
+            Section start point
+        end: int or float, optional
+            Section end point
+        index: bool, optional
+            if False then start and end are considered values in time.
+
+        Returns
+        -------
+        float
+            The mean value of the section.
         """
         return get_section_average(self, start=start, end=end, index=index)
 
@@ -645,10 +662,14 @@ def get_section_average(series, start=0, end=-1, index=False):
     Common use is so that it can be patched with another record.
 
     :param series: A TimeSeries object
-    :param start: int or float, optional, Section start point
-    :param end: int or float, optional, Section end point
-    :param index: bool, optional, if False then start and end are considered values in time.
-    :return float, The mean value of the section.
+    :param start: int or float, optional,
+        Section start point
+    :param end: int or float, optional,
+        Section end point
+    :param index: bool, optional,
+        if False then start and end are considered values in time.
+    :return float,
+        The mean value of the section.
     """
     s_index, e_index = time_indices(series.npts, series.dt, start, end, index)
 

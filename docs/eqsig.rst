@@ -60,14 +60,6 @@ eqsig.multiple module
     :undoc-members:
     :show-inheritance:
 
-eqsig.plotting module
----------------------
-
-.. automodule:: eqsig.plotting
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 eqsig.single module
 -------------------
 

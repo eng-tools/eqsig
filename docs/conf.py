@@ -14,19 +14,23 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))  # seem to not work
+from datetime import date
 
+file_loc = os.path.split(__file__)[0]
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(file_loc), '.')))
 
+import eqsig
 # -- Project information -----------------------------------------------------
 
-project = 'eqsig'
-copyright = '2018, Maxim Millen'
-author = 'Maxim Millen'
+# project = eqsig.__about__.__project__
+# copyright = eqsig.__about__.__copyright__
+author = eqsig.__about__.__author__
+copyright = u'Copyright 2016 - {0} {1}'.format(date.today().year, author)
 
 # The short X.Y version
-version = ''
+version = eqsig.__about__.__version__
 # The full version, including alpha/beta/rc tags
-release = ''
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -44,6 +48,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
 

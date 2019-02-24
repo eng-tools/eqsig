@@ -135,7 +135,7 @@ def calc_isv(acc_sig):
     """
     Calculates the integral of the squared velocity
 
-     See Kokusho (2013)
+    See Kokusho (2013)
     :return:
     """
     return scipy.integrate.cumtrapz(acc_sig.velocity ** 2, dx=acc_sig.dt, initial=0)

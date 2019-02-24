@@ -79,13 +79,17 @@ class Cluster(object):
 
     def combine_motions(self, f_ch, low_index=0, high_index=1, **kwargs):
         """
-        This method combined the two ground motions by taking the high frequency of one values
+        This method combined the two ground motions by taking
+        the high frequency of one values
         and the low frequency of the other.
         WARNING: records must have the same time step!!!
-        f_ch: is the frequency change point
-        order: refers to the order of the BW filter
-        highfreq: if 0 then values[0] is used for high frequency content
-                  if 1 then values[1] is used for high frequency content
+
+        Parameters
+        ----------
+        :param f_ch: is the frequency change point
+        :param low_index: --
+        :param high_index: --
+        :param order: refers to the order of the BW filter
         combined values is returned as self.combo
         """
         order = kwargs.get('order', 4)
@@ -206,6 +210,7 @@ def combine_at_angle(acc_sig_ns, acc_sig_we, angle):
 def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter=None, func=None, points=100):
     """
     Computes the rotated value of a parameter.
+
     :param acc_sig_ns:
     :param acc_sig_we:
     :param angle_off_ns: Angle from North in degrees of the primary signal.

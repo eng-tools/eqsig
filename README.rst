@@ -13,6 +13,10 @@
     :target: https://github.com/eng-tools/eqsig/blob/master/LICENSE
     :alt: License
 
+.. image:: https://eng-tools.github.io/static/img/ecp-logo.svg
+    :target: https://eng-tools.github.io
+    :alt: ECP project
+
 *****
 eqsig
 *****
@@ -22,6 +26,7 @@ A Python package for seismic signal processing.
 How to Use
 ==========
 
+[Eqsig documentation](https://eqsig.readthedocs.io)
 
 Examples
 --------

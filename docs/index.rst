@@ -6,10 +6,13 @@
 Welcome to eqsig's documentation!
 =================================
 
+Release v\ |version|
+
 .. toctree::
    :maxdepth: 2
 
    eqsig
+   install
 
 
 

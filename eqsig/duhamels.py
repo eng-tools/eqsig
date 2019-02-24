@@ -193,7 +193,7 @@ def pseudo_response_spectra(motion, dt, periods, xi):
     """
     Computes the maximum response displacement, pseudo velocity and pseudo acceleration.
 
-     :param motion: array floats, acceleration in m/s2
+    :param motion: array floats, acceleration in m/s2
     :param dt: float, the time step
     :param periods: array floats, The period of SDOF oscilator
     :param xi: float, fraction of critical damping (e.g. 0.05)
@@ -212,7 +212,7 @@ def response_series(motion, dt, periods, xi):
     """
     Computes the elastic response to the acceleration time series
 
-     :param motion: array floats, acceleration in m/s2
+    :param motion: array floats, acceleration in m/s2
     :param dt: float, the time step
     :param periods: array floats, The period of SDOF oscilator
     :param xi: float, fraction of critical damping (e.g. 0.05)
@@ -224,7 +224,8 @@ def response_series(motion, dt, periods, xi):
 def true_response_spectra(motion, dt, periods, xi):
     """
     Computes the actual maximum response values, not the pseudo values
-     :param motion: array floats, acceleration in m/s2
+
+    :param motion: array floats, acceleration in m/s2
     :param dt: float, the time step
     :param periods: array floats, The period of SDOF oscilator
     :param xi: float, fraction of critical damping (e.g. 0.05)
