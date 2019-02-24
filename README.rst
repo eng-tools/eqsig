@@ -92,3 +92,5 @@ Documentation
 -------------
 
 Built via Sphinx following: https://codeandchaos.wordpress.com/2012/07/30/sphinx-autodoc-tutorial-for-dummies/
+
+Docstrings follow numpy convention (in progress): https://numpydoc.readthedocs.io/en/latest/format.html
