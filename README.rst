@@ -84,6 +84,7 @@ To deploy the package to pypi.com you need to:
  2. Create a git tag and push to github, run: ``trigger_deploy.py`` or manually:
 
  .. code:: bash
+
     git tag 0.5.2 -m "version 0.5.2"
     git push --tags origin pypi
 
@@ -93,4 +94,11 @@ Documentation
 
 Built via Sphinx following: https://codeandchaos.wordpress.com/2012/07/30/sphinx-autodoc-tutorial-for-dummies/
 
+For development mode
+
+ 1. cd to docs
+ 2. Run ``make html``
+
 Docstrings follow numpy convention (in progress): https://numpydoc.readthedocs.io/en/latest/format.html
+
+To fix long_description in setup.py: ``pip install collective.checkdocs``, ``python setup.py checkdocs``
