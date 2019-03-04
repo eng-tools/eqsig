@@ -42,7 +42,7 @@ def calc_sir(acc_sig):
     ref:
     Dashti, S., Bray, J. D., Pestana, J. S., Riemer, M., and Wilson, D., 2010. Centrifuge testing to
     evaluate and mitigate liquefaction-induced building settlement mechanisms,
-    ASCE Journal of Geotechnical and Geoenv. Eng. 136, 918–929
+    ASCE Journal of Geotechnical and Geoenv. Eng. 136, 918-929
 
     :param acc_sig:
     :return:
