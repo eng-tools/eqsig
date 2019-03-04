@@ -8,11 +8,20 @@ def calc_significant_duration(motion, dt, start=0.05, end=0.95):
     """
     Computes the significant duration using cumulative acceleration according to Trifunac and Brady (1975).
 
-    :param motion: acceleration time series
-    :param dt: time step
-    :param start: threshold to start the duration
-    :param end: threshold to end the duration
-    :return:
+    Parameters
+    ----------
+    motion: array-like
+        acceleration time series
+    dt: float
+        time step
+    start: float, default=0.05
+        threshold to start the duration
+    end: float, default=0.95
+        threshold to end the duration
+
+    Returns
+    -------
+    tuple (start_time, end_time)
     """
 
     acc2 = motion ** 2
@@ -44,8 +53,14 @@ def calc_sir(acc_sig):
     evaluate and mitigate liquefaction-induced building settlement mechanisms,
     ASCE Journal of Geotechnical and Geoenv. Eng. 136, 918-929
 
-    :param acc_sig:
-    :return:
+    Parameters
+    ----------
+    acc_sig: eqsig.AccSignal
+        acceleration signal
+
+    Returns
+    -------
+    float
     """
     ai_total = acc_sig.arias_intensity
     t5, t75 = calc_significant_duration(acc_sig.values, acc_sig.dt)
@@ -58,8 +73,20 @@ def _raw_calc_arias_intensity(acc, dt):
 
 
 def calc_arias_intensity(acc_sig):
-    return _raw_calc_arias_intensity(acc_sig.values, acc_sig.dt)
+    """
+    Calculates the Arias Intensity
 
+    Parameters
+    ----------
+    acc_sig: eqsig.AccSignal
+
+    Returns
+    -------
+    array_like
+        A time series of the build up of Arias Intensity
+    """
+
+    return _raw_calc_arias_intensity(acc_sig.values, acc_sig.dt)
 
 
 def calc_cav(acc_sig):
@@ -180,6 +207,7 @@ def max_acceleration_period(asig):
 
 
 def max_fa_period(asig):
+    """Calculates the period corresponding to the maximum value in the Fourier amplitude spectrum"""
     max_index = np.argmax(asig.fa_spectrum)
     max_period = 1. / asig.fa_frequencies[max_index]
     return max_period
@@ -204,6 +232,19 @@ def calc_bandwidth_f_max(asig, ratio=0.707):
 
 
 def calc_bracketed_duration(asig, threshold):
+    """
+    Calculates the Bracketed duration based on some threshold
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal
+        Acceleration time series object
+    threshold: float
+        acceleration threshold to calculation duration start and end
+    Returns
+    -------
+    float
+    """
     abs_motion = abs(asig.values)
 
     time = np.arange(asig.npts) * asig.dt
