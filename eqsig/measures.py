@@ -81,7 +81,7 @@ def calc_cav_dp(asig):
     ref:
     Campbell KW, Bozorgnia Y. Predictive equations for the horizontal component of standardized
     cumulative absolute velocity as adapted for use in the shutdown of U.S. nuclear power plants.
-    Nucl Eng Des 2011;241:2558–69.
+    Nucl Eng Des 2011;241:2558-69.
 
     :param asig:
     :return:
