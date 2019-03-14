@@ -86,7 +86,7 @@ def clean_out_non_changing(values):
 
 def get_peak_indices(values):
     """
-    Creates an array with the indices of peaks.
+    Find the indices for all of the local maxima and minima
 
     Parameters
     ----------
@@ -195,6 +195,20 @@ def fas2signal(fas, dt, stype="signal"):
 
 
 def generate_fa_spectrum(sig):
+    """
+    Produces the Fourier amplitude spectrum
+
+    Parameters
+    ----------
+    sig: eqsig.Signal
+
+    Returns
+    -------
+    fa_spectrum: complex array_like
+        Complex values of the spectrum
+    fa_frequencies: array_like
+        Frequencies of the spectrum
+    """
     npts = len(sig.values)
     n_factor = 2 ** int(np.ceil(np.log2(npts)))
     fa = scipy.fft(sig.values, n=n_factor)
@@ -205,19 +219,26 @@ def generate_fa_spectrum(sig):
     return fa_spectrum, fa_frequencies
 
 
-if __name__ == '__main__':
-    values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
-    peak_indices = get_peak_indices(values)
-    peaks_series = np.zeros_like(values)
-    np.put(peaks_series, peak_indices, values)
-    expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
-    assert np.sum(abs(peak_indices - expected)) == 0
-    # print(indices)
-    # print(values)
-    # print(peaks_series)
-
-
 def interp_to_approx_dt(asig, target_dt=0.01, even=True):
+    """
+    Interpolate a signal to a new time step
+
+    Only a target time step is provided and the algorithm determines
+     what time step is best to minimise loss of data from aliasing
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal
+        Acceleration time series object
+    target_dt: float
+        Target time step
+    even: bool
+        If true then forces the number of time steps to be an even number
+
+    Returns
+    -------
+
+    """
     factor = asig.dt / target_dt
     if factor == 1:
         pass
@@ -235,6 +256,17 @@ def interp_to_approx_dt(asig, target_dt=0.01, even=True):
 
 
 def get_switched_peak_indices(asig):
+    """
+    Find the indices for largest peak between each zero crossing
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal
+
+    Returns
+    -------
+    array_like
+    """
     values = asig
     if hasattr(asig, "values"):
         values = asig.values

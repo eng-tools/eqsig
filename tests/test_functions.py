@@ -50,7 +50,7 @@ def test_determine_peaks_only_delta_series_with_sine_wave():
 def test_determine_pseudo_cyclic_peak_only_series_with_ground_motion():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
     cum_abs_delta_values = np.sum(np.abs(np.diff(rec)))
     expected_sum = cum_abs_delta_values / 2
     peaks_only = eqsig.determine_pseudo_cyclic_peak_only_series(rec)
@@ -61,7 +61,7 @@ def test_determine_pseudo_cyclic_peak_only_series_with_ground_motion():
 def test_determine_peaks_only_delta_series_with_ground_motion():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
     cum_abs_delta_values = np.sum(np.abs(np.diff(rec)))
     expected_sum = cum_abs_delta_values
     delta_peaks_only = eqsig.determine_peaks_only_delta_series(rec)
@@ -132,7 +132,7 @@ def test_fa_spectrum_conversion():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
     dt = 0.01
-    values = np.loadtxt(record_path + record_filename)
+    values = np.loadtxt(record_path + record_filename, skiprows=2)
 
     npts = len(values)
     n_factor = 2 ** int(np.ceil(np.log2(npts)))

@@ -17,5 +17,5 @@ def t_asig():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
     motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
     return AccSignal(rec, motion_step)

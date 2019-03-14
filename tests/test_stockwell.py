@@ -10,7 +10,7 @@ def test_stockwell_transform_then_inverse():
     record_path = TEST_DATA_DIR
     record_filename = 'test_motion_dt0p01.txt'
     motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
     acc_signal = AccSignal(rec, motion_step)
     acc2_signal = interp_to_approx_dt(acc_signal, 0.1)
     acc2_signal.swtf = stockwell.transform(acc2_signal.values)

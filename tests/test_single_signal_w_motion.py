@@ -1,48 +1,41 @@
 import numpy as np
 
+from eqsig import loader
 from eqsig.single import Signal, AccSignal
 from eqsig import checking_tools as ct
 from tests.conftest import TEST_DATA_DIR
 
 
 def test_remove_polyfit_1():
-    record_path = TEST_DATA_DIR
-    record_filename = 'test_motion_dt0p01.txt'
-    motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
-    acc_signal = Signal(rec, motion_step)
+    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
 
     # Remove any trend
-    acc_signal.remove_poly(poly_fit=1)
-    ssq_cleaned = np.sum(acc_signal.values ** 2)
+    asig.remove_poly(poly_fit=1)
+    ssq_cleaned = np.sum(asig.values ** 2)
 
     # Add a trend
-    acc_signal.add_series(np.linspace(0, 0.2, acc_signal.npts))
-    ssq_w_linear = np.sum(acc_signal.values ** 2)
+    asig.add_series(np.linspace(0, 0.2, asig.npts))
+    ssq_w_linear = np.sum(asig.values ** 2)
 
     # remove the trend
-    acc_signal.remove_poly(poly_fit=1)
-    ssq_corrected = np.sum(acc_signal.values ** 2)
+    asig.remove_poly(poly_fit=1)
+    ssq_corrected = np.sum(asig.values ** 2)
 
     assert not ct.isclose(ssq_cleaned, ssq_w_linear)
     assert ct.isclose(ssq_cleaned, ssq_corrected)
 
 
 def test_butterpass():
-    record_path = TEST_DATA_DIR
-    record_filename = 'test_motion_dt0p01.txt'
-    motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
-    acc_signal = Signal(rec, motion_step)
+    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
 
-    ssq_org = np.sum(acc_signal.values ** 2)
+    ssq_org = np.sum(asig.values ** 2)
 
-    x = np.linspace(0, 1.0, acc_signal.npts)
-    acc_signal.add_series(0.2 * x - 0.5 * x ** 2)
-    ssq_w_linear = np.sum(acc_signal.values ** 2)
+    x = np.linspace(0, 1.0, asig.npts)
+    asig.add_series(0.2 * x - 0.5 * x ** 2)
+    ssq_w_linear = np.sum(asig.values ** 2)
 
-    acc_signal.butter_pass([0.2, 25])
-    ssq_corrected = np.sum(acc_signal.values ** 2)
+    asig.butter_pass([0.2, 25])
+    ssq_corrected = np.sum(asig.values ** 2)
 
     assert ssq_org != ssq_w_linear
     assert ct.isclose(ssq_org, 395.9361125, rel_tol=0.0001)
@@ -50,37 +43,29 @@ def test_butterpass():
 
 
 def rewrite_fourier_spectra_test_file():
-    record_path = TEST_DATA_DIR
-    record_filename = 'test_motion_dt0p01.txt'
-    motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
-    acc_signal = AccSignal(rec, motion_step)
-    fa_amplitudes = abs(acc_signal.fa_spectrum)
-    fa_phases = np.angle(acc_signal.fa_spectrum)
+    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
+    fa_amplitudes = abs(asig.fa_spectrum)
+    fa_phases = np.angle(asig.fa_spectrum)
 
     paras = []
-    for i in range(len(acc_signal.fa_frequencies)):
-        paras.append("%.5f,%.5f,%.5f" % (acc_signal.fa_frequencies[i], fa_amplitudes[i], fa_phases[i]))
-    outfile_name = record_path + "test_motion_dt0p01_fas.txt"
+    for i in range(len(asig.fa_frequencies)):
+        paras.append("%.5f,%.5f,%.5f" % (asig.fa_frequencies[i], fa_amplitudes[i], fa_phases[i]))
+    outfile_name = TEST_DATA_DIR + "test_motion_dt0p01_fas.txt"
     outfile = open(outfile_name, "w")
     outfile.write("\n".join(paras))
     outfile.close()
 
 
 def test_fourier_spectra():
-    record_path = TEST_DATA_DIR
-    record_filename = 'test_motion_dt0p01.txt'
-    motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
-    acc_signal = AccSignal(rec, motion_step)
-    fa_amplitudes = abs(acc_signal.fa_spectrum)
-    fa_phases = np.angle(acc_signal.fa_spectrum)
+    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
+    fa_amplitudes = abs(asig.fa_spectrum)
+    fa_phases = np.angle(asig.fa_spectrum)
 
     paras = []
-    for i in range(len(acc_signal.fa_frequencies)):
-        paras.append("%.5f,%.5f,%.5f" % (acc_signal.fa_frequencies[i], fa_amplitudes[i], fa_phases[i]))
+    for i in range(len(asig.fa_frequencies)):
+        paras.append("%.5f,%.5f,%.5f" % (asig.fa_frequencies[i], fa_amplitudes[i], fa_phases[i]))
 
-    testfile_name = record_path + "test_motion_dt0p01_fas.txt"
+    testfile_name = TEST_DATA_DIR + "test_motion_dt0p01_fas.txt"
     testfile = open(testfile_name, "r")
     test_lines = testfile.readlines()
     for i, line in enumerate(test_lines):
@@ -93,22 +78,22 @@ def test_fourier_spectra_with_motion():
 
     record_filename = 'test_motion_dt0p01.txt'
     motion_dt = 0.01
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
 
     rec2 = np.zeros(2 ** 13)
     rec2[:len(rec)] = rec
-    acc_signal = AccSignal(-rec, motion_dt)
+    asig = AccSignal(-rec, motion_dt)
 
-    nfreq = len(acc_signal.fa_spectrum)
+    nfreq = len(asig.fa_spectrum)
     test_filename = 'test_motion_true_fourier_spectra.csv'
     data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
     freqs = data[:nfreq - 1, 0]
     fa = data[:nfreq - 1, 1]
     phase = data[:nfreq - 1, 2]
 
-    fa_eqsig = abs(acc_signal.fa_spectrum)
-    freq_eqsig = acc_signal.fa_frequencies
-    org_phases = np.angle(acc_signal.fa_spectrum)
+    fa_eqsig = abs(asig.fa_spectrum)
+    freq_eqsig = asig.fa_frequencies
+    org_phases = np.angle(asig.fa_spectrum)
     ss_phases = np.angle(np.fft.rfft(rec2))[:len(org_phases)] + 0.0001
 
     assert ct.isclose(freqs[0], freq_eqsig[1], rel_tol=0.001), freqs[0]
@@ -119,7 +104,7 @@ def test_fourier_spectra_with_motion():
 
     # bf, sp = plt.subplots(2)
     # sp[0].plot(freqs, fa, lw=0.5)
-    # sp[0].plot(freq_eqsig, abs(acc_signal.fa_spectrum), lw=0.5)
+    # sp[0].plot(freq_eqsig, abs(asig.fa_spectrum), lw=0.5)
     # sp[1].plot(freqs, phase, lw=0.5)
     # sp[1].plot(freq_eqsig, org_phases, lw=0.5)
     # sp[1].plot(freq_eqsig, ss_phases, lw=0.5)
@@ -142,7 +127,7 @@ def test_fourier_spectra_stable_against_aliasing():
 
     record_filename = 'test_motion_dt0p01.txt'
     motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
     rec2 = np.zeros(2 ** 13)
     rec2[:len(rec)] = rec
     org_signal = AccSignal(rec, motion_step)
