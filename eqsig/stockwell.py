@@ -4,30 +4,60 @@ import scipy.fftpack
 import scipy.signal
 
 
-def plot_stock(splot, asig, norm_x=False):
+def plot_stock(splot, asig, norm_x=False, norm_all=False, times=(None, None), freqs=(None, None)):
     """
     Plots the Stockwell transform of an acceleration signal
 
-    :param splot:
-    :param asig:
-    :return:
+    Parameters
+    ----------
+    splot: matplotlib.pyplot.subplot
+    asig: eqsig.Signal
+    norm_x: bool, default=False
+        If true then all values at a time step are normalised by the maximum value
+    norm_all: bool, default=False
+        If true the all values are normalised by the maximum value
+    Returns
+    -------
+        None
     """
     import matplotlib.ticker as ticker
     if not hasattr(asig, "stockwell"):
         asig.swtf = transform(asig.values)
     points = int(asig.npts)
-    freqs = np.flipud(np.arange(points) / (points * asig.dt))
+    # freqs = np.flipud(np.arange(points) / (points * asig.dt))
     b = abs(asig.swtf)
     b = b[int(len(b) / 2):]
+    if norm_all:
+        b = b / np.max(b)
     if norm_x:
         b = b / np.max(b, axis=0)
-    # max_x = len(b[0])
-    # max_y = len(b)
+
+    max_x = len(b[0])
+    max_y = len(b)
+    max_time = asig.time[-1]
+    max_freq = 1 / asig.dt / 2
+    if times[0] is not None:
+        start_t = times[0] / max_time * max_x
+    else:
+        start_t = 0
+    if times[1] is not None:
+        end_t = times[1] / max_time * max_x
+    else:
+        end_t = max_x
+    if freqs[0] is not None:
+        start_f = freqs[0] / max_freq * max_y
+    else:
+        start_f = 0
+    if freqs[1] is not None:
+        end_f = freqs[1] / max_freq * max_y
+    else:
+        end_f = max_y
+    #
     # print(max_x, max_y)
     # max_x = 2000
-    # extent = (-0.5, max_x - 0.5, max_y - 0.5, -0.5)
-    splot.imshow(b, aspect='auto')
-    fi = np.arange(len(freqs))
+    extent = (-0.5 + start_t, end_t - 0.5, end_f - 0.5, start_f - 0.5)
+    # extent = (-0.5, max_x - 0.5, max_y - 0.5,  - 0.5)
+    splot.imshow(b, aspect='auto', extent=extent)
     xticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x * asig.dt / 2))
     s10 = np.ceil(asig.time[-1] / 10)
     if s10 < 4:
@@ -42,7 +72,7 @@ def plot_stock(splot, asig, norm_x=False):
     yticks = ticker.FuncFormatter(lambda y, pos: '{0:g}'.format((len(asig.swtf) / 2 - y) / (len(asig.values) * asig.dt)))
 
     splot.yaxis.set_major_formatter(yticks)
-    max_freq = 1 / asig.dt / 2
+
     s10 = np.ceil(max_freq / 10)
     if s10 < 4:
         step = 5
@@ -117,5 +147,5 @@ if __name__ == '__main__':
     asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
     asig = eqsig.interp_to_approx_dt(asig, 0.05)
     bf, sps = plt.subplots()
-    plot_stock(sps, asig, norm_x=True)
+    plot_stock(sps, asig, norm_x=True, times=(10, 30), freqs=(0, 7))
     plt.show()
