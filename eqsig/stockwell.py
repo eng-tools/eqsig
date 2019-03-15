@@ -4,7 +4,7 @@ import scipy.fftpack
 import scipy.signal
 
 
-def plot_stock(splot, asig):
+def plot_stock(splot, asig, norm_x=False):
     """
     Plots the Stockwell transform of an acceleration signal
 
@@ -18,10 +18,27 @@ def plot_stock(splot, asig):
     points = int(asig.npts)
     freqs = np.flipud(np.arange(points) / (points * asig.dt))
     b = abs(asig.swtf)
-    splot.imshow(b[int(len(b) / 2):])
+    b = b[int(len(b) / 2):]
+    if norm_x:
+        b = b / np.max(b, axis=0)
+    # max_x = len(b[0])
+    # max_y = len(b)
+    # print(max_x, max_y)
+    # max_x = 2000
+    # extent = (-0.5, max_x - 0.5, max_y - 0.5, -0.5)
+    splot.imshow(b, aspect='auto')
     fi = np.arange(len(freqs))
     xticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x * asig.dt / 2))
+    s10 = np.ceil(asig.time[-1] / 10)
+    if s10 < 4:
+        step = 5
+    else:
+        step = 10
+    x_majors = np.arange(0, 10 * s10, step) * 2 / asig.dt
     splot.xaxis.set_major_formatter(xticks)
+    splot.set_xticks(x_majors)
+
+    # y ticks
     yticks = ticker.FuncFormatter(lambda y, pos: '{0:g}'.format((len(asig.swtf) / 2 - y) / (len(asig.values) * asig.dt)))
 
     splot.yaxis.set_major_formatter(yticks)
@@ -32,6 +49,7 @@ def plot_stock(splot, asig):
     else:
         step = 10
     y_majors = np.arange(0, 10 * s10, step)
+    print(y_majors)
     splot.set_yticks(np.flipud(y_majors) * len(asig.values) * asig.dt)
 
 
@@ -89,3 +107,15 @@ def itransform(stock):
     """Performs an inverse Stockwell Transform"""
     return np.real(scipy.fftpack.ifft(np.sum(stock, axis=1)))
 
+
+if __name__ == '__main__':
+    from tests import conftest
+    from eqsig import load_signal
+    import matplotlib.pyplot as plt
+    import eqsig
+
+    asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
+    asig = eqsig.interp_to_approx_dt(asig, 0.05)
+    bf, sps = plt.subplots()
+    plot_stock(sps, asig, norm_x=True)
+    plt.show()

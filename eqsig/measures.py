@@ -6,6 +6,24 @@ from eqsig.exceptions import deprecation
 
 def calc_significant_duration(motion, dt, start=0.05, end=0.95):
     """
+    Deprecated. Use calc_sig_dur_vals
+    Parameters
+    ----------
+    motion
+    dt
+    start
+    end
+
+    Returns
+    -------
+
+    """
+    deprecation("Use calc_sig_dur_vals()")
+    return calc_sig_dur_vals(motion, dt, start=0.05, end=0.95)
+
+
+def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95):
+    """
     Computes the significant duration using cumulative acceleration according to Trifunac and Brady (1975).
 
     Parameters
@@ -29,6 +47,38 @@ def calc_significant_duration(motion, dt, start=0.05, end=0.95):
     ind2 = np.where((cum_acc2 > start * cum_acc2[-1]) & (cum_acc2 < end * cum_acc2[-1]))
     start_time = ind2[0][0] * dt
     end_time = ind2[0][-1] * dt
+
+    return start_time, end_time
+
+
+def calc_sig_dur(asig, start=0.05, end=0.95, im=None):
+    """
+    Computes the significant duration using cumulative acceleration according to Trifunac and Brady (1975).
+
+    Parameters
+    ----------
+    motion: array-like
+        acceleration time series
+    dt: float
+        time step
+    start: float, default=0.05
+        threshold to start the duration
+    end: float, default=0.95
+        threshold to end the duration
+    im: function or None
+        A function that calculates a cumulative intensity measure, default Arias Intensity
+
+    Returns
+    -------
+    tuple (start_time, end_time)
+    """
+    if im is None:
+        im_vals = calc_arias_intensity(asig)
+    else:
+        im_vals = im(asig)
+    ind2 = np.where((im_vals > start * im_vals[-1]) & (im_vals < end * im_vals[-1]))
+    start_time = ind2[0][0] * asig.dt
+    end_time = ind2[0][-1] * asig.dt
 
     return start_time, end_time
 
