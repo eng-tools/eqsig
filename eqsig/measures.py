@@ -195,10 +195,13 @@ def calc_cav_dp(asig):
         pga = (max(abs_acc_interval))
         if pga > pga_max:
             pga_max = pga
+
         if (pga - 0.025) < 0:
             h = 0
-        if (pga - 0.025) >= 0:
+        elif (pga - 0.025) >= 0:
             h = 1
+        else:
+            raise ValueError("cannot evaluate pga: {0}".format(pga))
 
         cav_dp = cav_dp + (h * int_acc)
         cav_dp_1_series.append(cav_dp)
@@ -309,3 +312,19 @@ def calc_bracketed_duration(asig, threshold):
         t_bracket = -1.
         a_rms01 = -1.
     return t_bracket
+
+
+def calc_integral_of_abs_velocity(asig):
+    abs_vel = abs(asig.velocity)
+    vel_int = np.cumsum(abs_vel * asig.dt)
+    return vel_int
+
+
+def calc_cumulative_abs_displacement(asig):
+    return calc_integral_of_abs_velocity(asig)
+
+
+def calc_integral_of_abs_acceleration(asig):
+    abs_acc = abs(asig.values)
+    acc_int = np.cumsum(abs_acc * asig.dt)
+    return acc_int

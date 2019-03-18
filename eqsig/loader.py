@@ -62,6 +62,16 @@ def load_signal(ffp, astype='sig'):
         return AccSignal(vals, dt)
 
 
+def load_sig(ffp):
+    vals, dt = load_values_and_dt(ffp)
+    return Signal(vals, dt)
+
+
+def load_asig(ffp):
+    vals, dt = load_values_and_dt(ffp)
+    return AccSignal(vals, dt)
+
+
 def save_signal(ffp, signal):
     save_values_and_dt(ffp, signal.values, signal.dt, signal.label)
 

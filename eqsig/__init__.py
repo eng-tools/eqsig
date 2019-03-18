@@ -6,7 +6,7 @@ from eqsig.measures import calc_significant_duration, calculate_peak  # deprecat
 from eqsig import measures as im
 from eqsig import measures
 from eqsig import stockwell
-from eqsig.loader import save_signal, load_signal, save_values_and_dt, load_values_and_dt
+from eqsig.loader import save_signal, load_signal, save_values_and_dt, load_values_and_dt, load_asig, load_sig
 from eqsig import __about__
 
 __project__ = __about__.__project__
