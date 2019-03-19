@@ -13,7 +13,7 @@
     :target: https://github.com/eng-tools/eqsig/blob/master/LICENSE
     :alt: License
 
-.. image:: https://eng-tools.github.io/static/img/ecp-logo.svg
+.. image:: https://eng-tools.github.io/static/img/ecp-badge.svg
     :target: https://eng-tools.github.io
     :alt: ECP project
 
