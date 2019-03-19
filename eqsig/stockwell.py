@@ -21,7 +21,7 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, times=(None, None), fr
         None
     """
     import matplotlib.ticker as ticker
-    if not hasattr(asig, "stockwell"):
+    if not hasattr(asig, "swtf"):
         asig.swtf = transform(asig.values)
     points = int(asig.npts)
     # freqs = np.flipud(np.arange(points) / (points * asig.dt))
@@ -85,12 +85,25 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, times=(None, None), fr
 
 def plot_fas_at_time(splot, asig, time):
     """Plots the Fourier amplitude spectrum at a time based on a Stockwell transform"""
-    if not hasattr(asig, "stockwell"):
+    if not hasattr(asig, "swtf"):
         asig.swtf = transform(asig.values)
-    indy = int(time / asig.dt)
+    indy = int(time / asig.dt) * 2  # 2 since Stockwell has twice as many points
     points = len(asig.swtf)
     freqs = np.arange(1, points + 1) / (points * asig.dt)
     splot.plot(freqs, np.flipud(abs(asig.swtf[:, indy])))
+
+
+def plot_windowed_fas_at_time(splot, asig, time, time_window=3):
+    """Plots the time averaged Fourier amplitude spectrum at a time based on a Stockwell transform"""
+    if not hasattr(asig, "swtf"):
+        asig.swtf = transform(asig.values)
+    indy = int(time / asig.dt) * 2  # 2 since Stockwell has twice as many points
+    window = int(time_window / (asig.time[-1] / asig.npts))
+    s_i = max(int(indy - window / 20), 0)
+    f_i = max(int(indy + window / 20), len(asig.swtf))
+    points = len(asig.swtf)
+    freqs = np.arange(1, points + 1) / (points * asig.dt)
+    splot.plot(freqs, np.flipud(np.mean(abs(asig.swtf[:, s_i:f_i]), axis=1)))
 
 
 def generate_gaussian(n_d2):
