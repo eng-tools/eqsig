@@ -84,7 +84,7 @@ def clean_out_non_changing(values):
     return cleaned_values, non_zero_indices
 
 
-def get_peak_indices(values):
+def get_peak_array_indices(values):
     """
     Find the indices for all of the local maxima and minima
 
@@ -108,6 +108,9 @@ def get_peak_indices(values):
     peak_cleaned_indices = determine_indices_of_peaks_for_cleaned(cleaned_values)
     peak_full_indices = np.take(non_zero_indices, peak_cleaned_indices)
     return peak_full_indices
+
+def get_peak_indices(asig):
+    return  get_peak_array_indices(asig.values)
 
 
 def determine_peaks_only_delta_series(values):
@@ -270,7 +273,7 @@ def get_switched_peak_indices(asig):
     values = asig
     if hasattr(asig, "values"):
         values = asig.values
-    peak_indices = eqsig.get_peak_indices(values)
+    peak_indices = eqsig.get_peak_array_indices(values)
     peak_values = np.take(values, peak_indices)
 
     last = peak_values[0]
@@ -290,3 +293,63 @@ def get_switched_peak_indices(asig):
         peak_indices_set.append(i)
     switched_peak_indices = np.take(peak_indices, new_peak_indices)
     return switched_peak_indices
+
+
+def get_sig_array_indexes_range(fas1_smooth, ratio=15):
+    max_fas1 = max(fas1_smooth)
+    lim_fas = max_fas1 / ratio
+    min_freq_i = 10000
+    max_freq_i = 10000
+    for i in range(len(fas1_smooth)):
+        if fas1_smooth[i] > lim_fas:
+            min_freq_i = i
+            break
+    for i in range(len(fas1_smooth)):
+        if fas1_smooth[-1 - i] > lim_fas:
+            max_freq_i = len(fas1_smooth) - i
+            break
+    return min_freq_i, max_freq_i
+
+
+def get_sig_freq_range(asig, ratio=15):
+    indices = get_sig_array_indexes_range(asig.smooth_fa_spectrum, ratio=ratio)
+    return np.take(asig.smooth_fa_frequencies, indices)
+
+
+def calc_fourier_moment(asig, n):
+    """
+
+    cite Rathje:2008va
+
+    Parameters
+    ----------
+    asig
+    n
+
+    Returns
+    -------
+
+    """
+    return 2 * np.sum(2 * np.pi * asig.fa_frequencies ** n * np.abs(asig.fa_spectrum) ** 2)
+
+
+def get_bandwidth_boore_2003(asig):
+    m0 = calc_fourier_moment(asig, 0)
+    m2 = calc_fourier_moment(asig, 2)
+    m4 = calc_fourier_moment(asig, 4)
+    return np.sqrt(m2 ** 2 / (m0 * m4))
+
+
+if __name__ == '__main__':
+    from tests import conftest
+    from eqsig import load_signal
+    import matplotlib.pyplot as plt
+    import eqsig
+
+    asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
+    asig = eqsig.interp_to_approx_dt(asig, 0.05)
+    # bf, sps = plt.subplots()
+    bandwidth = get_bandwidth_boore_2003(asig)
+    print(bandwidth)
+    # , times = (10, 30), freqs = (0, 7)
+    # plt.show()

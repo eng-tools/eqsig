@@ -721,17 +721,3 @@ def generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies, fa_spectr
     return smooth_fa_spectrum
 
 
-def significant_range(fas1_smooth, ratio=15):  # TODO: move to signalpy
-    max_fas1 = max(fas1_smooth)
-    lim_fas = max_fas1 / ratio
-    min_freq_i = 10000
-    max_freq_i = 10000
-    for i in range(len(fas1_smooth)):
-        if fas1_smooth[i] > lim_fas:
-            min_freq_i = i
-            break
-    for i in range(len(fas1_smooth)):
-        if fas1_smooth[-1 - i] > lim_fas:
-            max_freq_i = len(fas1_smooth) - i
-            break
-    return min_freq_i, max_freq_i

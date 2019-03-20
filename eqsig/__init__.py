@@ -1,4 +1,4 @@
-from eqsig.single import Signal, AccSignal, significant_range
+from eqsig.single import Signal, AccSignal
 from eqsig import design_spectra
 from eqsig.functions import *
 from eqsig.multiple import Cluster, combine_at_angle, compute_rotated
