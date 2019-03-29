@@ -109,8 +109,9 @@ def get_peak_array_indices(values):
     peak_full_indices = np.take(non_zero_indices, peak_cleaned_indices)
     return peak_full_indices
 
+
 def get_peak_indices(asig):
-    return  get_peak_array_indices(asig.values)
+    return get_peak_array_indices(asig.values)
 
 
 def determine_peaks_only_delta_series(values):
@@ -298,17 +299,20 @@ def get_switched_peak_indices(asig):
 def get_sig_array_indexes_range(fas1_smooth, ratio=15):
     max_fas1 = max(fas1_smooth)
     lim_fas = max_fas1 / ratio
-    min_freq_i = 10000
-    max_freq_i = 10000
-    for i in range(len(fas1_smooth)):
-        if fas1_smooth[i] > lim_fas:
-            min_freq_i = i
-            break
-    for i in range(len(fas1_smooth)):
-        if fas1_smooth[-1 - i] > lim_fas:
-            max_freq_i = len(fas1_smooth) - i
-            break
-    return min_freq_i, max_freq_i
+    indys = np.where(fas1_smooth > lim_fas)[0]
+    return indys[0], indys[-1]
+
+    # min_freq_i = 10000
+    # max_freq_i = 10000
+    # for i in range(len(fas1_smooth)):
+    #     if fas1_smooth[i] > lim_fas:
+    #         min_freq_i = i
+    #         break
+    # for i in range(len(fas1_smooth)):
+    #     if fas1_smooth[-1 - i] > lim_fas:
+    #         max_freq_i = len(fas1_smooth) - i
+    #         break
+    # return min_freq_i, max_freq_i
 
 
 def get_sig_freq_range(asig, ratio=15):
@@ -318,8 +322,9 @@ def get_sig_freq_range(asig, ratio=15):
 
 def calc_fourier_moment(asig, n):
     """
+    Original source unknown.
 
-    cite Rathje:2008va
+    See :cite:`Rathje:2008va`
 
     Parameters
     ----------
@@ -330,7 +335,7 @@ def calc_fourier_moment(asig, n):
     -------
 
     """
-    return 2 * np.sum(2 * np.pi * asig.fa_frequencies ** n * np.abs(asig.fa_spectrum) ** 2)
+    return 2 * np.trapz((2 * np.pi * asig.fa_frequencies) ** n * asig.fa_spectrum ** 2, x=asig.fa_frequencies)
 
 
 def get_bandwidth_boore_2003(asig):
@@ -351,5 +356,7 @@ if __name__ == '__main__':
     # bf, sps = plt.subplots()
     bandwidth = get_bandwidth_boore_2003(asig)
     print(bandwidth)
+    plt.plot(asig.fa_frequencies, abs(asig.fa_spectrum))
+    plt.show()
     # , times = (10, 30), freqs = (0, 7)
     # plt.show()

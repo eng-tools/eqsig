@@ -4,7 +4,7 @@ import scipy.fftpack
 import scipy.signal
 
 
-def plot_stock(splot, asig, norm_x=False, norm_all=False, times=(None, None), freqs=(None, None)):
+def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=None):
     """
     Plots the Stockwell transform of an acceleration signal
 
@@ -20,22 +20,26 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, times=(None, None), fr
     -------
         None
     """
-    import matplotlib.ticker as ticker
     if not hasattr(asig, "swtf"):
-        asig.swtf = transform(asig.values)
-    points = int(asig.npts)
-    # freqs = np.flipud(np.arange(points) / (points * asig.dt))
+        asig.swtf = transform(asig.values, interp=interp)
+
     b = abs(asig.swtf)
-    b = b[int(len(b) / 2):]
+    if interp:
+        b = b[int(len(b) / 2):]
     if norm_all:
         b = b / np.max(b)
     if norm_x:
         b = b / np.max(b, axis=0)
-
     max_freq = 1 / asig.dt / 2
+    # if interp:
+    #     max_freq /= 2
 
     extent = (0, asig.time[-1], 0, max_freq)
-    splot.imshow(b, aspect='auto', extent=extent)
+
+    kwargs = {}
+    if cmap is not None:
+        kwargs['cmap'] = cmap  # rainbow, gnuplot2, plasma
+    splot.imshow(b, aspect='auto', extent=extent, **kwargs)
 
 
 def get_stockwell_freqs(asig):
@@ -77,7 +81,7 @@ def generate_gaussian(n_d2):
     return np.exp(-p ** 2 / 2).transpose()  # * np.exp(1j * p / n_d2)
 
 
-def transform(acc):
+def transform(acc, interp=False):
     """
     Performs a Stockwell transform on an array
 
@@ -87,11 +91,14 @@ def transform(acc):
     :return:
     """
     # Interpolate here because function drops a time step
-    t_int = np.arange(len(acc))
-    t_db = np.arange(2 * len(acc)) / 2
-    acc_db = np.interp(t_db, t_int, acc)
-
-    n_d2 = int(len(acc))
+    if interp:
+        t_int = np.arange(len(acc))
+        t_db = np.arange(2 * len(acc)) / 2
+        acc_db = np.interp(t_db, t_int, acc)
+        n_d2 = int(len(acc))
+    else:
+        acc_db = acc
+        n_d2 = int(len(acc) / 2)
     n_factor = 2 * n_d2
     gaussian = generate_gaussian(n_d2)
     # st0 = np.mean(acc) * np.ones(n_factor)
@@ -123,6 +130,6 @@ if __name__ == '__main__':
     asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
     asig = eqsig.interp_to_approx_dt(asig, 0.05)
     bf, sps = plt.subplots()
-    plot_stock(sps, asig, norm_x=True)
+    plot_stock(sps, asig, norm_x=True, interp=True, cmap='plasma')
     # , times = (10, 30), freqs = (0, 7)
     plt.show()

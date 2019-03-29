@@ -567,7 +567,7 @@ class AccSignal(Signal):
             self.a_rms10 = -1.
 
         # Trifunac and Brady
-        self.sd_start, self.sd_end = sm.calc_significant_duration(self.values, self.dt)
+        self.sd_start, self.sd_end = sm.calc_sig_dur_vals(self.values, self.dt)
 
         self.t_595 = self.sd_end - self.sd_start
 
@@ -597,7 +597,7 @@ class AccSignal(Signal):
         if "isv_series" in self._cached_params:
             return self._cached_params["isv_series"][-1]
         else:
-            return self._calculate_isv_series()[-1]
+            return self.isv_series[-1]
 
     @property
     def isv_series(self):
