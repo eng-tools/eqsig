@@ -161,7 +161,7 @@ def test_fa_spectrum_conversion():
 
 def test_get_peak_indices():
     values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
-    peak_indices = functions.get_peak_indices(values)
+    peak_indices = functions.get_peak_array_indices(values)
     peaks_series = np.zeros_like(values)
     np.put(peaks_series, peak_indices, values)
     expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
