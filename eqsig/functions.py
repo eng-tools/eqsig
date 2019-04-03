@@ -17,16 +17,33 @@ def determine_indices_of_peaks_for_cleaned(values):
     :param values:
     :return:
     """
-    diff = np.diff(values)
+    diff = np.ediff1d(values, to_begin=0)
     # if negative then direction has switched
-    direction_switch = diff[1:] * diff[:-1]
-    direction_switch = np.insert(direction_switch, 0, 0)
-    peaks = np.where(direction_switch < 0)
-    peak_indices = peaks[0]
-    peak_indices = np.insert(peak_indices, 0, 0) # Include first and last value
+    # direction_switch = np.insert(direction_switch, 0, 0)
+    peak_indices = np.where(diff[1:] * diff[:-1] < 0)[0]
+    peak_indices = np.insert(peak_indices, 0, 0)  # Include first and last value
     peak_indices = np.insert(peak_indices, len(peak_indices), len(values) - 1)
 
     return peak_indices
+
+
+# def determine_indices_of_zero_crossings_for_cleaned(values):
+#     """
+#     Determines the position of values that are equal or have just passed through zero.
+#
+#     :param values:
+#     :return:
+#     """
+#     diff = np.diff(values)
+#     # if negative then direction has switched
+#     direction_switch = diff[1:] * diff[:-1]
+#     direction_switch = np.insert(direction_switch, 0, 0)
+#     peaks = np.where(direction_switch < 0)
+#     peak_indices = peaks[0]
+#     peak_indices = np.insert(peak_indices, 0, 0)  # Include first and last value
+#     peak_indices = np.insert(peak_indices, len(peak_indices), len(values) - 1)
+#
+#     return peak_indices
 
 
 def determine_peak_only_series_4_cleaned_data(values):
@@ -75,8 +92,9 @@ def clean_out_non_changing(values):
     :param values: array of floats
     :return: cleaned array, indices of clean values in original array
     """
-    diff_values = np.diff(values)
-    diff_values = np.insert(diff_values, 0, values[0])
+    # diff_values = np.diff(values)
+    # diff_values = np.insert(diff_values, 0, values[0])
+    diff_values = np.ediff1d(values, to_begin=values[0])
     non_zero_indices = np.where(diff_values != 0)[0]
     non_zero_indices = np.insert(non_zero_indices, 0, 0)
 
@@ -97,7 +115,7 @@ def get_peak_array_indices(values):
     --------
     >>> values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
     np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
-    >>> determine_indices_of_peaks_for_cleaned(values)
+    >>> get_peak_array_indices(values)
     np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
     """
     # enforce array type
@@ -112,6 +130,46 @@ def get_peak_array_indices(values):
 
 def get_peak_indices(asig):
     return get_peak_array_indices(asig.values)
+
+
+def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
+    """
+    Find the indices for values that are equal to zero or just passed through zero
+
+    Parameters
+    ----------
+    values: array_like
+        array of values
+    keep_adj_zeros: bool,
+        if false then if adjacent zeros are found, only first is included
+    :return:
+
+    Examples
+    --------
+    >>> values = np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
+    np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
+    >>> get_zero_crossings_array_indices(values, keep_adj_zeros=False)
+    np.array([0, 4, 5, 6, 10, 12])
+    """
+    # enforce array type
+    values = np.array(values, dtype=float)
+    # get all zero values
+    zero_indices = np.where(values == 0)[0]
+    if not keep_adj_zeros:
+        diff_is = np.ediff1d(zero_indices, to_begin=10)
+        no_adj_is = np.where(diff_is > 1)[0]
+        zero_indices = np.take(zero_indices, no_adj_is)
+    # if negative then sign has switched
+    sign_switch = values[1:] * values[:-1]
+    sign_switch = np.insert(sign_switch, 0, values[0])
+    through_zero_indices = np.where(sign_switch < 0)[0]
+    all_zc_indices = np.concatenate((zero_indices, through_zero_indices))
+    all_zc_indices.sort()
+    return all_zc_indices
+
+
+def get_zero_crossings_indices(asig):
+    return get_zero_crossings_array_indices(asig.values)
 
 
 def determine_peaks_only_delta_series(values):
@@ -344,19 +402,19 @@ def get_bandwidth_boore_2003(asig):
     m4 = calc_fourier_moment(asig, 4)
     return np.sqrt(m2 ** 2 / (m0 * m4))
 
-
-if __name__ == '__main__':
-    from tests import conftest
-    from eqsig import load_signal
-    import matplotlib.pyplot as plt
-    import eqsig
-
-    asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
-    asig = eqsig.interp_to_approx_dt(asig, 0.05)
-    # bf, sps = plt.subplots()
-    bandwidth = get_bandwidth_boore_2003(asig)
-    print(bandwidth)
-    plt.plot(asig.fa_frequencies, abs(asig.fa_spectrum))
-    plt.show()
-    # , times = (10, 30), freqs = (0, 7)
+#
+# if __name__ == '__main__':
+#     from tests import conftest
+#     from eqsig import load_signal
+#     import matplotlib.pyplot as plt
+#     import eqsig
+#
+#     asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
+#     asig = eqsig.interp_to_approx_dt(asig, 0.05)
+#     # bf, sps = plt.subplots()
+#     bandwidth = get_bandwidth_boore_2003(asig)
+#     print(bandwidth)
+#     plt.plot(asig.fa_frequencies, abs(asig.fa_spectrum))
+#     plt.show()
+#     # , times = (10, 30), freqs = (0, 7)
     # plt.show()

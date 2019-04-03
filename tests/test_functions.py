@@ -167,6 +167,18 @@ def test_get_peak_indices():
     expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
     assert np.sum(abs(peak_indices - expected)) == 0
 
+
+def test_get_zero_crossings_array_indices():
+    vs = np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
+    zci = functions.get_zero_crossings_array_indices(vs, keep_adj_zeros=True)
+    expected = np.array([0, 4, 5, 6, 7, 10, 12])
+    assert np.array_equal(zci, expected)
+    zci = functions.get_zero_crossings_array_indices(vs, keep_adj_zeros=False)
+    expected = np.array([0, 4, 5, 6, 10, 12])
+    assert np.array_equal(zci, expected), zci
+    print(zci)
+
+
 if __name__ == '__main__':
     test_determine_peaks_only_series_with_non_zero_end()
     # test_fa_spectrum_conversion()
