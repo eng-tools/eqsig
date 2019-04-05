@@ -182,17 +182,36 @@ def test_get_zero_crossings_array_indices():
 def test_put_array_in_2d_array():
     vals = np.arange(1, 5)
     sfs = np.array([1, 2, 3])
-    expected = np.array([[0, 1, 2, 3, 4, 0, 0],
-                 [0, 0, 1, 2, 3, 4, 0],
-                 [0, 0, 0, 1, 2, 3, 4]])
+    expected_full = np.array([[0, 1, 2, 3, 4, 0, 0],
+                              [0, 0, 1, 2, 3, 4, 0],
+                              [0, 0, 0, 1, 2, 3, 4]])
     out = functions.put_array_in_2d_array(vals, sfs)
-    assert np.array_equal(out, expected), out
+    assert np.array_equal(out, expected_full), out
 
-    expected = np.array([[0, 1, 2, 3],
-                         [0, 0, 1, 2],
-                         [0, 0, 0, 1]])
+    # expected = np.array([[0, 1, 2, 3],
+    #                      [0, 0, 1, 2],
+    #                      [0, 0, 0, 1]])
     out = functions.put_array_in_2d_array(vals, sfs, clip='end')
-    assert np.array_equal(out, expected), out
+    assert np.array_equal(out, expected_full[:, :-3]), out
+    out = functions.put_array_in_2d_array(vals, sfs, clip='start')
+    assert np.array_equal(out, expected_full), out
+    out = functions.put_array_in_2d_array(vals, sfs, clip='both')
+    assert np.array_equal(out, expected_full[:, :-3]), out
+    # neg shift
+    vals = np.arange(4, 6)
+    sfs = np.array([-1, 2])
+    expected_full = np.array([[4, 5, 0, 0, 0],
+                              [0, 0, 0, 4, 5],
+                              ])
+    out = functions.put_array_in_2d_array(vals, sfs, clip='none')
+    assert np.array_equal(out, expected_full), out
+    out = functions.put_array_in_2d_array(vals, sfs, clip='end')
+    assert np.array_equal(out, expected_full[:, :-2]), out
+    out = functions.put_array_in_2d_array(vals, sfs, clip='start')
+    assert np.array_equal(out, expected_full[:, 1:]), out
+    out = functions.put_array_in_2d_array(vals, sfs, clip='both')
+    assert np.array_equal(out, expected_full[:, 1:-2]), out
+
 
 
 def test_join_values_w_shifts():

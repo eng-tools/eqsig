@@ -403,7 +403,7 @@ def get_bandwidth_boore_2003(asig):
     return np.sqrt(m2 ** 2 / (m0 * m4))
 
 
-def put_array_in_2d_array(values, shifts, clip=None):
+def put_array_in_2d_array(values, shifts, clip='none'):
     """
     Creates a 2D array where values appear on each line, shifted by a set of indices
 
@@ -414,7 +414,7 @@ def put_array_in_2d_array(values, shifts, clip=None):
     shifts: array_like (int)
         Indices to shift values
     clip: str or none
-        if 'end' then returned 2D array has same length as values but last values are clipped
+        if 'end' then returned 2D array trims values that overlap end of input values array
 
     Returns
     -------
@@ -422,13 +422,15 @@ def put_array_in_2d_array(values, shifts, clip=None):
     """
     npts = len(values)
     # assert shifts is integer array
-    extras = np.max(np.max(shifts), 0)
-    # start_extras = np.min(np.min(shifts), 0)
-    out = np.zeros((len(shifts), npts + extras))
+    end_extras = np.max([np.max(shifts), 0])
+    start_extras = - np.min([np.min(shifts), 0])
+    out = np.zeros((len(shifts), npts + start_extras + end_extras))
     for i, j in enumerate(shifts):
-        out[i, j:npts + j] = values
-    if clip == 'end' and extras > 0:
-        return out[:, :-extras]
+        out[i, start_extras + j:start_extras + npts + j] = values
+    if clip in ['end', 'both'] and end_extras > 0:
+            out = out[:, :-end_extras]
+    if clip in ['start', 'both']:
+        return out[:, start_extras:]
     else:
         return out
 
@@ -450,9 +452,13 @@ def join_values_w_shifts(values, shifts, jtype='add'):
 
 
 if __name__ == '__main__':
-    vals = np.arange(1, 5)
-    sfs = np.array([1, 2, 3])
-    out_a = join_values_w_shifts(vals, sfs, jtype='sub')
+    vals = np.arange(4, 6)
+    sfs = np.array([-1, 2])
+    expected_full = np.array([[4, 5, 0, 0, 0],
+                              [0, 0, 0, 4, 5],
+                              ])
+    out_a = put_array_in_2d_array(vals, sfs, clip='start')
+    # out_a = join_values_w_shifts(vals, sfs, jtype='sub')
 
     print(out_a)
 
