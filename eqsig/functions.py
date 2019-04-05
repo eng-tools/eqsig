@@ -402,6 +402,60 @@ def get_bandwidth_boore_2003(asig):
     m4 = calc_fourier_moment(asig, 4)
     return np.sqrt(m2 ** 2 / (m0 * m4))
 
+
+def put_array_in_2d_array(values, shifts, clip=None):
+    """
+    Creates a 2D array where values appear on each line, shifted by a set of indices
+
+    Parameters
+    ----------
+    values: array_like (1d)
+        Values to be shifted
+    shifts: array_like (int)
+        Indices to shift values
+    clip: str or none
+        if 'end' then returned 2D array has same length as values but last values are clipped
+
+    Returns
+    -------
+    array_like (2D)
+    """
+    npts = len(values)
+    # assert shifts is integer array
+    extras = np.max(np.max(shifts), 0)
+    # start_extras = np.min(np.min(shifts), 0)
+    out = np.zeros((len(shifts), npts + extras))
+    for i, j in enumerate(shifts):
+        out[i, j:npts + j] = values
+    if clip == 'end' and extras > 0:
+        return out[:, :-extras]
+    else:
+        return out
+
+
+def join_sig_w_time_shift(asig, time_shifts, jtype='add'):
+    shifts = np.array(time_shifts / asig.dt, dtype=int)
+    values = asig.values
+    return join_values_w_shifts(values, shifts, jtype=jtype)
+
+
+def join_values_w_shifts(values, shifts, jtype='add'):
+    a0 = np.pad(values, (0, np.max(shifts)), mode='constant', constant_values=0)  # 1d
+    a1 = put_array_in_2d_array(values, shifts)
+    if jtype == 'add':
+        return a1 + a0
+    elif jtype == 'sub':
+        return -a1 + a0
+
+
+
+if __name__ == '__main__':
+    vals = np.arange(1, 5)
+    sfs = np.array([1, 2, 3])
+    out_a = join_values_w_shifts(vals, sfs, jtype='sub')
+
+    print(out_a)
+
 #
 # if __name__ == '__main__':
 #     from tests import conftest

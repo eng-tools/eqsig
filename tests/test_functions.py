@@ -179,8 +179,37 @@ def test_get_zero_crossings_array_indices():
     print(zci)
 
 
+def test_put_array_in_2d_array():
+    vals = np.arange(1, 5)
+    sfs = np.array([1, 2, 3])
+    expected = np.array([[0, 1, 2, 3, 4, 0, 0],
+                 [0, 0, 1, 2, 3, 4, 0],
+                 [0, 0, 0, 1, 2, 3, 4]])
+    out = functions.put_array_in_2d_array(vals, sfs)
+    assert np.array_equal(out, expected), out
+
+    expected = np.array([[0, 1, 2, 3],
+                         [0, 0, 1, 2],
+                         [0, 0, 0, 1]])
+    out = functions.put_array_in_2d_array(vals, sfs, clip='end')
+    assert np.array_equal(out, expected), out
+
+
+def test_join_values_w_shifts():
+    vals = np.arange(1, 5)
+    sfs = np.array([1, 2, 3])
+    expected = np.array([[1, 3, 5, 7, 4, 0, 0],
+                         [1, 2, 4, 6, 3, 4, 0],
+                         [1, 2, 3, 5, 2, 3, 4]])
+    out = functions.join_values_w_shifts(vals, sfs)
+    assert np.array_equal(out, expected), out
+    expected = np.array([[ 1,  1,  1,  1, -4,  0,  0],
+                        [ 1,  2,  2,  2, -3, -4,  0],
+                        [ 1,  2,  3,  3, -2, -3, -4]])
+
+
 if __name__ == '__main__':
-    test_determine_peaks_only_series_with_non_zero_end()
+    test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()
     # test_determine_peaks_only_series_with_triangle_series()

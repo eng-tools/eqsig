@@ -19,7 +19,7 @@ def calc_significant_duration(motion, dt, start=0.05, end=0.95):
 
     """
     deprecation("Use calc_sig_dur_vals()")
-    return calc_sig_dur_vals(motion, dt, start=0.05, end=0.95)
+    return calc_sig_dur_vals(motion, dt, start=start, end=end)
 
 
 def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95):
