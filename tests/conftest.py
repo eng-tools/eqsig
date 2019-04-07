@@ -1,5 +1,7 @@
 import os
 import sys
+from eqsig import loader
+import pytest
 
 import numpy as np
 
@@ -19,3 +21,8 @@ def t_asig():
     motion_step = 0.01
     rec = np.loadtxt(record_path + record_filename, skiprows=2)
     return AccSignal(rec, motion_step)
+
+
+@pytest.fixture()
+def asig_t1():
+    return loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')

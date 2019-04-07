@@ -1,49 +1,45 @@
 import numpy as np
 from eqsig import loader
-from eqsig.single import AccSignal
+from tests import conftest
 from tests.conftest import TEST_DATA_DIR
 
 
-def test_arias_intensity():
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
-    asig.generate_cumulative_stats()
+def test_arias_intensity(asig_t1):
+    asig_t1.generate_cumulative_stats()
     true_arias_intensity = 0.63398
-    assert np.isclose(asig.arias_intensity, true_arias_intensity, rtol=0.0001)
+    assert np.isclose(asig_t1.arias_intensity, true_arias_intensity, rtol=0.0001)
 
 
-def test_cumulative_absolute_velocity():
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
-    asig.generate_cumulative_stats()
+def test_cumulative_absolute_velocity(asig_t1):
+    asig_t1.generate_cumulative_stats()
     true_cav = 8.53872
-    assert np.isclose(asig.cav, true_cav, rtol=0.0001)
+    assert np.isclose(asig_t1.cav, true_cav, rtol=0.0001)
 
 
-def test_peak_values():
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
+def test_peak_values(asig_t1):
     true_pga = 1.41
     true_pgv = 0.26006
     true_pgd = 0.07278134  # eqsig==0.4.12
-    assert np.isclose(asig.pga, true_pga, rtol=0.001)
-    assert np.isclose(asig.pgv, true_pgv, rtol=0.0001), asig.pgv
-    assert np.isclose(asig.pgd, true_pgd, rtol=0.0001), asig.pgd
+    assert np.isclose(asig_t1.pga, true_pga, rtol=0.001)
+    assert np.isclose(asig_t1.pgv, true_pgv, rtol=0.0001), asig_t1.pgv
+    assert np.isclose(asig_t1.pgd, true_pgd, rtol=0.0001), asig_t1.pgd
 
 
-def test_displacement_velocity():
+def test_displacement_velocity(asig_t1):
     record_path = TEST_DATA_DIR
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
     # Compare time series
     test_filename = 'test_motion_avd.csv'
     data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
     time = data[:, 0]
     velocity = data[:, 2]
     displacement = data[:, 3]
-    assert len(time) == len(asig.time)
-    abs_velocity_diff = abs(asig.velocity - velocity)
+    assert len(time) == len(asig_t1.time)
+    abs_velocity_diff = abs(asig_t1.velocity - velocity)
     cum_velocity_diff = sum(abs_velocity_diff)
     max_velocity_diff = max(abs_velocity_diff)
     assert cum_velocity_diff < 0.03, cum_velocity_diff
     assert max_velocity_diff < 0.00006, max_velocity_diff
-    abs_disp_diff = abs(asig.displacement - displacement)
+    abs_disp_diff = abs(asig_t1.displacement - displacement)
     cum_disp_diff = sum(abs_disp_diff)
     max_disp_diff = max(abs_disp_diff)
     assert cum_disp_diff < 0.02, cum_disp_diff
@@ -55,26 +51,25 @@ def test_displacement_velocity():
     time = data[:, 0]
     velocity = data[:, 2]
     displacement = data[:, 3]
-    assert len(time) == len(asig.time)
-    abs_velocity_diff = abs(asig.velocity - velocity)
+    assert len(time) == len(asig_t1.time)
+    abs_velocity_diff = abs(asig_t1.velocity - velocity)
     cum_velocity_diff = sum(abs_velocity_diff)
     max_velocity_diff = max(abs_velocity_diff)
     assert cum_velocity_diff < 0.03, cum_velocity_diff
     assert max_velocity_diff < 0.00006, max_velocity_diff
-    abs_disp_diff = abs(asig.displacement - displacement)
+    abs_disp_diff = abs(asig_t1.displacement - displacement)
     cum_disp_diff = sum(abs_disp_diff)
     max_disp_diff = max(abs_disp_diff)
     assert cum_disp_diff < 0.02, cum_disp_diff
     assert max_disp_diff < 0.00002, max_disp_diff
 
 
-def rewrite_response_spectra_eqsig_test_file():
+def rewrite_response_spectra_eqsig_test_file(asig_t1):
     record_path = TEST_DATA_DIR
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
 
-    s_a = asig.s_a
-    s_d = asig.s_d
-    times = asig.response_times
+    s_a = asig_t1.s_a
+    s_d = asig_t1.s_d
+    times = asig_t1.response_times
 
     paras = []
     for i in range(len(times)):
@@ -85,12 +80,11 @@ def rewrite_response_spectra_eqsig_test_file():
     outfile.close()
 
 
-def test_response_spectra_versus_old_eqsig_version():
+def test_response_spectra_versus_old_eqsig_version(asig_t1):
     record_path = TEST_DATA_DIR
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
-    s_a = asig.s_a
-    s_d = asig.s_d
-    times = asig.response_times
+    s_a = asig_t1.s_a
+    s_d = asig_t1.s_d
+    times = asig_t1.response_times
 
     paras = []
     for i in range(len(times)):
@@ -104,48 +98,45 @@ def test_response_spectra_versus_old_eqsig_version():
         assert line == paras[i], i
 
 
-def test_response_spectra():
+def test_response_spectra(asig_t1):
     record_path = TEST_DATA_DIR
     test_filename = 'test_motion_true_spectra_acc.csv'
     data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
     times = data[40:, 0]
     ss_s_a = data[40:, 1]
 
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
-    asig.response_times = times
-    s_a = asig.s_a
+    asig_t1.response_times = times
+    s_a = asig_t1.s_a
     s_a_in_g = s_a / 9.81
-    a_times = asig.response_times
+    a_times = asig_t1.response_times
     assert len(times) == len(a_times)
     srss1 = sum(abs(s_a_in_g - ss_s_a))
     assert srss1 < 0.105, srss1  # TODO: improve this at low frequencies!!!
 
 
-def test_response_spectra_at_high_frequencies():
+def test_response_spectra_at_high_frequencies(asig_t1):
     record_path = TEST_DATA_DIR
     test_filename = 'test_motion_true_spectra_acc.csv'
     data = np.loadtxt(record_path + test_filename, skiprows=1, delimiter=",")
     times = data[:40, 0]
     ss_s_a = data[:40, 1]
 
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
-    asig.response_times=times
-    s_a = asig.s_a
+    asig_t1.response_times = times
+    s_a = asig_t1.s_a
     s_a_in_g = s_a / 9.81
-    a_times = asig.response_times
+    a_times = asig_t1.response_times
     assert len(times) == len(a_times)
     srss1 = sum(abs(s_a_in_g - ss_s_a))
     assert srss1 < 0.01 * 40, srss1
 
 
-def test_duration_stats():
-    asig = loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
-    asig.generate_duration_stats()
+def test_duration_stats(asig_t1):
+    asig_t1.generate_duration_stats()
 
-    assert np.isclose(asig.t_595, 20.99)  # eqsig==0.5.0
-    assert np.isclose(asig.t_b01, 38.27)  # eqsig==0.5.0
-    assert np.isclose(asig.t_b05, 15.41)  # eqsig==0.5.0
-    assert np.isclose(asig.t_b10, 8.41)  # eqsig==0.5.0
+    assert np.isclose(asig_t1.t_595, 20.99)  # eqsig==0.5.0
+    assert np.isclose(asig_t1.t_b01, 38.27)  # eqsig==0.5.0
+    assert np.isclose(asig_t1.t_b05, 15.41)  # eqsig==0.5.0
+    assert np.isclose(asig_t1.t_b10, 8.41)  # eqsig==0.5.0
 
 # 
 # if __name__ == '__main__':
