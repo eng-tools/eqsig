@@ -1,12 +1,19 @@
-# Spectrum values
-# Author: Maxim Millen
-#
-# takes values from modal analysis and uses the NZS 1170.5 design code to get the accelerations
-
 import numpy as np
 
 
 def c_h_factor(period, site_class="C"):
+    """
+    NZS 1170.5 design standard shape factors
+
+    Parameters
+    ----------
+    period
+    site_class
+
+    Returns
+    -------
+
+    """
 
     single = 0
     if isinstance(period, float):
@@ -71,6 +78,7 @@ def c_h_factor(period, site_class="C"):
 def t_eff(displacement, site_class, z_factor, r_factor, n_factor):
     """
     Returns the effective period based on the displacement and using the NZ design Spectrum
+
     :param displacement:
     :param site_class:
     :param z_factor:
@@ -102,6 +110,7 @@ def t_eff(displacement, site_class, z_factor, r_factor, n_factor):
 def sd_nzs(period, site_class, z_factor, r_factor, n_factor):
     """
     Returns the NZ sd_nzs value for a given Time and soil type
+
     :param period: float or array
     :param site_class: Either 'C', 'D' or 'E'
     output: sd_nzs: float or array

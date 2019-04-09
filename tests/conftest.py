@@ -1,6 +1,6 @@
 import os
 import sys
-from eqsig import loader
+from eqsig import loader, AccSignal
 import pytest
 
 import numpy as np
@@ -24,5 +24,29 @@ def t_asig():
 
 
 @pytest.fixture()
+def noise_rec():
+    record_path = TEST_DATA_DIR
+    record_filename = 'noise_test_1.txt'
+    return load_test_record_from_file(record_path, record_filename)
+
+
+@pytest.fixture()
 def asig_t1():
     return loader.load_signal(TEST_DATA_DIR + "test_motion_dt0p01.txt", astype='acc_sig')
+
+
+def load_test_record_from_file(record_path, record_filename, scale=1):
+    a = open(record_path + record_filename, 'r')
+    b = a.readlines()
+    a.close()
+
+    acc = []
+    motion_step = float(b[0].split("=")[1])
+    for i in range(len(b)):
+        if i > 3:
+            dat = b[i].split()
+            for j in range(len(dat)):
+                acc.append(float(dat[j]) * scale)
+
+    rec = AccSignal(acc, motion_step)
+    return rec

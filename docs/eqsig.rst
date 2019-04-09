@@ -4,14 +4,6 @@ eqsig package
 Submodules
 ----------
 
-eqsig.checking\_tools module
-----------------------------
-
-.. automodule:: eqsig.checking_tools
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 eqsig.design\_spectra module
 ----------------------------
 
@@ -44,8 +36,8 @@ eqsig.exceptions module
     :undoc-members:
     :show-inheritance:
 
-eqsig.measures module
----------------------
+eqsig.im module
+---------------
 
 .. automodule:: eqsig.measures
     :members:

@@ -1,16 +1,26 @@
-
 import numpy as np
-import scipy
+import scipy.integrate
 
 
 def velocity_and_displacement_from_acceleration(acceleration, dt, trap=True):
     """
     Computes the velocity and acceleration of an acceleration time series, using numerical integration.
 
-    :param acceleration: acceleration time series
-    :param dt: time step
-    :param trap: if True then uses trapezium integration
-    :return:
+    Parameters
+    ----------
+    acceleration: array_like
+        acceleration time series
+    dt: float
+        time step
+    trap: bool (default=True)
+        if True then uses trapezium integration
+
+    Returns
+    -------
+    velocity: array_like (len=len(acceleration))
+        velocity time series
+    displacement: array_like (len=len(acceleration))
+        displacement time series
     """
 
     if trap is False:

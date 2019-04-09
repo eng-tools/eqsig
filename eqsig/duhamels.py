@@ -30,52 +30,13 @@ def single_elastic_response(motion, step, period, xi):
 
     return disp
 
-# deprecated
-def all_at_once_response_spectra(motion, step, periods, xi):
-    """
-    Quite slow
-    Perform Duhamels integral to get the displacement.
-    http://www.civil.utah.edu/~bartlett/CVEEN7330/Duhamel%27s_integral.pdf
-    http://www1.aucegypt.edu/faculty/mharafa/MENG%20475/Forced%20Vibration.pdf
-    :param motion:
-    :param step:
-    :param period:
-    :param xi:
-    :return:
-    """
-
-    w_ns = (2.0 * np.pi) / periods
-    w_ds = w_ns * np.sqrt(1 - xi ** 2)
-    x_w_ns = xi * w_ns
-    length = len(motion)
-
-    time = step * np.arange(length + 1)
-
-    s_d = np.zeros(len(periods))
-
-    for j in range(len(periods)):
-        disp = np.zeros(length)
-        w_d = w_ds[j]
-        x_w_n = x_w_ns[j]
-        p = motion * step / w_d
-
-        for i in range(length):
-            dtn = time[:-i - 1]
-            d_new = p[i] * np.exp(-x_w_n * dtn) * np.sin(w_d * dtn)
-
-            disp[i:] += d_new
-        s_d[j] = max(disp)
-    s_v = s_d * 2 * np.pi / periods
-    s_a = s_d * (2 * np.pi / periods) ** 2
-
-    return s_d, s_v, s_a
-
 
 def slow_response_spectra(motion, step, periods, xis):
     """
     Perform Duhamels integral to get the displacement.
     http://www.civil.utah.edu/~bartlett/CVEEN7330/Duhamel%27s_integral.pdf
     http://www1.aucegypt.edu/faculty/mharafa/MENG%20475/Forced%20Vibration.pdf
+
     :param motion: acceleration in m/s2
     :param step: the time step
     :param period: The period of SDOF oscilator
@@ -172,7 +133,7 @@ def nigam_and_jennings_response(acc, dt, periods, xi):
     resp_u = np.zeros([len(w), len(acc)], dtype=np.float)
     resp_v = np.zeros([len(w), len(acc)], dtype=np.float)
 
-    for i in range(len(acc) - 1):
+    for i in range(len(acc) - 1):  # possibly speed up using scipy.signal.lfilter
         # x_i+1 = A cross (u, v) + B cross (acc_i, acc_i+1)  # Eq 2.7a
         resp_u[:, i + 1] = (a[0][0] * resp_u[:, i] + a[0][1] * resp_v[:, i] + b[0][0] * acc[i] + b[0][1] * acc[i + 1])
         resp_v[:, i + 1] = (a[1][0] * resp_u[:, i] + a[1][1] * resp_v[:, i] + b[1][0] * acc[i] + b[1][1] * acc[i + 1])
@@ -265,11 +226,5 @@ if __name__ == '__main__':
 
     # time_response_spectra()
 
-
     import cProfile
     cProfile.run('time_the_generation_of_response_spectra()')
-
-
-
-
-

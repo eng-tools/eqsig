@@ -1,8 +1,6 @@
 import numpy as np
 
-from eqsig import loader
 from eqsig.single import Signal, AccSignal
-from eqsig import checking_tools as ct
 from tests.conftest import TEST_DATA_DIR
 
 
@@ -20,8 +18,8 @@ def test_remove_polyfit_1(asig_t1):
     asig_t1.remove_poly(poly_fit=1)
     ssq_corrected = np.sum(asig_t1.values ** 2)
 
-    assert not ct.isclose(ssq_cleaned, ssq_w_linear)
-    assert ct.isclose(ssq_cleaned, ssq_corrected)
+    assert not np.isclose(ssq_cleaned, ssq_w_linear)
+    assert np.isclose(ssq_cleaned, ssq_corrected)
 
 
 def test_butterpass(asig_t1):
@@ -36,8 +34,8 @@ def test_butterpass(asig_t1):
     ssq_corrected = np.sum(asig_t1.values ** 2)
 
     assert ssq_org != ssq_w_linear
-    assert ct.isclose(ssq_org, 395.9361125, rel_tol=0.0001)
-    assert ct.isclose(ssq_corrected, 393.7198723, rel_tol=0.0001)
+    assert np.isclose(ssq_org, 395.9361125, rtol=0.0001)
+    assert np.isclose(ssq_corrected, 393.7198723, rtol=0.0001)
 
 
 def rewrite_fourier_spectra_test_file(asig_t1):
@@ -92,11 +90,11 @@ def test_fourier_spectra_with_motion():
     org_phases = np.angle(asig.fa_spectrum)
     ss_phases = np.angle(np.fft.rfft(rec2))[:len(org_phases)] + 0.0001
 
-    assert ct.isclose(freqs[0], freq_eqsig[1], rel_tol=0.001), freqs[0]
-    assert ct.isclose(freqs[20], freq_eqsig[21], rel_tol=0.0001)
-    assert ct.isclose(freqs[-1], freq_eqsig[-1], rel_tol=0.001)
+    assert np.isclose(freqs[0], freq_eqsig[1], rtol=0.001), freqs[0]
+    assert np.isclose(freqs[20], freq_eqsig[21], rtol=0.0001)
+    assert np.isclose(freqs[-1], freq_eqsig[-1], rtol=0.001)
     for i in range(len(fa)):
-        assert ct.isclose(fa[i], fa_eqsig[i + 1], abs_tol=0.00001), i
+        assert np.isclose(fa[i], fa_eqsig[i + 1], atol=0.00001), i
 
     # bf, sp = plt.subplots(2)
     # sp[0].plot(freqs, fa, lw=0.5)
@@ -150,12 +148,12 @@ def test_fourier_spectra_stable_against_aliasing():
         else:
             abs_tol = 0.02
 
-        assert ct.isclose(org_freq[i], ext_freq[i])
-        assert ct.isclose(org_fa[i], ext_fa[i])
+        assert np.isclose(org_freq[i], ext_freq[i])
+        assert np.isclose(org_fa[i], ext_fa[i])
 
         if i < 2048:
-            assert ct.isclose(org_freq[i], split_freq[i])
-            assert ct.isclose(org_fa[i], split_fa[i], abs_tol=abs_tol), i
+            assert np.isclose(org_freq[i], split_freq[i])
+            assert np.isclose(org_fa[i], split_fa[i], atol=abs_tol), i
 
 
 if __name__ == '__main__':

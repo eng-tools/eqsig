@@ -435,20 +435,53 @@ def put_array_in_2d_array(values, shifts, clip='none'):
         return out
 
 
-def join_sig_w_time_shift(asig, time_shifts, jtype='add'):
-    shifts = np.array(time_shifts / asig.dt, dtype=int)
-    values = asig.values
+def join_sig_w_time_shift(sig, time_shifts, jtype='add'):
+    """
+    Zero pads values of a signal by an array of time shifts and joins it with the original
+
+    Parameters
+    ----------
+    sig: eqsig.Signal
+        signal to be shifted
+    time_shifts: array_like
+        Time shifts to be performed
+    jtype: str (default='add')
+        if = 'add' then shifted and original signals are added, if ='sub' then subtracted
+
+    Returns
+    -------
+    shifted_values: array_like [2D shape(len(sig.values), len(shift))]
+
+    """
+    shifts = np.array(time_shifts / sig.dt, dtype=int)
+    values = sig.values
     return join_values_w_shifts(values, shifts, jtype=jtype)
 
 
 def join_values_w_shifts(values, shifts, jtype='add'):
+    """
+    Zero pads values by an array of shifts and joins it with the original values
+
+    Parameters
+    ----------
+    values: array_like
+        values to be shifted
+    shifts: array_like [int]
+        Shifts to be performed
+    jtype: str (default='add')
+        if = 'add' then shifted and original values are added, if ='sub' then subtracted
+
+    Returns
+    -------
+    shifted_values: array_like [2D shape(len(values), len(shift))]
+
+    """
     a0 = np.pad(values, (0, np.max(shifts)), mode='constant', constant_values=0)  # 1d
     a1 = put_array_in_2d_array(values, shifts)
     if jtype == 'add':
         return a1 + a0
     elif jtype == 'sub':
         return -a1 + a0
-
 
 
 if __name__ == '__main__':

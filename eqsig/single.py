@@ -158,8 +158,19 @@ class Signal(object):
 
         Parameters
         ----------
-        :param cut_off: Tuple, The cut off frequencies for the filter
-        :param kwargs:
+        cut_off: tuple
+            Lower and upper cut off frequencies for the filter, if None then no filter.
+            e.g. (None, 15) applies a lowpass filter at 15Hz, whereas (0.1, 10) applies
+            a bandpass filter at 0.1Hz to 10Hz.
+        filter_order: int
+            Order of the Butterworth filter
+        remove_gibbs: str (default=None)
+            Pads with zeros to remove the Gibbs filter effect,
+            if = 'start' then pads at start,
+            if = 'end' then pads at end,
+            if = 'mid' then pads half at start and half at end
+        gibbs_extra: int
+            each increment of the value doubles the record length using zero padding.
         :return:
         """
         if isinstance(cut_off, list) or isinstance(cut_off, tuple) or isinstance(cut_off, np.Array):
@@ -179,7 +190,7 @@ class Signal(object):
             cut_off = cut_off[0]
 
         filter_order = kwargs.get('filter_order', 4)
-        remove_gibbs = kwargs.get('remove_gibbs', 0)
+        remove_gibbs = kwargs.get('remove_gibbs', None)
         gibbs_extra = kwargs.get('gibbs_extra', 1)
         gibbs_range = kwargs.get('gibbs_range', 50)
         sampling_rate = 1.0 / self.dt
@@ -188,7 +199,7 @@ class Signal(object):
         mote = self.values
         org_len = len(mote)
 
-        if remove_gibbs:
+        if remove_gibbs is not None:
             # Pad end of record with extra zeros then cut it off after filtering
             nindex = int(np.ceil(np.log2(len(mote)))) + gibbs_extra
             new_len = 2 ** nindex
@@ -274,7 +285,7 @@ class Signal(object):
 
     def add_constant(self, constant):
         """
-        Adds a single value from every value in the signal.
+        Adds a single value to every value in the signal.
 
         :param constant:
         :return:
@@ -283,7 +294,7 @@ class Signal(object):
 
     def add_series(self, series):
         """
-        Adds a single value from every value in the signal.
+        Adds a series of values to the values in the signal.
 
         :param series: A series of values
         :return:
@@ -297,8 +308,9 @@ class Signal(object):
         """
         Combines a signal.
 
-        :param new_signal: Signal object
-        :return:
+        Parameters
+        ----------
+        new_signal: Signal object
         """
         if isinstance(new_signal, Signal):
             if new_signal.dt == self.dt:
@@ -359,8 +371,21 @@ class AccSignal(Signal):
         """
         A time series object
 
-        :param values: An acceleration time series, type=acceleration, should be in m/s2
-        :param dt: time step
+        Parameters
+        ----------
+        values: array_like
+            Acceleration time series - should be in m/s2
+        dt: float
+            Time step
+        label: str (default='m1')
+            Used for plotting
+        smooth_freq_range: tuple [floats] (default=(0.1, 30))
+            lower and upper bound of frequency range to compute the smoothed Fourier amplitude spectrum
+        verbose: int (default=0)
+            Level of output verbosity
+        response_times: tuple of floats (default=(0.1, 5))
+        ccbox: int
+            colour index for plotting
         """
         super(AccSignal, self).__init__(values, dt, label=label, smooth_freq_range=smooth_freq_range, verbose=verbose, ccbox=ccbox)
         if len(response_times) == 2:
@@ -437,10 +462,18 @@ class AccSignal(Signal):
 
     def remove_rolling_average(self, mtype="velocity", freq_window=5):
         """
+        Removes the rolling average
 
-        :param mtype:
-        :param freq_window: float, window for applying the rolling average
-        :return:
+        Parameters
+        ----------
+        mtype: str
+            motion type to apply method to
+        freq_window: int
+            window for applying the rolling average
+
+        Returns
+        -------
+
         """
         if mtype == "velocity":
             mot = self.velocity
@@ -483,7 +516,7 @@ class AccSignal(Signal):
 
     def generate_displacement_and_velocity_series(self, trap=True):
         """
-        Calculates the displacement and velocity
+        Calculates the displacement and velocity time series
         """
         self._velocity, self._displacement = sd.velocity_and_displacement_from_acceleration(self.values,
                                                                                           self.dt, trap=trap)
@@ -491,12 +524,14 @@ class AccSignal(Signal):
 
     @property
     def velocity(self):
+        """Velocity time series"""
         if not self._cached_disp_and_velo:
             self.generate_displacement_and_velocity_series()
         return self._velocity
 
     @property
     def displacement(self):
+        """Displacement time series"""
         if not self._cached_disp_and_velo:
             self.generate_displacement_and_velocity_series()
         return self._displacement
@@ -509,6 +544,7 @@ class AccSignal(Signal):
 
     @property
     def pga(self):
+        """Absolute peak ground acceleration"""
         if "pga" in self._cached_params:
             return self._cached_params["pga"]
         else:
@@ -518,6 +554,7 @@ class AccSignal(Signal):
 
     @property
     def pgv(self):
+        """Absolute peak ground velocity"""
         if "pgv" in self._cached_params:
             return self._cached_params["pgv"]
         else:
@@ -527,6 +564,7 @@ class AccSignal(Signal):
 
     @property
     def pgd(self):
+        """Absolute peak ground displacement"""
         if "pgd" in self._cached_params:
             return self._cached_params["pgd"]
         else:
@@ -535,6 +573,10 @@ class AccSignal(Signal):
             return pgd
 
     def generate_duration_stats(self):
+        """
+        Deprecated: Use eqsig.im.calc_sig_dur or eqsig.im.calc_sig_dur, eqsig.im.calc_brac_dur or esig.im.calc_a_rms
+        """
+        deprecation("Use eqsig.im.calc_sig_dur or eqsig.im.calc_sig_dur, eqsig.im.calc_brac_dur or esig.im.calc_a_rms")
         abs_motion = abs(self.values)
 
         time = np.arange(self.npts) * self.dt
@@ -573,53 +615,22 @@ class AccSignal(Signal):
 
     def generate_cumulative_stats(self):
         """
+        Deprecated: Use eqsig.im.calc_arias_intensity, eqsig.im.calc_cav
 
-        CAV: Cumulative Absolute velocity
-
-        ref:
-        Electrical Power Research Institute. Standardization of the Cumulative
-        Absolute Velocity. 1991. EPRI TR-100082-1'2, Palo Alto, California.
         """
+        deprecation("Use eqsig.im.calc_arias_intensity, eqsig.im.calc_cav")
         # Arias intensity in m/s
         self.arias_intensity_series = measures.calc_arias_intensity(self)
         self.arias_intensity = self.arias_intensity_series[-1]
         self.cav_series = measures.calc_cav(self)
         self.cav = self.cav_series[-1]
 
-    @property
-    def isv(self):
-        """
-        Integral of the squared velocity at the end of the motion
-
-        See Kokusho (2013)
-        :return:
-        """
-        if "isv_series" in self._cached_params:
-            return self._cached_params["isv_series"][-1]
-        else:
-            return self.isv_series[-1]
-
-    @property
-    def isv_series(self):
-        """
-        Integral of the squared velocity at each time step
-
-        See Kokusho (2013)
-        :return:
-        """
-        if "isv_series" in self._cached_params:
-            return self._cached_params["isv_series"]
-        else:
-            isv_series = measures.calc_isv(self)
-            self._cached_params["isv_series"] = isv_series
-            return isv_series
-
     def generate_all_motion_stats(self):
         """
-        This calculates the duration, Arias intensity
+        Deprecated: Use eqsig.im functions to calculate stats
         """
+        deprecation("Use eqsig.im functions to calculate stats")
 
-        self.generate_peak_values()
         self.generate_duration_stats()
         self.generate_cumulative_stats()
 
@@ -635,10 +646,6 @@ class AccSignal(Signal):
         self.sd_end = 0.0
         self.arias_intensity = 0.0
         self._cached_params = {}
-
-    # deprecated
-    def relative_displacement_response(self, period, xi):
-        return dh.single_elastic_response(self.values, self.dt, period, xi)
 
     def response_series(self, response_times=None, xi=-1):
         """

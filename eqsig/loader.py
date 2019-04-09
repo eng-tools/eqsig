@@ -27,6 +27,17 @@ def load_values_and_dt(ffp):
     return values, dt
 
 
+# def fast_nga_loader(ffp):
+#     data = np.genfromtxt(ffp, skip_header=4, names=True)
+#     data.flatten()
+#     dt = data.dtype.names[0].split("DT=")[-1]
+#     dt = "." + dt[1:]
+#     print(dt)
+#     dt = float(dt)
+#     values = data.astype(np.float)
+#     return values, dt
+
+
 def save_values_and_dt(ffp, values, dt, label):
     """
     Exports acceleration values to the eqsig format.

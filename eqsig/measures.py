@@ -7,6 +7,7 @@ from eqsig.exceptions import deprecation
 def calc_significant_duration(motion, dt, start=0.05, end=0.95):
     """
     Deprecated. Use calc_sig_dur_vals
+
     Parameters
     ----------
     motion
@@ -53,20 +54,20 @@ def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95):
 
 def calc_sig_dur(asig, start=0.05, end=0.95, im=None):
     """
-    Computes the significant duration using cumulative acceleration according to Trifunac and Brady (1975).
+    Computes the significant duration according to Trifunac and Brady (1975).
 
     Parameters
     ----------
-    motion: array-like
-        acceleration time series
+    asig: eqsig.AccSignal
+        acceleration time series object
     dt: float
         time step
     start: float, default=0.05
         threshold to start the duration
     end: float, default=0.95
         threshold to end the duration
-    im: function or None
-        A function that calculates a cumulative intensity measure, default Arias Intensity
+    im: function or None (default=None)
+        A function that calculates a cumulative intensity measure, if =None, then use eqsig.im.calc_arias_intensity
 
     Returns
     -------
@@ -285,6 +286,11 @@ def calc_bandwidth_f_max(asig, ratio=0.707):
 
 
 def calc_bracketed_duration(asig, threshold):
+    deprecation("Use calc_brac_dur")
+    return calc_brac_dur(asig, threshold)
+
+
+def calc_brac_dur(asig, threshold):
     """
     Calculates the Bracketed duration based on some threshold
 
@@ -306,12 +312,21 @@ def calc_bracketed_duration(asig, threshold):
     time2 = time[ind01]
     try:
         t_bracket = time2[-1] - time2[0]
+    except IndexError:
+        t_bracket = 0
+    return t_bracket
+
+
+def calc_a_rms(asig, threshold):
+    abs_motion = abs(asig.values)
+    # Bracketed duration
+    ind01 = np.where(abs_motion / 9.8 > threshold)
+    try:
         # rms acceleration in m/s/s
         a_rms01 = np.sqrt(1 / asig.t_b01 * np.trapz((asig.values[ind01[0][0]:ind01[0][-1]]) ** 2, dx=asig.dt))
     except IndexError:
-        t_bracket = -1.
-        a_rms01 = -1.
-    return t_bracket
+        a_rms01 = 0
+    return a_rms01
 
 
 def calc_integral_of_abs_velocity(asig):
