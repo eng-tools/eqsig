@@ -5,7 +5,6 @@ import pytest
 
 import numpy as np
 
-from eqsig import AccSignal
 
 PACKAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 

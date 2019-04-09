@@ -3,6 +3,7 @@ import scipy.signal as ss
 import scipy
 
 from eqsig import exceptions
+from eqsig.functions import get_section_average, generate_smooth_fa_spectrum
 import eqsig.duhamels as dh
 import eqsig.displacements as sd
 import eqsig.measures as sm
@@ -660,71 +661,3 @@ class AccSignal(Signal):
             xi = self._cached_xi
         resp_u, resp_v, resp_a = dh.response_series(self.values, self.dt, self.response_times, xi)
         return resp_u, resp_v, resp_a
-
-
-def get_section_average(series, start=0, end=-1, index=False):
-    """
-    Gets the average value of a part of series.
-
-    Common use is so that it can be patched with another record.
-
-    :param series: A TimeSeries object
-    :param start: int or float, optional,
-        Section start point
-    :param end: int or float, optional,
-        Section end point
-    :param index: bool, optional,
-        if False then start and end are considered values in time.
-    :return float,
-        The mean value of the section.
-    """
-    s_index, e_index = time_indices(series.npts, series.dt, start, end, index)
-
-    section_average = np.mean(series.values[s_index:e_index])
-    return section_average
-
-
-def time_indices(npts, dt, start, end, index):
-    """
-    Determine the new start and end indices of the time series.
-
-    :param npts: Number of points in original time series
-    :param dt: Time step of original time series
-    :param start: int or float, optional, New start point
-    :param end: int or float, optional, New end point
-    :param index: bool, optional, if False then start and end are considered values in time.
-    :return: tuple, start index, end index
-    """
-    if index is False:  # Convert time values into indices
-        if end != -1:
-            e_index = int(end / dt) + 1
-        else:
-            e_index = end
-        s_index = int(start / dt)
-    else:
-        s_index = start
-        e_index = end
-    if e_index > npts:
-        raise exceptions.SignalProcessingWarning("Cut point is greater than time series length")
-    return s_index, e_index
-
-
-def generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies, fa_spectrum, band=40):
-    smooth_fa_spectrum = np.zeros_like(smooth_fa_frequencies)
-    for i in range(smooth_fa_frequencies.size):
-        f_centre = smooth_fa_frequencies[i]
-        amp_array = np.log10((fa_frequencies / f_centre) ** band)
-
-        amp_array[0] = 0
-
-        wb_vals = np.zeros((len(amp_array)))
-        for j in range(len(amp_array)):
-            if amp_array[j] == 0:
-                wb_vals[j] = 1
-            else:
-                wb_vals[j] = (np.sin(amp_array[j]) / amp_array[j]) ** 4
-
-        smooth_fa_spectrum[i] = (sum(abs(fa_spectrum) * wb_vals) / sum(wb_vals))
-    return smooth_fa_spectrum
-
-
