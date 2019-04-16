@@ -33,8 +33,9 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=Non
     max_freq = 1 / asig.dt / 2
     # if interp:
     #     max_freq /= 2
+    min_freq = 1.0 / (len(asig.swtf) * asig.dt)
 
-    extent = (0, asig.time[-1], 0, max_freq)
+    extent = (0, asig.time[-1], min_freq, max_freq)
 
     kwargs = {}
     if cmap is not None:

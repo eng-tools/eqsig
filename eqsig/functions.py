@@ -333,6 +333,21 @@ def get_switched_peak_indices(asig):
     values = asig
     if hasattr(asig, "values"):
         values = asig.values
+    return get_switched_peak_array_indices(values)
+
+
+def get_switched_peak_array_indices(values):
+    """
+    Find the indices for largest peak between each zero crossing
+
+    Parameters
+    ----------
+    values: array_like
+
+    Returns
+    -------
+    array_like
+    """
     peak_indices = eqsig.get_peak_array_indices(values)
     peak_values = np.take(values, peak_indices)
 
