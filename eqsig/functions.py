@@ -318,6 +318,40 @@ def interp_to_approx_dt(asig, target_dt=0.01, even=True):
     return eqsig.AccSignal(acc_interp, asig.dt / factor)
 
 
+def resample_to_approx_dt(asig, target_dt=0.01, even=True):
+    """
+    Resample a signal assuming periodic to a new time step
+
+    Only a target time step is provided and the algorithm determines
+     what time step is best to minimise loss of data from aliasing
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal
+        Acceleration time series object
+    target_dt: float
+        Target time step
+    even: bool
+        If true then forces the number of time steps to be an even number
+
+    Returns
+    -------
+
+    """
+    factor = asig.dt / target_dt
+    if factor == 1:
+        pass
+    elif factor > 1:
+        factor = int(np.ceil(factor))
+    else:
+        factor = 1 / np.floor(1 / factor)
+    new_npts = factor * asig.npts
+    if even:
+        new_npts = 2 * int(new_npts / 2)
+    acc_interp = scipy.signal.resample(asig.values, new_npts)
+    return eqsig.AccSignal(acc_interp, asig.dt / factor)
+
+
 def get_switched_peak_indices(asig):
     """
     Find the indices for largest peak between each zero crossing

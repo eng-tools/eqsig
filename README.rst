@@ -23,6 +23,26 @@ eqsig
 
 A Python package for seismic signal processing.
 
+Features
+========
+
+This package provides common functions for computing ground motion parameters and performing signal processing.
+The functions are implemented on either numpy arrays or on a signal object that uses caching to avoid expensive
+recalculation of widely used parameters.
+
+ - Compute the acceleration response spectrum and elastic response time series using the fast Nigam and Jennings (1968) algorithm.
+ - Compute the Fourier amplitude spectrum (using the scipy.signal.fft algorithm)
+ - Compute the smooth Fourier amplitude spectrum according to Konno and Ohmachi (1998)
+ - Compute velocity and displacement from acceleration time series
+ - Compute peak ground motion quantities (PGA, PGV, PGD)
+ - Compute common ground motion intensity measures (Arias intensity, CAV, CAV_dp5, significant duration, bracketed duration, dominant period)
+ - Compute signal features (zero crossings, global peaks, local peaks)
+ - Compute rotated ground motion or intensity measure from two ground motion components
+ - Resampling of ground motion through interpolation or periodic resampling
+ - Butterworth filter (using scipy), running average, polynomial fitting
+ - Fast loading on plain text to Signal objects
+
+
 How to Use
 ==========
 
@@ -68,10 +88,9 @@ How do I get set up?
 Package conventions
 -------------------
 
-* A function that calculates a property the takes a signal as an input, should be named as `calc_<property>`,
- if the calculation has multiple different implementations, then include the citation
- as author and year as well `calc_<property>_<author>_<year>`
+* A function that calculates a property the takes a signal as an input, should be named as `calc_<property>`, if the calculation has multiple different implementations, then include the citation as author and year as well `calc_<property>_<author>_<year>`
 * If the function takes a raw array then it should contain the word array (or values).
+
 
 Testing
 -------
