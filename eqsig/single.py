@@ -610,7 +610,7 @@ class AccSignal(Signal):
             self.a_rms10 = -1.
 
         # Trifunac and Brady
-        self.sd_start, self.sd_end = sm.calc_sig_dur_vals(self.values, self.dt)
+        self.sd_start, self.sd_end = sm.calc_sig_dur_vals(self.values, self.dt, se=True)
 
         self.t_595 = self.sd_end - self.sd_start
 

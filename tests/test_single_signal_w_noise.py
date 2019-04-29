@@ -53,8 +53,7 @@ def test_fourier_spectra(noise_rec):
 
 
 def test_duration_stats(noise_rec):
-    t_s, t_e = calc_sig_dur(noise_rec)
-    t_595 = t_e - t_s
+    t_595 = calc_sig_dur(noise_rec)
     assert np.isclose(t_595, 18.025)
 
 
