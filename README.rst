@@ -30,17 +30,17 @@ This package provides common functions for computing ground motion parameters an
 The functions are implemented on either numpy arrays or on a signal object that uses caching to avoid expensive
 recalculation of widely used parameters.
 
- - Compute the acceleration response spectrum and elastic response time series using the fast Nigam and Jennings (1968) algorithm.
- - Compute the Fourier amplitude spectrum (using the scipy.signal.fft algorithm)
- - Compute the smooth Fourier amplitude spectrum according to Konno and Ohmachi (1998)
- - Compute velocity and displacement from acceleration time series
- - Compute peak ground motion quantities (PGA, PGV, PGD)
- - Compute common ground motion intensity measures (Arias intensity, CAV, CAV_dp5, significant duration, bracketed duration, dominant period)
- - Compute signal features (zero crossings, global peaks, local peaks)
- - Compute rotated ground motion or intensity measure from two ground motion components
- - Resampling of ground motion through interpolation or periodic resampling
- - Butterworth filter (using scipy), running average, polynomial fitting
- - Fast loading on plain text to Signal objects
+* Compute the acceleration response spectrum and elastic response time series using the fast Nigam and Jennings (1968) algorithm.
+* Compute the Fourier amplitude spectrum (using the scipy.signal.fft algorithm)
+* Compute the smooth Fourier amplitude spectrum according to Konno and Ohmachi (1998)
+* Compute velocity and displacement from acceleration time series
+* Compute peak ground motion quantities (PGA, PGV, PGD)
+* Compute common ground motion intensity measures (Arias intensity, CAV, CAV_dp5, significant duration, bracketed duration, dominant period)
+* Compute signal features (zero crossings, global peaks, local peaks)
+* Compute rotated ground motion or intensity measure from two ground motion components
+* Resampling of ground motion through interpolation or periodic resampling
+* Butterworth filter (using scipy), running average, polynomial fitting
+* Fast loading of, and saving of, plain text to and from Signal objects
 
 
 How to Use
@@ -107,11 +107,11 @@ Deployment
 
 To deploy the package to pypi.com you need to:
 
- 1. Push to the *pypi* branch. This executes the tests on circleci.com
+1. Push to the *pypi* branch. This executes the tests on circleci.com
 
- 2. Create a git tag and push to github, run: ``trigger_deploy.py`` or manually:
+2. Create a git tag and push to github, run: ``trigger_deploy.py`` or manually:
 
- .. code:: bash
+.. code:: bash
 
     git tag 0.5.2 -m "version 0.5.2"
     git push --tags origin pypi

@@ -2,18 +2,17 @@ import numpy as np
 from eqsig import loader
 from tests import conftest
 from tests.conftest import TEST_DATA_DIR
+import eqsig
 
 
 def test_arias_intensity(asig_t1):
-    asig_t1.generate_cumulative_stats()
     true_arias_intensity = 0.63398
-    assert np.isclose(asig_t1.arias_intensity, true_arias_intensity, rtol=0.0001)
+    assert np.isclose(eqsig.im.calc_arias_intensity(asig_t1)[-1], true_arias_intensity, rtol=0.0001)
 
 
 def test_cumulative_absolute_velocity(asig_t1):
-    asig_t1.generate_cumulative_stats()
     true_cav = 8.53872
-    assert np.isclose(asig_t1.cav, true_cav, rtol=0.0001)
+    assert np.isclose(eqsig.im.calc_cav(asig_t1)[-1], true_cav, rtol=0.0001)
 
 
 def test_peak_values(asig_t1):
@@ -133,10 +132,10 @@ def test_response_spectra_at_high_frequencies(asig_t1):
 def test_duration_stats(asig_t1):
     asig_t1.generate_duration_stats()
 
-    assert np.isclose(asig_t1.t_595, 20.99)  # eqsig==0.5.0
-    assert np.isclose(asig_t1.t_b01, 38.27)  # eqsig==0.5.0
-    assert np.isclose(asig_t1.t_b05, 15.41)  # eqsig==0.5.0
-    assert np.isclose(asig_t1.t_b10, 8.41)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_sig_dur(asig_t1), 20.99)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.01), 38.27)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.05), 15.41)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.1), 8.41)  # eqsig==0.5.0
 
 # 
 # if __name__ == '__main__':

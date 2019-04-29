@@ -23,7 +23,7 @@ def calc_significant_duration(motion, dt, start=0.05, end=0.95):
     return calc_sig_dur_vals(motion, dt, start=start, end=end)
 
 
-def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95):
+def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95, se=False):
     """
     Computes the significant duration using cumulative acceleration according to Trifunac and Brady (1975).
 
@@ -37,6 +37,8 @@ def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95):
         threshold to start the duration
     end: float, default=0.95
         threshold to end the duration
+    se: bool, default=False
+        If true then return the start and end times
 
     Returns
     -------
@@ -49,10 +51,12 @@ def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95):
     start_time = ind2[0][0] * dt
     end_time = ind2[0][-1] * dt
 
-    return start_time, end_time
+    if se:
+        return start_time, end_time
+    return end_time - start_time
 
 
-def calc_sig_dur(asig, start=0.05, end=0.95, im=None):
+def calc_sig_dur(asig, start=0.05, end=0.95, im=None, se=False):
     """
     Computes the significant duration according to Trifunac and Brady (1975).
 
@@ -68,6 +72,8 @@ def calc_sig_dur(asig, start=0.05, end=0.95, im=None):
         threshold to end the duration
     im: function or None (default=None)
         A function that calculates a cumulative intensity measure, if =None, then use eqsig.im.calc_arias_intensity
+    se: bool, default=False
+        If true then return the start and end times
 
     Returns
     -------
@@ -80,8 +86,9 @@ def calc_sig_dur(asig, start=0.05, end=0.95, im=None):
     ind2 = np.where((im_vals > start * im_vals[-1]) & (im_vals < end * im_vals[-1]))
     start_time = ind2[0][0] * asig.dt
     end_time = ind2[0][-1] * asig.dt
-
-    return start_time, end_time
+    if se:
+        return start_time, end_time
+    return end_time - start_time
 
 
 def calculate_peak(motion):
@@ -290,7 +297,7 @@ def calc_bracketed_duration(asig, threshold):
     return calc_brac_dur(asig, threshold)
 
 
-def calc_brac_dur(asig, threshold):
+def calc_brac_dur(asig, threshold, se=False):
     """
     Calculates the Bracketed duration based on some threshold
 
@@ -300,6 +307,8 @@ def calc_brac_dur(asig, threshold):
         Acceleration time series object
     threshold: float
         acceleration threshold to calculation duration start and end
+    se: bool, default=False
+        If true then return the start and end times
     Returns
     -------
     float
@@ -311,10 +320,14 @@ def calc_brac_dur(asig, threshold):
     ind01 = np.where(abs_motion / 9.8 > threshold)
     time2 = time[ind01]
     try:
-        t_bracket = time2[-1] - time2[0]
+        if se:
+            return time2[0], time2[-1]
+        return time2[-1] - time2[0]
     except IndexError:
-        t_bracket = 0
-    return t_bracket
+        if se:
+            return None, None
+        return 0
+
 
 
 def calc_a_rms(asig, threshold):
