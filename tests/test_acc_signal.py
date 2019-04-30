@@ -130,7 +130,6 @@ def test_response_spectra_at_high_frequencies(asig_t1):
 
 
 def test_duration_stats(asig_t1):
-    asig_t1.generate_duration_stats()
 
     assert np.isclose(eqsig.im.calc_sig_dur(asig_t1), 20.99)  # eqsig==0.5.0
     assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.01), 38.27)  # eqsig==0.5.0

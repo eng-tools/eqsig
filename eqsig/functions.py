@@ -257,7 +257,7 @@ def fas2signal(fas, dt, stype="signal"):
         return AccSignal(s, dt)
 
 
-def generate_fa_spectrum(sig):
+def generate_fa_spectrum(sig, n_pad=True):
     """
     Produces the Fourier amplitude spectrum
 
@@ -272,11 +272,15 @@ def generate_fa_spectrum(sig):
     fa_frequencies: array_like
         Frequencies of the spectrum
     """
-    npts = len(sig.values)
-    n_factor = 2 ** int(np.ceil(np.log2(npts)))
-    fa = scipy.fft(sig.values, n=n_factor)
-    points = int(n_factor / 2)
-    assert len(fa) == n_factor
+    npts = sig.npts
+    if n_pad:
+        n_factor = 2 ** int(np.ceil(np.log2(npts)))
+        fa = scipy.fft(sig.values, n=n_factor)
+        points = int(n_factor / 2)
+        assert len(fa) == n_factor
+    else:
+        fa = scipy.fft(sig.values)
+        points = int(sig.npts / 2)
     fa_spectrum = fa[range(points)] * sig.dt
     fa_frequencies = np.arange(points) / (2 * points * sig.dt)
     return fa_spectrum, fa_frequencies
