@@ -135,24 +135,28 @@ def get_max_stockwell_freq(asig):
 
 
 def plot_max_freq_azimuth(splot, asig1, asig2, max_f=None, norm=False):
-    r = np.arange(0, 180, 5)
+    r = np.linspace(0, 180, 90)
     theta = np.pi * r / 180
     ys = []
     xs = asig1.time
     for i in range(len(r)):
         asigc = eqsig.multiple.combine_at_angle(asig1, asig2, r[i])
         freqs = np.clip(get_max_stockwell_freq(asigc), None, max_f)
-        norm_freqs = (freqs - np.min(freqs)) / (np.max(freqs) - np.min(freqs))
-        ys.append(norm_freqs)
+        if norm:
+            norm_freqs = (freqs - np.min(freqs)) / (np.max(freqs) - np.min(freqs))
+            ys.append(norm_freqs)
+        else:
+            ys.append(freqs)
 
-    ys = np.array(ys).T.flatten()
-    new_coords = np.meshgrid(theta, xs)
-    base_coords = np.meshgrid(theta + np.pi, xs)
-
-    new_coords = np.reshape(new_coords, (2, -1)).T
-    base_coords = np.reshape(base_coords, (2, -1)).T
-    splot.scatter(new_coords[:, 0], new_coords[:, 1], c=ys, s=4)
-    splot.scatter(base_coords[:, 0], base_coords[:, 1], c=ys, s=4)
+    ys = np.array(ys).T
+    splot.pcolormesh(theta[np.newaxis], xs[:, np.newaxis], ys)
+    # new_coords = np.meshgrid(theta, xs)
+    # base_coords = np.meshgrid(theta + np.pi, xs)
+    #
+    # new_coords = np.reshape(new_coords, (2, -1)).T
+    # base_coords = np.reshape(base_coords, (2, -1)).T
+    # splot.scatter(new_coords[:, 0], new_coords[:, 1], c=ys, s=4)
+    # splot.scatter(base_coords[:, 0], base_coords[:, 1], c=ys, s=4)
 
 
 if __name__ == '__main__':
