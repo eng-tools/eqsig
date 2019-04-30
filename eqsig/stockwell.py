@@ -134,11 +134,10 @@ def get_max_stockwell_freq(asig):
     return max_f
 
 
-def plot_max_freq_azimuth(splot, asig1, asig2, max_f=None, norm=False):
-    r = np.linspace(0, 180, 90)
+def plot_max_freq_azimuth(splot, asig1, asig2, max_f=None, norm=False, f_steps=90):
+    r = np.linspace(0, 180, f_steps)
     theta = np.pi * r / 180
     ys = []
-    xs = asig1.time
     for i in range(len(r)):
         asigc = eqsig.multiple.combine_at_angle(asig1, asig2, r[i])
         freqs = np.clip(get_max_stockwell_freq(asigc), None, max_f)
@@ -149,14 +148,9 @@ def plot_max_freq_azimuth(splot, asig1, asig2, max_f=None, norm=False):
             ys.append(freqs)
 
     ys = np.array(ys).T
-    splot.pcolormesh(theta[np.newaxis], xs[:, np.newaxis], ys)
-    # new_coords = np.meshgrid(theta, xs)
-    # base_coords = np.meshgrid(theta + np.pi, xs)
-    #
-    # new_coords = np.reshape(new_coords, (2, -1)).T
-    # base_coords = np.reshape(base_coords, (2, -1)).T
-    # splot.scatter(new_coords[:, 0], new_coords[:, 1], c=ys, s=4)
-    # splot.scatter(base_coords[:, 0], base_coords[:, 1], c=ys, s=4)
+    splot.pcolormesh(theta[np.newaxis], asig1.time[:, np.newaxis], ys)
+    splot.set_thetamin(0)
+    splot.set_thetamax(180)
 
 
 if __name__ == '__main__':
