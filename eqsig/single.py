@@ -347,26 +347,6 @@ class Signal(object):
 
 
 class AccSignal(Signal):
-    _cached_response_spectra = False
-    _cached_disp_and_velo = False
-    _cached_xi = 0.05
-    _cached_params = {}
-    _s_a = None
-    _s_v = None
-    _s_d = None
-    t_b01 = 0.0
-    t_b05 = 0.0
-    t_b10 = 0.0
-    a_rms01 = 0.0
-    a_rms05 = 0.0
-    a_rms10 = 0.0
-    t_595 = 0.0  # significant duration
-    sd_start = 0.0  # start time of significant duration
-    sd_end = 0.0  # end time of significant duration
-    arias_intensity_series = None
-    arias_intensity = 0.0
-    cav_series = None
-    cav = 0.0
 
     def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, response_times=(0.1, 5), ccbox=0):
         """
@@ -395,6 +375,13 @@ class AccSignal(Signal):
             self.response_times = np.array(response_times)
         self._velocity = np.zeros(self.npts)
         self._displacement = np.zeros(self.npts)
+        self._cached_params = {}
+        self._cached_response_spectra = False
+        self._cached_disp_and_velo = False
+        self._cached_xi = 0.05
+        self._s_a = None
+        self._s_v = None
+        self._s_d = None
 
     def clear_cache(self):
         self._cached_smooth_fa = False

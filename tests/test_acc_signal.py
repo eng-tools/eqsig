@@ -136,6 +136,15 @@ def test_duration_stats(asig_t1):
     assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.05), 15.41)  # eqsig==0.5.0
     assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.1), 8.41)  # eqsig==0.5.0
 
+
+def test_variables_are_over_writable():
+    a1 = np.random.rand(100)
+    asig1 = eqsig.AccSignal(a1, 1)
+    asig2 = eqsig.AccSignal(a1 * 2, 1)
+    assert asig2.pga != asig1.pga
+
 # 
 # if __name__ == '__main__':
 #     show_response_spectra_at_high_frequencies()
+
+print(np.random.rand(100))
