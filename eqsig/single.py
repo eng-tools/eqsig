@@ -4,7 +4,7 @@ import scipy
 
 from eqsig import exceptions
 from eqsig.functions import get_section_average, generate_smooth_fa_spectrum
-import eqsig.duhamels as dh
+import eqsig.sdof as dh
 import eqsig.displacements as sd
 import eqsig.im as sm
 from eqsig import im

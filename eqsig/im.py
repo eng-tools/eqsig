@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.integrate
-from eqsig import duhamels
+from eqsig import sdof
 from eqsig.exceptions import deprecation
 
 
@@ -237,7 +237,7 @@ def cumulative_response_spectra(acc_signal, fun_name, periods=None, xi=None):
         periods = np.array(periods)
     if xi is None:
         xi = 0.05
-    resp_u, resp_v, resp_a = duhamels.response_series(acc_signal.values, acc_signal.dt, periods, xi)
+    resp_u, resp_v, resp_a = sdof.response_series(acc_signal.values, acc_signal.dt, periods, xi)
     if fun_name == "arias_intensity":
         rs = _raw_calc_arias_intensity(resp_a, acc_signal.dt)
     else:
