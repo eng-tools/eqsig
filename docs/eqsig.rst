@@ -4,42 +4,10 @@ eqsig package
 Submodules
 ----------
 
-eqsig.design\_spectra module
-----------------------------
+eqsig.single module
+-------------------
 
-.. automodule:: eqsig.design_spectra
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.displacements module
---------------------------
-
-.. automodule:: eqsig.displacements
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.duhamels module
----------------------
-
-.. automodule:: eqsig.duhamels
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.exceptions module
------------------------
-
-.. automodule:: eqsig.exceptions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.im module
----------------
-
-.. automodule:: eqsig.measures
+.. automodule:: eqsig.single
     :members:
     :undoc-members:
     :show-inheritance:
@@ -52,13 +20,67 @@ eqsig.multiple module
     :undoc-members:
     :show-inheritance:
 
-eqsig.single module
--------------------
+eqsig.im module
+---------------
 
-.. automodule:: eqsig.single
+.. automodule:: eqsig.im
     :members:
     :undoc-members:
     :show-inheritance:
+
+eqsig.displacements module
+--------------------------
+
+.. automodule:: eqsig.displacements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.functions module
+----------------------------
+
+.. automodule:: eqsig.functions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.loader module
+----------------------------
+
+.. automodule:: eqsig.loader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.duhamels module
+---------------------
+
+.. automodule:: eqsig.duhamels
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.stockwell module
+----------------------------
+
+.. automodule:: eqsig.stockwell
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.exceptions module
+-----------------------
+
+.. automodule:: eqsig.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+
+
+
+
 
 
 Module contents

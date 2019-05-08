@@ -6,8 +6,8 @@ from eqsig import exceptions
 from eqsig.functions import get_section_average, generate_smooth_fa_spectrum
 import eqsig.duhamels as dh
 import eqsig.displacements as sd
-import eqsig.measures as sm
-from eqsig import measures
+import eqsig.im as sm
+from eqsig import im
 from eqsig.exceptions import deprecation
 
 
@@ -608,9 +608,9 @@ class AccSignal(Signal):
         """
         deprecation("Use eqsig.im.calc_arias_intensity, eqsig.im.calc_cav")
         # Arias intensity in m/s
-        self.arias_intensity_series = measures.calc_arias_intensity(self)
+        self.arias_intensity_series = im.calc_arias_intensity(self)
         self.arias_intensity = self.arias_intensity_series[-1]
-        self.cav_series = measures.calc_cav(self)
+        self.cav_series = im.calc_cav(self)
         self.cav = self.cav_series[-1]
 
     def generate_all_motion_stats(self):

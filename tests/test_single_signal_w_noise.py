@@ -1,5 +1,5 @@
 import numpy as np
-from eqsig.measures import calc_sig_dur
+from eqsig.im import calc_sig_dur
 from tests.conftest import TEST_DATA_DIR, load_test_record_from_file
 
 
