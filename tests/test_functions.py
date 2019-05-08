@@ -232,6 +232,14 @@ def test_calc_step_fn_error():
     assert min(fns.calc_step_fn_vals_error([4, 4, 4, 4, 1, 1, 1, 1])) == 0.0
 
 
+def test_calc_step_fn_steps_val():
+    vals = [4, 4, 4, 4, 1, 1, 1, 1]
+    ind = np.argmin(fns.calc_step_fn_vals_error(vals))
+    pre, post = fns.calc_step_fn_steps_vals(vals, ind)
+    assert pre == 4
+    assert post == 1
+
+
 def test_roll_av_vals():
     expected = np.array([4, 4, 3, 2, 1, 1, 1, 1])
     assert np.sum(fns.calc_roll_av_vals([4, 4, 4, 4, 1, 1, 1, 1], steps=3) - expected) == 0
@@ -243,7 +251,12 @@ def test_roll_av_vals():
 
 
 if __name__ == '__main__':
-    test_put_array_in_2d_array()
+    vals = [4, 4, 4, 4, 1, 1, 1, 1]
+    ind = np.argmin(fns.calc_step_fn_vals_error(vals))
+    pre, post = fns.calc_step_fn_steps_vals(vals, ind)
+    assert pre == 4
+    assert post == 1, post
+    # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()
     # test_determine_peaks_only_series_with_triangle_series()

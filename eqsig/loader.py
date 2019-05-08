@@ -86,3 +86,44 @@ def load_asig(ffp):
 def save_signal(ffp, signal):
     save_values_and_dt(ffp, signal.values, signal.dt, signal.label)
 
+
+def load_3_comp_values_and_dt_from_v2a(ffp):
+    """
+    Loads a ground motion file stored in the V2A format
+
+    Parameters
+    ----------
+    ffp
+
+    Returns
+    -------
+
+    """
+    a = open(ffp)
+    b = a.readlines()
+    a.close()
+    npts = None
+    dt = None
+    for line in b:
+        if 'Number of points' in line:
+            parts = line.split('points')[1]
+            n_str = parts.split('Duration')[0]
+            npts = int(n_str)
+        if 'corrected data at' in line:
+            parts = line.split('data at')[1]
+            dt_str = parts.split('sec')[0]
+            dt = float(dt_str)
+        if npts is not None and dt is not None:
+            break
+    b = b[26:]
+    elines = int(np.ceil(float(npts) / 10))
+    accs = []
+    for i in range(3):
+        accs.append([])
+        print(3 * i * elines, (3 * i + 1) * elines)
+        for j in range(3 * i * elines + i * 26, (3 * i + 1) * elines + i * 26):
+            accs[i] += b[j].split()
+    accs = np.array(accs).astype(float) / 1e3
+
+    return accs[0], accs[1], accs[2], dt
+

@@ -132,9 +132,9 @@ def test_response_spectra_at_high_frequencies(asig_t1):
 def test_duration_stats(asig_t1):
 
     assert np.isclose(eqsig.im.calc_sig_dur(asig_t1), 20.99)  # eqsig==0.5.0
-    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.01), 38.27)  # eqsig==0.5.0
-    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.05), 15.41)  # eqsig==0.5.0
-    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.1), 8.41)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.01 * 9.8), 38.27)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.05 * 9.8), 15.41)  # eqsig==0.5.0
+    assert np.isclose(eqsig.im.calc_brac_dur(asig_t1, 0.1 * 9.8), 8.41)  # eqsig==0.5.0
 
 
 def test_variables_are_over_writable():

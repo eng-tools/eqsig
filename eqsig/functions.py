@@ -635,6 +635,14 @@ def calc_step_fn_vals_error(values):
     return err
 
 
+def calc_step_fn_steps_vals(values, ind=None):
+    if ind is None:
+        ind = np.argmin(calc_step_fn_vals_error(values))
+    pre = np.mean(values[:ind])
+    post = np.mean(values[ind + 1:])
+    return pre, post
+
+
 def calc_roll_av_vals(values, steps, mode='forward'):
     """
     Calculates the rolling average of a series of values

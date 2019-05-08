@@ -317,7 +317,7 @@ def calc_brac_dur(asig, threshold, se=False):
 
     time = np.arange(asig.npts) * asig.dt
     # Bracketed duration
-    ind01 = np.where(abs_motion / 9.8 > threshold)
+    ind01 = np.where(abs_motion > threshold)
     time2 = time[ind01]
     try:
         if se:

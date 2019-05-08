@@ -7,6 +7,7 @@ from eqsig import im as measures
 from eqsig import im
 from eqsig import stockwell
 from eqsig.loader import save_signal, load_signal, save_values_and_dt, load_values_and_dt, load_asig, load_sig
+from eqsig import loader
 from eqsig import __about__
 
 __project__ = __about__.__project__
