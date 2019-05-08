@@ -1,7 +1,7 @@
 import numpy as np
 import eqsig
 import scipy
-from eqsig import functions
+from eqsig import functions as fns
 
 from tests.conftest import TEST_DATA_DIR
 
@@ -142,7 +142,7 @@ def test_fa_spectrum_conversion():
     faf = np.arange(points) / (2 * points * dt)
     n = 2 * len(fas)
     asig = eqsig.AccSignal(values, dt)
-    fas_eqsig, faf_eqsig = functions.generate_fa_spectrum(asig)
+    fas_eqsig, faf_eqsig = fns.generate_fa_spectrum(asig)
 
     assert np.isclose(fas, fas_eqsig).all()
     assert np.isclose(faf, faf_eqsig).all()
@@ -154,14 +154,14 @@ def test_fa_spectrum_conversion():
     sig = np.fft.ifft(fa, n=n_factor)
     sig = sig[:len(values)]
     assert np.isclose(np.sum(np.abs(sig)), np.sum(np.abs(values)))
-    asig2 = functions.fas2signal(fas_eqsig, dt, stype="signal")
+    asig2 = fns.fas2signal(fas_eqsig, dt, stype="signal")
     trimmed = asig2.values[:len(values)]
     assert np.isclose(np.sum(np.abs(trimmed)), np.sum(np.abs(values)))
 
 
 def test_get_peak_indices():
     values = np.array([0, 2, 1, 2, -1, 1, 1, 0.3, -1, 0.2, 1, 0.2])
-    peak_indices = functions.get_peak_array_indices(values)
+    peak_indices = fns.get_peak_array_indices(values)
     peaks_series = np.zeros_like(values)
     np.put(peaks_series, peak_indices, values)
     expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
@@ -170,10 +170,10 @@ def test_get_peak_indices():
 
 def test_get_zero_crossings_array_indices():
     vs = np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
-    zci = functions.get_zero_crossings_array_indices(vs, keep_adj_zeros=True)
+    zci = fns.get_zero_crossings_array_indices(vs, keep_adj_zeros=True)
     expected = np.array([0, 4, 5, 6, 7, 10, 12])
     assert np.array_equal(zci, expected)
-    zci = functions.get_zero_crossings_array_indices(vs, keep_adj_zeros=False)
+    zci = fns.get_zero_crossings_array_indices(vs, keep_adj_zeros=False)
     expected = np.array([0, 4, 5, 6, 10, 12])
     assert np.array_equal(zci, expected), zci
     print(zci)
@@ -185,17 +185,17 @@ def test_put_array_in_2d_array():
     expected_full = np.array([[0, 1, 2, 3, 4, 0, 0],
                               [0, 0, 1, 2, 3, 4, 0],
                               [0, 0, 0, 1, 2, 3, 4]])
-    out = functions.put_array_in_2d_array(vals, sfs)
+    out = fns.put_array_in_2d_array(vals, sfs)
     assert np.array_equal(out, expected_full), out
 
     # expected = np.array([[0, 1, 2, 3],
     #                      [0, 0, 1, 2],
     #                      [0, 0, 0, 1]])
-    out = functions.put_array_in_2d_array(vals, sfs, clip='end')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='end')
     assert np.array_equal(out, expected_full[:, :-3]), out
-    out = functions.put_array_in_2d_array(vals, sfs, clip='start')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='start')
     assert np.array_equal(out, expected_full), out
-    out = functions.put_array_in_2d_array(vals, sfs, clip='both')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='both')
     assert np.array_equal(out, expected_full[:, :-3]), out
     # neg shift
     vals = np.arange(4, 6)
@@ -203,13 +203,13 @@ def test_put_array_in_2d_array():
     expected_full = np.array([[4, 5, 0, 0, 0],
                               [0, 0, 0, 4, 5],
                               ])
-    out = functions.put_array_in_2d_array(vals, sfs, clip='none')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='none')
     assert np.array_equal(out, expected_full), out
-    out = functions.put_array_in_2d_array(vals, sfs, clip='end')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='end')
     assert np.array_equal(out, expected_full[:, :-2]), out
-    out = functions.put_array_in_2d_array(vals, sfs, clip='start')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='start')
     assert np.array_equal(out, expected_full[:, 1:]), out
-    out = functions.put_array_in_2d_array(vals, sfs, clip='both')
+    out = fns.put_array_in_2d_array(vals, sfs, clip='both')
     assert np.array_equal(out, expected_full[:, 1:-2]), out
 
 
@@ -220,11 +220,26 @@ def test_join_values_w_shifts():
     expected = np.array([[1, 3, 5, 7, 4, 0, 0],
                          [1, 2, 4, 6, 3, 4, 0],
                          [1, 2, 3, 5, 2, 3, 4]])
-    out = functions.join_values_w_shifts(vals, sfs)
+    out = fns.join_values_w_shifts(vals, sfs)
     assert np.array_equal(out, expected), out
     expected = np.array([[ 1,  1,  1,  1, -4,  0,  0],
                         [ 1,  2,  2,  2, -3, -4,  0],
                         [ 1,  2,  3,  3, -2, -3, -4]])
+
+
+def test_calc_step_fn_error():
+    assert min(fns.calc_step_fn_vals_error([4, 5, 4, 4, 1, 1, 2, 1])) == 3.0
+    assert min(fns.calc_step_fn_vals_error([4, 4, 4, 4, 1, 1, 1, 1])) == 0.0
+
+
+def test_roll_av_vals():
+    expected = np.array([4, 4, 3, 2, 1, 1, 1, 1])
+    assert np.sum(fns.calc_roll_av_vals([4, 4, 4, 4, 1, 1, 1, 1], steps=3) - expected) == 0
+    expected = np.array([4, 4, 4, 4, 3, 2, 1, 1])
+    assert np.sum(fns.calc_roll_av_vals([4, 4, 4, 4, 1, 1, 1, 1], steps=3, mode='backward') - expected) == 0
+    expected = np.array([4, 4, 4, 3, 2, 1, 1, 1])
+    assert np.sum(fns.calc_roll_av_vals([4, 4, 4, 4, 1, 1, 1, 1], steps=3, mode='centre') - expected) == 0
+
 
 
 if __name__ == '__main__':

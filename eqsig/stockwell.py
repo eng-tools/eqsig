@@ -44,6 +44,48 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=Non
     splot.imshow(b, aspect='auto', extent=extent, **kwargs)
 
 
+def plot_tifq_vals(subplot, tifq_vals, dt, norm_all=False, norm_x=False, cmap=None):
+    """
+    Plots a time frequency spectrum (e.g. Stockwell transform)
+
+    Same as `plot_stock` but takes in values (tifq_vals) and time step (dt) instead of
+    AccSignal object.
+
+    Parameters
+    ----------
+    subplot: matplotlib.pyplot.subplot
+    tifq_vals: 2-d array
+        time-frequency values
+    dt: float
+        time step
+    norm_x: bool, default=False
+        If true then all values at a time step are normalised by the maximum value
+    norm_all: bool, default=False
+        If true the all values are normalised by the maximum value
+    Returns
+    -------
+        None
+    """
+
+    b = tifq_vals
+    if norm_all:
+        b = b / np.max(b)
+    if norm_x:
+        b = b / np.max(b, axis=0)
+    max_freq = 1 / dt / 2
+    # if interp:
+    #     max_freq /= 2
+    min_freq = 1.0 / (len(tifq_vals) * dt)
+
+    total_time = len(tifq_vals[0]) * dt
+    extent = (0, total_time, min_freq, max_freq)
+
+    kwargs = {}
+    if cmap is not None:
+        kwargs['cmap'] = cmap  # rainbow, gnuplot2, plasma
+    subplot.imshow(b, aspect='auto', extent=extent, **kwargs)
+
+
 def get_stockwell_freqs(asig):
     return (len(asig.swtf) / 2 - np.arange(0, int(len(asig.swtf) / 2))) / (len(asig.values) * asig.dt)
 
