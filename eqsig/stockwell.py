@@ -176,8 +176,17 @@ def get_max_stockwell_freq(asig):
     return max_f
 
 
-def plot_max_freq_azimuth(splot, asig1, asig2, max_f=None, norm=False, f_steps=90):
-    r = np.linspace(0, 180, f_steps)
+def get_max_tifq_vals_freq(tifq_values, dt):
+    points = len(tifq_values)
+    freqs = np.arange(1, points + 1) / (2 * points * dt)
+    freqs = np.flipud(freqs)
+    indy_max = np.argmax(abs(tifq_values), axis=0)
+    max_f = np.take(freqs, indy_max)
+    return max_f
+
+
+def plot_max_freq_azimuth(splot, asig1, asig2, max_f=None, norm=False, r_steps=90):
+    r = np.linspace(0, 180, r_steps)
     theta = np.pi * r / 180
     ys = []
     for i in range(len(r)):

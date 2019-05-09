@@ -228,16 +228,27 @@ def test_join_values_w_shifts():
 
 
 def test_calc_step_fn_error():
-    assert min(fns.calc_step_fn_vals_error([4, 5, 4, 4, 1, 1, 2, 1])) == 3.0
     assert min(fns.calc_step_fn_vals_error([4, 4, 4, 4, 1, 1, 1, 1])) == 0.0
+    assert min(fns.calc_step_fn_vals_error([4, 4, 4, 4, 1, 1, 1, 1], pow=2)) == 0.0
+
+    assert min(fns.calc_step_fn_vals_error([4, 5, 4, 4, 1, 1, 2, 1])) == 3.0
+    assert min(fns.calc_step_fn_vals_error([4, 5, 4, 4, 1, 1, 2, 1], pow=2)) == 1.0
 
 
 def test_calc_step_fn_steps_val():
     vals = [4, 4, 4, 4, 1, 1, 1, 1]
     ind = np.argmin(fns.calc_step_fn_vals_error(vals))
     pre, post = fns.calc_step_fn_steps_vals(vals, ind)
+    assert ind == 3
     assert pre == 4
     assert post == 1
+
+    vals = [4, 5, 4, 4, 1, 1, 2, 1]
+    ind = np.argmin(fns.calc_step_fn_vals_error(vals))
+    pre, post = fns.calc_step_fn_steps_vals(vals, ind)
+    assert ind == 3
+    assert np.isclose(pre, 4.333333)
+    assert post == 1.25
 
 
 def test_roll_av_vals():
@@ -251,8 +262,9 @@ def test_roll_av_vals():
 
 
 if __name__ == '__main__':
+
     vals = [4, 4, 4, 4, 1, 1, 1, 1]
-    ind = np.argmin(fns.calc_step_fn_vals_error(vals))
+    ind = np.argmin(fns.calc_step_fn_vals_error(vals, pow=2))
     pre, post = fns.calc_step_fn_steps_vals(vals, ind)
     assert pre == 4
     assert post == 1, post
