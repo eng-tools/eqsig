@@ -7,16 +7,19 @@ with open("eqsig/__about__.py") as fp:
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
+
 setup(name='eqsig',
       version=about['__version__'],
       description='Signal processing for field and experimental data for earthquake engineering',
-      long_description=readme,
+      long_description=readme + '\n\n' + history,
       url='',
       author=about['__author__'],
       author_email='mmi46@uclive.ac.nz',
       license=about['__license__'],
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Science/Research',
           'Topic :: Scientific/Engineering',
           'License :: OSI Approved :: MIT License',

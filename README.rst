@@ -17,6 +17,10 @@
     :target: https://eng-tools.github.io
     :alt: ECP project
 
+.. image:: https://zenodo.org/badge/125842866.svg
+   :target: https://zenodo.org/badge/latestdoi/125842866
+   :alt: DOI
+
 *****
 eqsig
 *****
