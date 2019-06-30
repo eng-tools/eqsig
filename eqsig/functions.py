@@ -102,7 +102,7 @@ def clean_out_non_changing(values):
     return cleaned_values, non_zero_indices
 
 
-def get_peak_array_indices(values):
+def get_peak_array_indices(values, ptype='all'):
     """
     Find the indices for all of the local maxima and minima
 
@@ -125,6 +125,16 @@ def get_peak_array_indices(values):
     # cleaned_values *= np.sign(cleaned_values[1])  # ensure first value is increasing
     peak_cleaned_indices = determine_indices_of_peaks_for_cleaned(cleaned_values)
     peak_full_indices = np.take(non_zero_indices, peak_cleaned_indices)
+    if ptype == 'min':
+        if values[1] - values[0] <= 0:
+            return peak_full_indices[1::2]
+        else:
+            return peak_full_indices[::2]
+    elif ptype == 'max':
+        if values[1] - values[0] > 0:
+            return peak_full_indices[1::2]
+        else:
+            return peak_full_indices[::2]
     return peak_full_indices
 
 
@@ -404,6 +414,13 @@ def get_switched_peak_array_indices(values):
 
         peak_values_set.append(peak_values[i])
         peak_indices_set.append(i)
+        
+    if len(peak_values_set):  # add last
+        i_max_set = np.argmax(np.abs(peak_values_set))
+        new_peak_indices.append(peak_indices_set[i_max_set])
+        peak_values_set.append(peak_values[i])
+        peak_indices_set.append(i)
+
     switched_peak_indices = np.take(peak_indices, new_peak_indices)
     return switched_peak_indices
 

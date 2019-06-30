@@ -16,7 +16,7 @@ setup(name='eqsig',
       author_email='mmi46@uclive.ac.nz',
       license=about['__license__'],
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 4 - Beta',
           'Intended Audience :: Science/Research',
           'Topic :: Scientific/Engineering',
           'License :: OSI Approved :: MIT License',
