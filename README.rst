@@ -134,3 +134,9 @@ For development mode
 Docstrings follow numpy convention (in progress): https://numpydoc.readthedocs.io/en/latest/format.html
 
 To fix long_description in setup.py: ``pip install collective.checkdocs``, ``python setup.py checkdocs``
+
+
+Release instructions
+--------------------
+
+On zenodo.org use the github integration tool, click on the eqsig package and click create new release.
