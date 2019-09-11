@@ -73,6 +73,5 @@ def show_fourier_spectra_stable_against_aliasing():
     sp[1].plot(acc_split.fa_frequencies, abs(acc_split.fa_spectrum), lw=0.7, label="split")
     sp[1].plot(extended_signal.fa_frequencies, abs(extended_signal.fa_spectrum), lw=0.7, label="full")
 
-
     plt.legend()
     plt.show()

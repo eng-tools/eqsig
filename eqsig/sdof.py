@@ -212,19 +212,19 @@ def true_response_spectra(motion, dt, periods, xi):
 #     plt.show()
 #
 #
-# def time_the_generation_of_response_spectra():
-#     step = 0.01
-#     xi = 0.05
-#     periods = np.linspace(1, 5, 50)
-#     periods = np.array([0.01])
-#     motion = np.sin(0.1 * np.arange(10000)) * 0.01
-#     # s_d, s_v, s_a = all_at_once_response_spectra(values, step, periods, xis)
-#     s_d, s_v, s_a = response_spectra(motion, step, periods, xi)
+def time_the_generation_of_response_spectra():
+    step = 0.01
+    xi = 0.05
+    periods = np.linspace(1, 5, 500)
+    # periods = np.array([0.01])
+    motion = np.sin(0.1 * np.arange(100000)) * 0.01
+    # s_d, s_v, s_a = all_at_once_response_spectra(values, step, periods, xis)
+    s_d, s_v, s_a = pseudo_response_spectra(motion, step, periods, xi)
 
 
 if __name__ == '__main__':
 
     # time_response_spectra()
-
-    import cProfile
-    cProfile.run('time_the_generation_of_response_spectra()')
+    time_the_generation_of_response_spectra()
+    # import cProfile
+    # cProfile.run('time_the_generation_of_response_spectra()')

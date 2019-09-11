@@ -10,12 +10,14 @@ def show_same_start():
     dt = 0.01
 
     cluster = multiple.Cluster([acc, acc + 0.3], dt=dt)
-    plt.plot(cluster.time, cluster.values_by_index(0), label="sig0")
-    plt.plot(cluster.time, cluster.values_by_index(1), label="sig1")
+    bf, sps = plt.subplots(nrows=2)
+    sps[0].plot(cluster.time, cluster.values_by_index(0), label="sig0")
+    sps[0].plot(cluster.time, cluster.values_by_index(1), ls='--', label="sig1")
     cluster.same_start()
-    plt.plot(cluster.time, cluster.values_by_index(0), label="sig0 - same start")
-    plt.plot(cluster.time, cluster.values_by_index(1), label="sig1 - same start")
-    plt.legend()
+    sps[1].plot(cluster.time, cluster.values_by_index(0), label="sig0 - same start")
+    sps[1].plot(cluster.time, cluster.values_by_index(1), ls='--', label="sig1 - same start")
+    sps[0].legend()
+    sps[1].legend()
     plt.show()
 
 
@@ -24,13 +26,15 @@ def show_time_match():
     acc = np.sin(time)
     dt = 0.01
 
-    cluster = multiple.Cluster([acc[:-6], acc[6:]], dt=dt)
-    plt.plot(cluster.time, cluster.values_by_index(0), label="sig0")
-    plt.plot(cluster.time, cluster.values_by_index(1), label="sig1")
+    cluster = multiple.Cluster([acc[:-6], acc[6:]], dt=dt)  # shift second motion by 0.06s
+    bf, sps = plt.subplots(nrows=2)
+    sps[0].plot(cluster.time, cluster.values_by_index(0), label="sig0")
+    sps[0].plot(cluster.time, cluster.values_by_index(1), ls='--', label="sig1")
     cluster.time_match(verbose=1)
-    plt.plot(cluster.time, cluster.values_by_index(0), label="sig0 - same start")
-    plt.plot(cluster.time, cluster.values_by_index(1), label="sig1 - same start")
-    plt.legend()
+    sps[1].plot(cluster.time, cluster.values_by_index(0), label="sig0 - same start")
+    sps[1].plot(cluster.time, cluster.values_by_index(1), ls='--', label="sig1 - same start")
+    sps[0].legend()
+    sps[1].legend()
     plt.show()
 
 
@@ -58,4 +62,5 @@ def run_combine():
 
 
 if __name__ == '__main__':
-    run_combine()
+    show_same_start()
+    # show_time_match()

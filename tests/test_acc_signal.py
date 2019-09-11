@@ -81,6 +81,7 @@ def rewrite_response_spectra_eqsig_test_file(asig_t1):
 
 def test_response_spectra_versus_old_eqsig_version(asig_t1):
     record_path = TEST_DATA_DIR
+    asig_t1.generate_response_spectrum(min_dt_ratio=1)
     s_a = asig_t1.s_a
     s_d = asig_t1.s_d
     times = asig_t1.response_times

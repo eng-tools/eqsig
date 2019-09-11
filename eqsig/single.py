@@ -3,7 +3,7 @@ import scipy.signal as ss
 import scipy
 
 from eqsig import exceptions
-from eqsig.functions import get_section_average, generate_smooth_fa_spectrum
+from eqsig.functions import get_section_average, generate_smooth_fa_spectrum, interp_array_to_approx_dt
 import eqsig.sdof as dh
 import eqsig.displacements as sd
 import eqsig.im as sm
@@ -390,7 +390,7 @@ class AccSignal(Signal):
         self._cached_disp_and_velo = False
         self.reset_all_motion_stats()
 
-    def generate_response_spectrum(self, response_times=None, xi=-1):
+    def generate_response_spectrum(self, response_times=None, xi=-1, min_dt_ratio=4):
         """
         Generate the response spectrum for the response_times for a given
         damping (xi). default xi = 0.05
@@ -399,10 +399,20 @@ class AccSignal(Signal):
             print('Generating response spectra')
         if response_times is not None:
             self.response_times = response_times
+        if self.response_times[0] != 0:
+            min_non_zero_period = self.response_times[0]
+        else:
+            min_non_zero_period = self.response_times[1]
+        target_dt = max(min_non_zero_period / 20, self.dt / min_dt_ratio)  # limit to ratio of motion time step
+        if target_dt < self.dt:
+            values_interp, dt_interp = interp_array_to_approx_dt(self.values, self.dt, target_dt, even=False)
+        else:
+            values_interp = self.values
+            dt_interp = self.dt
 
         if xi == -1:
             xi = self._cached_xi
-        self._s_d, self._s_v, self._s_a = dh.pseudo_response_spectra(self.values, self.dt, self.response_times, xi)
+        self._s_d, self._s_v, self._s_a = dh.pseudo_response_spectra(values_interp, dt_interp, self.response_times, xi)
         self._cached_response_spectra = True
 
     @property
