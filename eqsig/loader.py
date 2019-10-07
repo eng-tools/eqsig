@@ -78,9 +78,15 @@ def load_sig(ffp):
     return Signal(vals, dt)
 
 
-def load_asig(ffp):
+def load_asig(ffp, load_label=False, m=1.0):
     vals, dt = load_values_and_dt(ffp)
-    return AccSignal(vals, dt)
+    if load_label:
+        a = open(ffp)
+        label = a.read().splitlines()[0]
+        a.close()
+    else:
+        label = 'm1'
+    return AccSignal(vals * m, dt, label=label)
 
 
 def save_signal(ffp, signal):

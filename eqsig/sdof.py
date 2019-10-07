@@ -6,6 +6,7 @@ def single_elastic_response(motion, step, period, xi):
     Perform Duhamels integral to get the displacement.
     http://www.civil.utah.edu/~bartlett/CVEEN7330/Duhamel%27s_integral.pdf
     http://www1.aucegypt.edu/faculty/mharafa/MENG%20475/Forced%20Vibration.pdf
+
     :param motion: acceleration in m/s2
     :param step: the time step
     :param period: The period of SDOF oscillator
@@ -67,18 +68,18 @@ def compute_a_and_b(xi, w, dt):
     """
 
     # Reduce the terms since all is matrix multiplication.
-    xi2 = xi * xi
-    w2 = w ** 2
-    one_ov_w2 = 1. / w2
+    xi2 = xi * xi  # D2
+    w2 = w ** 2  # W2
+    one_ov_w2 = 1. / w2  # A7
     sqrt_b2 = np.sqrt(1. - xi2)
-    w_sqrt_b2 = w * sqrt_b2
+    w_sqrt_b2 = w * sqrt_b2  # A1
 
-    exp_b = np.exp(-xi * w * dt)
+    exp_b = np.exp(-xi * w * dt)  # A0
     two_b_ov_w2 = (2 * xi ** 2 - 1) / (w ** 2 * dt)
     two_b_ov_w3 = 2 * xi / (w ** 3 * dt)
 
-    sin_wsqrt = np.sin(w_sqrt_b2 * dt)
-    cos_wsqrt = np.cos(w_sqrt_b2 * dt)
+    sin_wsqrt = np.sin(w_sqrt_b2 * dt)  # A2
+    cos_wsqrt = np.cos(w_sqrt_b2 * dt)  # A3
 
     # A matrix
     a_11 = exp_b * (xi / sqrt_b2 * sin_wsqrt + cos_wsqrt)  # Eq 2.7d(1)
@@ -101,7 +102,7 @@ def compute_a_and_b(xi, w, dt):
                     - (two_b_ov_w3 + one_ov_w2) * (wsqrtsin + xwcos)) + one_ov_w2 / dt
     b_22 = -exp_b * (two_b_ov_w2 * (cos_wsqrt - xi / sqrt_b2 * sin_wsqrt) - two_b_ov_w3 * (wsqrtsin + xwcos)) - one_ov_w2 / dt
 
-    b = np.array([[-b_11, b_12], [-b_21, -b_22]])  # Why are the signs reversed??
+    b = np.array([[b_11, b_12], [b_21, b_22]])
 
     return a, b
 
@@ -120,7 +121,7 @@ def nigam_and_jennings_response(acc, dt, periods, xi):
     :return: response displacement, response velocity, response acceleration
     """
 
-    acc = np.array(acc).astype(np.float)
+    acc = -np.array(acc).astype(np.float)
     periods = np.array(periods).astype(np.float)
     w = 6.2831853 / periods
     dt = np.float(dt)
@@ -175,7 +176,7 @@ def response_series(motion, dt, periods, xi):
 
     :param motion: array floats, acceleration in m/s2
     :param dt: float, the time step
-    :param periods: array floats, The period of SDOF oscilator
+    :param periods: array floats, The period of SDOF oscillator
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple of float arrays, (response displacements, response velocities, response accelerations)
     """
