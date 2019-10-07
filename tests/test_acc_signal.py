@@ -63,9 +63,13 @@ def test_displacement_velocity(asig_t1):
     assert max_disp_diff < 0.00002, max_disp_diff
 
 
-def rewrite_response_spectra_eqsig_test_file(asig_t1):
+def rewrite_response_spectra_eqsig_test_file():
     record_path = TEST_DATA_DIR
-
+    record_filename = 'test_motion_dt0p01.txt'
+    motion_step = 0.01
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
+    asig_t1 = eqsig.AccSignal(rec, motion_step)
+    asig_t1.generate_response_spectrum(min_dt_ratio=1)
     s_a = asig_t1.s_a
     s_d = asig_t1.s_d
     times = asig_t1.response_times
@@ -144,8 +148,7 @@ def test_variables_are_over_writable():
     asig2 = eqsig.AccSignal(a1 * 2, 1)
     assert asig2.pga != asig1.pga
 
-# 
-# if __name__ == '__main__':
-#     show_response_spectra_at_high_frequencies()
 
-print(np.random.rand(100))
+# if __name__ == '__main__':
+#     rewrite_response_spectra_eqsig_test_file()
+
