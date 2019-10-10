@@ -165,7 +165,7 @@ def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
     values = np.array(values, dtype=float)
     # get all zero values
     zero_indices = np.where(values == 0)[0]
-    if not keep_adj_zeros:
+    if not keep_adj_zeros and len(zero_indices) > 1:
         diff_is = np.ediff1d(zero_indices, to_begin=10)
         no_adj_is = np.where(diff_is > 1)[0]
         zero_indices = np.take(zero_indices, no_adj_is)
@@ -175,6 +175,8 @@ def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
     through_zero_indices = np.where(sign_switch < 0)[0]
     all_zc_indices = np.concatenate((zero_indices, through_zero_indices))
     all_zc_indices.sort()
+    if all_zc_indices[0] != 0:
+        all_zc_indices = np.insert(all_zc_indices, 0, 0)  # slow
     return all_zc_indices
 
 

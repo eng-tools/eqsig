@@ -176,7 +176,16 @@ def test_get_zero_crossings_array_indices():
     zci = fns.get_zero_crossings_array_indices(vs, keep_adj_zeros=False)
     expected = np.array([0, 4, 5, 6, 10, 12])
     assert np.array_equal(zci, expected), zci
-    print(zci)
+    # no zeros
+    vs = np.array([1, 2, 1, 2, -1, 1, 1, 1, 1, 0.3, 1, -1, 0.2, 1, 0.2])
+    zci = fns.get_zero_crossings_array_indices(vs, keep_adj_zeros=False)
+    expected = np.array([0, 4, 5, 11, 12])
+    assert np.array_equal(zci, expected), zci
+    vs = np.array([-1, -2, 1, 2, -1, 1, 1, 1, 1, 0.3, 1, -1, 0.2, 1, 0.2])
+    zci = fns.get_zero_crossings_array_indices(vs, keep_adj_zeros=False)
+    expected = np.array([0, 2, 4, 5, 11, 12])
+    assert np.array_equal(zci, expected), zci
+
 
 
 def test_put_array_in_2d_array():
@@ -263,11 +272,7 @@ def test_roll_av_vals():
 
 if __name__ == '__main__':
 
-    vals = [4, 4, 4, 4, 1, 1, 1, 1]
-    ind = np.argmin(fns.calc_step_fn_vals_error(vals, pow=2))
-    pre, post = fns.calc_step_fn_steps_vals(vals, ind)
-    assert pre == 4
-    assert post == 1, post
+    test_get_zero_crossings_array_indices2()
     # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()
