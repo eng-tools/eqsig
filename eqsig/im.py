@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.integrate
-from eqsig import sdof
+from eqsig import sdof, functions
 from eqsig.exceptions import deprecation
 
 
@@ -274,7 +274,46 @@ def max_fa_period(asig):
     return max_period
 
 
+def calc_bandwidth_freqs(asig, ratio=0.707):
+    """
+    Lower and upper frequencies of smooth Fourier spectrum bandwidth
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal
+        Acceleration time series object
+    ratio:
+        ratio of maximum value where bandwidth should be computed
+
+    Returns
+    -------
+    tuple:
+        (lower, upper)
+    """
+    fas1_smooth = asig.smooth_fa_spectrum
+    max_fas1 = max(fas1_smooth)
+    lim_fas = max_fas1 * ratio
+    ind2 = np.where(fas1_smooth > lim_fas)
+    min_freq = asig.smooth_fa_frequencies[ind2[0][0]]
+    max_freq = asig.smooth_fa_frequencies[ind2[0][-1]]
+    return min_freq, max_freq
+
+
 def calc_bandwidth_f_min(asig, ratio=0.707):
+    """
+    Lower frequency of smooth Fourier spectrum bandwidth
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal
+        Acceleration time series object
+    ratio:
+        ratio of maximum value where bandwidth should be computed
+
+    Returns
+    -------
+    float
+    """
     fas1_smooth = asig.smooth_fa_spectrum
     max_fas1 = max(fas1_smooth)
     lim_fas = max_fas1 * ratio
@@ -284,6 +323,20 @@ def calc_bandwidth_f_min(asig, ratio=0.707):
 
 
 def calc_bandwidth_f_max(asig, ratio=0.707):
+    """
+        Upper frequency of smooth Fourier spectrum bandwidth
+
+        Parameters
+        ----------
+        asig: eqsig.AccSignal
+            Acceleration time series object
+        ratio:
+            ratio of maximum value where bandwidth should be computed
+
+        Returns
+        -------
+        float
+        """
     fas1_smooth = asig.smooth_fa_spectrum
     max_fas1 = max(fas1_smooth)
     lim_fas = max_fas1 * ratio
@@ -329,11 +382,11 @@ def calc_brac_dur(asig, threshold, se=False):
         return 0
 
 
-
-def calc_a_rms(asig, threshold):
+def calc_acc_rms(asig, threshold):
+    """Root mean squared acceleration"""
     abs_motion = abs(asig.values)
     # Bracketed duration
-    ind01 = np.where(abs_motion / 9.8 > threshold)
+    ind01 = np.where(abs_motion > threshold)
     try:
         # rms acceleration in m/s/s
         a_rms01 = np.sqrt(1 / asig.t_b01 * np.trapz((asig.values[ind01[0][0]:ind01[0][-1]]) ** 2, dx=asig.dt))
@@ -342,17 +395,132 @@ def calc_a_rms(asig, threshold):
     return a_rms01
 
 
+def calc_a_rms(asig, threshold):
+    raise ValueError('calc_a_rms has been removed, use calc_acc_rms note that threshold changed to m/s2')
+
+
 def calc_integral_of_abs_velocity(asig):
+    """Integral of absolute velocity - identical to cumulative absolute displacement"""
     abs_vel = abs(asig.velocity)
     vel_int = np.cumsum(abs_vel * asig.dt)
     return vel_int
 
 
 def calc_cumulative_abs_displacement(asig):
+    """Cumulative absolute displacement - identical to integral of absolute velocity"""
     return calc_integral_of_abs_velocity(asig)
 
 
 def calc_integral_of_abs_acceleration(asig):
+    """Integral of absolute acceleration"""
     abs_acc = abs(asig.values)
     acc_int = np.cumsum(abs_acc * asig.dt)
     return acc_int
+
+
+def calc_n_cyc_array_w_power_law(values, a_ref, b, cut_off=0.01):
+    """
+    Calculates the equivalent number of uniform amplitude cycles using a power law
+
+    Parameters
+    ----------
+    values: array_like
+        Time series of values
+    a_ref: float
+        Reference uniform amplitude
+    b: float or array_like
+        Power law factor
+    cut_off: float
+        Low amplitude cutoff value
+
+    Returns
+    -------
+    array_like
+    """
+
+    peak_indices = functions.get_switched_peak_array_indices(values)
+    csr_peaks = np.abs(np.take(values, peak_indices))
+    csr_peaks = np.where(csr_peaks < cut_off * np.max(abs(values)), 1.0e-14, csr_peaks)
+    n_ref = 1
+    perc = 0.5 / (n_ref * (a_ref / csr_peaks)[:, np.newaxis] ** (1 / b))
+    n_eq = np.cumsum(perc, axis=0)
+    n_eq = np.insert(n_eq, 0, 0, axis=0)
+    peak_indices = np.insert(peak_indices, 0, 0, axis=0)
+    n_eq = np.insert(n_eq, len(n_eq)-1, n_eq[-1], axis=0)
+    peak_indices = np.insert(peak_indices, len(n_eq)-1, len(values), axis=0)
+
+    f = scipy.interpolate.interp1d(peak_indices, n_eq, kind='previous', axis=0)
+    n_series = f(np.arange(len(values)))
+    return n_series
+
+
+def calc_cyc_amp_array_w_power_law(values, n_cyc, b):
+    """
+    Calculate the equivalent uniform loading for a given number of cycles and power coefficient (b)
+
+    :param values: array_like
+        Time series of values
+    :param n_cyc:
+    :param b:
+    :return:
+    """
+    a1_peak_inds_end = functions.get_switched_peak_array_indices(values)
+    a1_csr_peaks_end = np.abs(np.take(values, a1_peak_inds_end))
+    csr_peaks_s1 = np.zeros_like(values)
+    np.put(csr_peaks_s1, a1_peak_inds_end, a1_csr_peaks_end)
+    csr_n15_series1 = np.cumsum((np.abs(csr_peaks_s1)[:, np.newaxis] ** (1. / b)) / 2 / n_cyc, axis=0) ** b
+    return csr_n15_series1
+
+
+def calc_cyc_amp_gm_arrays_w_power_law(values0, values1, n_cyc, b):
+    """
+    Calculate the geometric mean equivalent uniform amplitude for a given number of cycles and power coefficient (b)
+
+    :param values0: array_like
+        Time series of values
+    :param values1: array_like
+        Time series of values in orthogonal direction to values0
+    :param n_cycles:
+    :param b:
+    :return:
+    """
+    csr_n_series0 = calc_cyc_amp_array_w_power_law(values0, n_cyc=n_cyc, b=b)
+    csr_n_series1 = calc_cyc_amp_array_w_power_law(values1, n_cyc=n_cyc, b=b)
+    csr_n_series = np.sqrt(csr_n_series0 * csr_n_series1)
+    return csr_n_series
+
+
+def calc_cyc_amp_combined_arrays_w_power_law(values0, values1, n_cyc, b):
+    """
+    Computes the equivalent cyclic amplitude.
+
+    For a set number of cycles using a power law and assuming both components act equally
+
+    Parameters
+    ----------
+    values0: array_like
+        Time series of values
+    values1: array_like
+        Time series of values in orthogonal direction to values0
+    n_cyc: int or float
+        Number of cycles
+    b: float
+        Power law factor
+
+    Returns
+    -------
+    array_like
+    """
+    peak_inds_a0 = functions.get_switched_peak_array_indices(values0)
+    csr_peaks_a0 = np.abs(np.take(values0, peak_inds_a0))
+
+    peak_inds_a1 = functions.get_switched_peak_array_indices(values1)
+    csr_peaks_a1 = np.abs(np.take(values1, peak_inds_a1))
+
+    csr_peaks_s0 = np.zeros_like(values0)
+    np.put(csr_peaks_s0, peak_inds_a0, csr_peaks_a0)
+    csr_peaks_s1 = np.zeros_like(values1)
+    np.put(csr_peaks_s1, peak_inds_a1, csr_peaks_a1)
+    csr_n15_series = np.cumsum((np.abs(csr_peaks_s0) ** (1. / b) + np.abs(csr_peaks_s1) ** (1. / b)) / 2 / n_cyc) ** b
+
+    return csr_n15_series
