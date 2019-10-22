@@ -138,6 +138,38 @@ def get_peak_array_indices(values, ptype='all'):
     return peak_full_indices
 
 
+def get_n_cyc_array(values, opt='all', start='origin'):
+    """
+    Given an array, create an array of the same length that numbers the peaks
+    Parameters
+    ----------
+    values
+    opt
+
+    Returns
+    -------
+
+    """
+    if opt == 'all':
+        indys = get_peak_array_indices(values)
+    elif opt == 'switched':
+        indys = get_switched_peak_array_indices(values)
+    else:
+        raise ValueError('opt must be either "all" or "switched"')
+    # each indy corresponds to half a cycle
+    if start == 'origin':
+        svalue = -0.25
+    elif start == 'peak':
+        svalue = 0.0
+    else:
+        raise ValueError('start must be either "origin" or "peak"')
+    if indys[0] != 0:
+        indys = np.insert(indys, 0, 0)
+    n_cycs = 0.5 * np.arange(len(indys))
+    n_cycs[1:] += svalue
+    return np.interp(np.arange(len(values)), indys, n_cycs)
+
+
 def get_peak_indices(asig):
     return get_peak_array_indices(asig.values)
 

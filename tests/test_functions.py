@@ -167,6 +167,17 @@ def test_get_peak_indices():
     expected = np.array([0, 1, 2, 3, 4, 5, 8, 10, 11])
     assert np.sum(abs(peak_indices - expected)) == 0
 
+    values = np.array([2, 1, -1, 1])
+    peak_indices = fns.get_peak_array_indices(values)
+    expected = np.array([0, 2, 3])
+    assert np.sum(abs(peak_indices - expected)) == 0
+
+    values = np.array([1, 2, -1, 1])
+    peak_indices = fns.get_peak_array_indices(values)
+    expected = np.array([0, 1, 2, 3])
+    assert np.sum(abs(peak_indices - expected)) == 0
+
+
 
 def test_get_zero_crossings_array_indices():
     vs = np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
@@ -272,7 +283,7 @@ def test_roll_av_vals():
 
 if __name__ == '__main__':
 
-    test_get_zero_crossings_array_indices2()
+    test_get_peak_indices()
     # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()
