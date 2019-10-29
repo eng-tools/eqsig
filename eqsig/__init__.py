@@ -10,6 +10,7 @@ from eqsig.loader import save_signal, load_signal, save_values_and_dt, load_valu
 from eqsig import loader
 from eqsig import __about__
 from eqsig import sdof
+from eqsig import surface
 
 __project__ = __about__.__project__
 __author__ = __about__.__author__

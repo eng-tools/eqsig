@@ -524,3 +524,22 @@ def calc_cyc_amp_combined_arrays_w_power_law(values0, values1, n_cyc, b):
     csr_n15_series = np.cumsum((np.abs(csr_peaks_s0) ** (1. / b) + np.abs(csr_peaks_s1) ** (1. / b)) / 2 / n_cyc) ** b
 
     return csr_n15_series
+
+
+def calc_unit_kinetic_energy(acc_signal):
+    """
+    Calculates the cumulative absolute change in kinetic energy for a unit volume of soil with unit mass
+
+    Parameters
+    ----------
+    acc_signal: eqsig.AccSignal
+
+    Returns
+    -------
+
+    """
+    kin_energy = 0.5 * acc_signal.velocity * np.abs(acc_signal.velocity)
+    delta_energy = np.diff(kin_energy)
+    delta_energy = np.insert(delta_energy, 0, kin_energy[0])
+    cum_delta_energy = np.cumsum(abs(delta_energy))
+    return cum_delta_energy

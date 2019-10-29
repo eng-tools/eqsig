@@ -52,5 +52,11 @@ def test_calc_cyclic_amp_gm_arrays_w_power_law():
     assert np.isclose(csr_n15_series[-1], 0.96290891), (csr_n15_series[-1], 0.96290891)  # v=1.1.2
 
 
+def test_calc_unit_kinetic_energy():
+    asig = conftest.t_asig()
+    uke = im.calc_unit_kinetic_energy(asig)[-1]
+    assert np.isclose(uke, 0.4504992), uke  # version 1.1.1
+
+
 if __name__ == '__main__':
-    test_n_cyc_and_cyc_amplitude()
+    test_calc_unit_kinetic_energy()

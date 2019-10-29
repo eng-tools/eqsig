@@ -223,6 +223,33 @@ def time_the_generation_of_response_spectra():
     s_d, s_v, s_a = pseudo_response_spectra(motion, step, periods, xi)
 
 
+def calc_resp_uke_spectrum(acc_signal, periods=None, xi=None):
+    """
+    Calculates the sdof response (kinematic + stored) energy spectrum
+
+    :param acc_signal:
+    :param periods:
+    :param xi:
+    :return:
+    """
+
+    if periods is None:
+        periods = acc_signal.response_times
+    else:
+        periods = np.array(periods)
+    if xi is None:
+        xi = 0.05
+    resp_u, resp_v, resp_a = response_series(acc_signal.values, acc_signal.dt, periods, xi)
+    mass = 1
+
+    kin_energy = 0.5 * resp_v ** 2 * mass
+    delta_energy = np.diff(kin_energy)
+    # double for strain then half since only positive increasing
+    cum_delta_energy = np.sum(abs(delta_energy), axis=1)
+
+    return cum_delta_energy
+
+
 if __name__ == '__main__':
 
     # time_response_spectra()
