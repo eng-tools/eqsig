@@ -76,6 +76,115 @@ def test_calc_cum_abs_surface_energy():
     assert np.isclose(cases[2][-1], expected_cases[2][-1])
 
 
+def test_calc_cum_abs_surface_energy_start_check_same_energy():
+    accsig = conftest.t_asig()
+    tshifts = np.array([0.01, 0.2, 0.5])
+    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, tshifts, nodal=True, up_red=1, down_red=1, stt=0.0,
+                                                      trim=False, start=False)
+    cases_w_s = eqsig.surface.calc_cum_abs_surface_energy(accsig, tshifts, nodal=True, up_red=1, down_red=1, stt=0.0,
+                                                      trim=False, start=True)
+    diff = np.sum(abs(cases[:, -1] - cases_w_s[:, -1]))
+    assert diff < 2.0e-5, diff
+
+
+def test_calc_cum_abs_surface_energy_start_from_base():
+    accsig = conftest.t_asig()
+    travel_times = np.array([0.01, 0.2, 0.5])
+    stt = 1.0
+    cases_w_s = eqsig.surface.calc_cum_abs_surface_energy(accsig, travel_times, nodal=True, up_red=1, down_red=1,
+                                                          stt=stt, trim=True, start=True)
+
+    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, travel_times, nodal=True, up_red=1, down_red=1, stt=stt,
+                                                      trim=True, start=False)
+    case_interp_0 = np.interp(accsig.time + (stt - travel_times[0]), accsig.time, cases_w_s[0])
+    diff0 = np.sum(abs(case_interp_0 - cases[0])) / cases[0][-1]
+    assert np.isclose(diff0, 0., atol=1.0e-7), diff0
+    case_interp_1 = np.interp(accsig.time + (stt - travel_times[1]), accsig.time, cases_w_s[1])
+    diff1 = np.sum(abs(case_interp_1 - cases[1])) / cases[1][-1]
+    assert np.isclose(diff1, 0., atol=1.0e-7), diff1
+    case_interp_2 = np.interp(accsig.time + (stt - travel_times[2]), accsig.time, cases_w_s[2])
+    diff2 = np.sum(abs(case_interp_2 - cases[2])) / cases[2][-1]
+    assert np.isclose(diff2, 0., atol=1.0e-7), diff2
+
+
+def test_calc_cum_abs_surface_energy_start_from_top():
+    accsig = conftest.t_asig()
+    travel_times = np.array([0.01, 0.2, 0.5])
+    stt = 0.0
+    cases_w_s = eqsig.surface.calc_cum_abs_surface_energy(accsig, travel_times, nodal=True, up_red=1, down_red=1,
+                                                          stt=stt, trim=True, start=True)
+
+    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, travel_times, nodal=True, up_red=1, down_red=1, stt=stt,
+                                                      trim=True, start=False)
+    case_interp_0 = np.interp(accsig.time + (stt - travel_times[0]), accsig.time, cases_w_s[0])
+    diff0 = np.sum(abs(case_interp_0 - cases[0])) / cases[0][-1]
+    assert np.isclose(diff0, 0., atol=5.0e-3), diff0
+    case_interp_1 = np.interp(accsig.time + (stt - travel_times[1]), accsig.time, cases_w_s[1])
+    diff1 = np.sum(abs(case_interp_1 - cases[1])) / cases[1][-1]
+    assert np.isclose(diff1, 0., atol=5.0e-3), diff1
+    case_interp_2 = np.interp(accsig.time + (stt - travel_times[2]), accsig.time, cases_w_s[2])
+    diff2 = np.sum(abs(case_interp_2 - cases[2])) / cases[2][-1]
+    assert np.isclose(diff2, 0., atol=8.0e-2), diff2
+
+
+
+def skip_plot():
+    import matplotlib.pyplot as plt
+    accsig = eqsig.load_asig(conftest.TEST_DATA_DIR + 'test_motion_dt0p01.txt')
+    accsig = eqsig.AccSignal(accsig.values[100:], accsig.dt)
+    travel_times = np.linspace(0, 2, 44)
+    travel_times = np.array([0.2, 0.5])
+    stt = 0.0
+    cases_w_s = eqsig.surface.calc_cum_abs_surface_energy(accsig, travel_times, nodal=True, up_red=1, down_red=1, stt=stt,
+                                                      trim=True, start=True)
+    # plt.plot(tshifts, cases[:, -1])
+    # plt.plot(tshifts, expected_cases[:, -1])
+    from bwplot import cbox
+    plt.plot(accsig.time, cases_w_s[0], c=cbox(0))
+    plt.plot(accsig.time, cases_w_s[1], c='r')
+    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, travel_times, nodal=True, up_red=1, down_red=1, stt=stt,
+                                                      trim=True, start=False)
+    plt.plot(accsig.time, cases[0], c=cbox(1), ls='--')
+    plt.plot(accsig.time, cases[1], c=cbox(1), ls='--')
+    plt.plot(accsig.time + (stt - travel_times[0]), cases[0], c='k', ls=':')
+    plt.plot(accsig.time + (stt - travel_times[1]), cases[1], c='k', ls=':')
+    case_interp_0 = np.interp(accsig.time + (stt - travel_times[0]), accsig.time, cases_w_s[0])
+    diff0 = np.sum(abs(case_interp_0 - cases[0])) / cases[0][-1]
+    assert np.isclose(diff0, 0., atol=5.0e-3), diff0
+    case_interp_1 = np.interp(accsig.time + (stt - travel_times[1]), accsig.time, cases_w_s[1])
+    diff1 = np.sum(abs(case_interp_1 - cases[1])) / cases[1][-1]
+    assert np.isclose(diff1, 0., atol=5.0e-3), diff1
+    case_interp_2 = np.interp(accsig.time, accsig.time + (stt - travel_times[2]), cases_w_s[2])
+    diff2 = np.sum(abs(case_interp_2 - cases[2])) / cases[2][-1]
+    assert np.isclose(diff2, 0., atol=5.0e-3), diff2
+
+    plt.show()
+
+def skip_plot2():
+    import matplotlib.pyplot as plt
+    asig = eqsig.load_asig(conftest.TEST_DATA_DIR + 'test_motion_dt0p01.txt')
+    travel_times = np.array([0.2, 0.5])
+    cases = eqsig.surface.calc_cum_abs_surface_energy(asig, travel_times, nodal=True, up_red=1, down_red=1, stt=1.0,
+                                                      trim=False, start=True)
+    # plt.plot(tshifts, cases[:, -1])
+    # plt.plot(tshifts, expected_cases[:, -1])
+    plt.plot(cases[0])
+    plt.plot(cases[1])
+
+    cases = eqsig.surface.calc_cum_abs_surface_energy(asig, travel_times, nodal=True, up_red=1, down_red=1, stt=1.0,
+                                                      trim=False, start=False)
+    plt.plot(cases[0])
+    plt.plot(cases[1])
+
+    # plt.plot(asig.time - 2 * travel_times[0], cases[0])
+    # plt.plot(asig.time - 2 * travel_times[1], cases[1])
+    # plt.plot(asig.time - 2 * travel_times[2], cases[2])
+    plt.show()
+
+
 if __name__ == '__main__':
-    test_calc_cum_abs_surface_energy()
+    # test_calc_cum_abs_surface_energy_start_check_same_energy()
+    test_calc_cum_abs_surface_energy_start_from_top()
+    # skip_plot()
+    # test_calc_cum_abs_surface_energy()
 

@@ -2,6 +2,12 @@
 History
 =======
 
+1.1.2 (2019-10-31)
+-------------------
+
+* More accuracy in `calc_surface_energy` - now interpolates between time steps. More tests added.
+
+
 1.1.1 (2019-10-29)
 -------------------
 
