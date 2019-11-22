@@ -749,13 +749,38 @@ def calc_roll_av_vals(values, steps, mode='forward'):
     return (csum[steps:] - csum[:-steps]) / steps
 
 
-if __name__ == '__main__':
-    vals = np.arange(4, 6)
-    sfs = np.array([-1, 2])
-    expected_full = np.array([[4, 5, 0, 0, 0],
-                              [0, 0, 0, 4, 5],
-                              ])
-    out_a = put_array_in_2d_array(vals, sfs, clip='start')
-    # out_a = join_values_w_shifts(vals, sfs, jtype='sub')
+def interp2d(y, yf, f):
+    """
+    Can interpolate a array of values in 2D
 
-    print(out_a)
+    Parameters
+    ----------
+    y
+    yf
+    f
+
+    Returns
+    -------
+
+    """
+    ind = np.argmin(np.abs(y[:, np.newaxis] - yf), axis=1)
+    y_ind = yf[ind]
+    ind0 = np.where(y_ind > y, ind - 1, ind)
+    ind1 = np.where(y_ind > y, ind, ind + 1)
+    ind0 = np.clip(ind0, 0, None)
+    ind1 = np.clip(ind1, None, len(yf) - 1)
+    f0 = f[ind0]
+    f1 = f[ind1]
+    a0 = yf[ind0]
+    a1 = yf[ind1]
+    s0 = (y - a0) / (a1 - a0)
+    s1 = 1 - s0
+    return s0[:, np.newaxis] * f0 + s1[:, np.newaxis] * f1
+
+
+
+
+
+# if __name__ == '__main__':
+#     atest_interp2d()
+

@@ -280,6 +280,17 @@ def test_roll_av_vals():
     assert np.sum(fns.calc_roll_av_vals([4, 4, 4, 4, 1, 1, 1, 1], steps=3, mode='centre') - expected) == 0
 
 
+def test_interp2d():
+    y = np.linspace(1, 10, 3)
+    y1 = np.linspace(0, 22, 5)
+    f = np.arange(len(y1))[:, np.newaxis] * np.ones((len(y1), 10))
+    f_interp = fns.interp2d(y, y1, f)
+    assert np.isclose(f_interp[0][0], 1 - y[0] / (y1[1] - y1[0])), (f_interp[0][0], 1 - y[0] / (y1[1] - y1[0]))
+    assert np.isclose(f_interp[1][0], 2), (f_interp[0][0], 2)
+    assert len(f_interp) == 3
+    assert len(f_interp[0]) == 10
+
+
 
 if __name__ == '__main__':
 

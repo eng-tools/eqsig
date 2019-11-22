@@ -469,6 +469,8 @@ def calc_cyc_amp_array_w_power_law(values, n_cyc, b):
     csr_peaks_s1 = np.zeros_like(values)
     np.put(csr_peaks_s1, a1_peak_inds_end, a1_csr_peaks_end)
     csr_n15_series1 = np.cumsum((np.abs(csr_peaks_s1)[:, np.newaxis] ** (1. / b)) / 2 / n_cyc, axis=0) ** b
+    if not hasattr(b, '__len__'):
+        return csr_n15_series1
     return csr_n15_series1
 
 

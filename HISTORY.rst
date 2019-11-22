@@ -2,6 +2,11 @@
 History
 =======
 
+1.1.X (2019-X-X)
+-------------------
+
+* Added `interp2d` allows interpolation of a 2D array to obtain a new 2D array
+
 1.1.2 (2019-10-31)
 -------------------
 
