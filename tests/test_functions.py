@@ -291,10 +291,30 @@ def test_interp2d():
     assert len(f_interp[0]) == 10
 
 
+def test_interp2d_2():
+    f = np.array([[0, 0, 0],  # 0
+                  [0, 1, 4],  # 5
+                  [2, 6, 2],  # 10
+                  [10, 10, 10]  # 30
+                  ])
+    yf = np.array([0, 1, 2, 3])
+
+    y = np.array([0.5, 1, 2.2, 2.5])
+    f_interp = fns.interp2d(y, yf, f)
+    print(f_interp)
+    assert f_interp[0][0] == 0
+    assert f_interp[0][1] == 0.5
+    assert f_interp[0][2] == 2.0
+    assert f_interp[1][0] == f[1][0]
+    assert f_interp[1][1] == f[1][1]
+    assert f_interp[1][2] == f[1][2]
+    assert np.isclose(f_interp[2][0], f[2][0] + 8 * 0.2)
+    assert np.isclose(f_interp[3][2], 6.)
+
 
 if __name__ == '__main__':
 
-    test_get_peak_indices()
+    test_interp2d_2()
     # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()

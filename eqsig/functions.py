@@ -775,7 +775,7 @@ def interp2d(y, yf, f):
     a1 = yf[ind1]
     s0 = (y - a0) / (a1 - a0)
     s1 = 1 - s0
-    return s0[:, np.newaxis] * f0 + s1[:, np.newaxis] * f1
+    return s1[:, np.newaxis] * f0 + s0[:, np.newaxis] * f1
 
 
 
