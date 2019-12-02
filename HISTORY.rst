@@ -6,6 +6,7 @@ History
 -------------------
 
 * Added `interp2d` allows interpolation of a 2D array to obtain a new 2D array
+* No longer raises warning when period is 0.0 for computing response spectrum
 
 1.1.2 (2019-10-31)
 -------------------

@@ -282,11 +282,11 @@ def test_roll_av_vals():
 
 def test_interp2d():
     y = np.linspace(1, 10, 3)
-    y1 = np.linspace(0, 22, 5)
-    f = np.arange(len(y1))[:, np.newaxis] * np.ones((len(y1), 10))
-    f_interp = fns.interp2d(y, y1, f)
-    assert np.isclose(f_interp[0][0], 1 - y[0] / (y1[1] - y1[0])), (f_interp[0][0], 1 - y[0] / (y1[1] - y1[0]))
-    assert np.isclose(f_interp[1][0], 2), (f_interp[0][0], 2)
+    yf = np.linspace(0, 22, 5)
+    f = np.arange(len(yf))[:, np.newaxis] * np.ones((len(yf), 10))
+    f_interp = fns.interp2d(y, yf, f)
+    assert np.isclose(f_interp[0][0], (y[0] - yf[0]) / (yf[1] - yf[0])), (f_interp[0][0], (y[0] - yf[0]) / (yf[1] - yf[0]))
+    assert np.isclose(f_interp[1][0], 1), (f_interp[0][0], 1)
     assert len(f_interp) == 3
     assert len(f_interp[0]) == 10
 
@@ -314,7 +314,7 @@ def test_interp2d_2():
 
 if __name__ == '__main__':
 
-    test_interp2d_2()
+    test_interp2d()
     # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()

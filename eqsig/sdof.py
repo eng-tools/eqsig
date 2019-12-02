@@ -121,9 +121,14 @@ def nigam_and_jennings_response(acc, dt, periods, xi):
     :return: response displacement, response velocity, response acceleration
     """
 
-    acc = -np.array(acc).astype(np.float)
-    periods = np.array(periods).astype(np.float)
-    w = 6.2831853 / periods
+    acc = -np.array(acc, dtype=np.float)
+    periods = np.array(periods, dtype=np.float)
+    if periods[0] == 0:
+        s = 1
+    else:
+        s = 0
+    w = 6.2831853 / periods[s:]
+
     dt = np.float(dt)
     xi = np.float(xi)
 
@@ -131,16 +136,21 @@ def nigam_and_jennings_response(acc, dt, periods, xi):
 
     a, b = compute_a_and_b(xi, w, dt)
 
-    resp_u = np.zeros([len(w), len(acc)], dtype=np.float)
-    resp_v = np.zeros([len(w), len(acc)], dtype=np.float)
+    resp_u = np.zeros([len(periods), len(acc)], dtype=np.float)
+    resp_v = np.zeros([len(periods), len(acc)], dtype=np.float)
 
     for i in range(len(acc) - 1):  # possibly speed up using scipy.signal.lfilter
         # x_i+1 = A cross (u, v) + B cross (acc_i, acc_i+1)  # Eq 2.7a
-        resp_u[:, i + 1] = (a[0][0] * resp_u[:, i] + a[0][1] * resp_v[:, i] + b[0][0] * acc[i] + b[0][1] * acc[i + 1])
-        resp_v[:, i + 1] = (a[1][0] * resp_u[:, i] + a[1][1] * resp_v[:, i] + b[1][0] * acc[i] + b[1][1] * acc[i + 1])
+        resp_u[s:, i + 1] = (a[0][0] * resp_u[s:, i] + a[0][1] * resp_v[s:, i] + b[0][0] * acc[i] + b[0][1] * acc[i + 1])
+        resp_v[s:, i + 1] = (a[1][0] * resp_u[s:, i] + a[1][1] * resp_v[s:, i] + b[1][0] * acc[i] + b[1][1] * acc[i + 1])
 
     w2 = w ** 2
-    sdof_acc = -2 * xi * w[:, np.newaxis] * resp_v - w2[:, np.newaxis] * resp_u
+    if s:
+        sdof_acc = np.zeros_like(resp_u, dtype=np.float)
+        sdof_acc[s:] = -2 * xi * w[:, np.newaxis] * resp_v[s:] - w2[:, np.newaxis] * resp_u[s:]
+        sdof_acc[0] = acc
+    else:
+        sdof_acc = -2 * xi * w[:, np.newaxis] * resp_v[s:] - w2[:, np.newaxis] * resp_u[s:]
 
     return resp_u, resp_v, sdof_acc
 
@@ -161,11 +171,19 @@ def pseudo_response_spectra(motion, dt, periods, xi):
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple floats, (spectral displacement, pseudo spectral velocity, pseudo spectral acceleration)
     """
-    periods = np.array(periods)
+    periods = np.array(periods, dtype=np.float)
+    if periods[0] == 0:
+        s = 1
+        w = np.ones_like(periods)
+        w[1:] = 2 * np.pi / periods[1:]
+    else:
+        s = 0
+        w = 2 * np.pi / periods
     resp_u, resp_v, resp_a = nigam_and_jennings_response(motion, dt, periods, xi)
+
     sds = absmax(resp_u, axis=1)
-    svs = 2 * np.pi / periods * sds
-    sas = (2 * np.pi / periods) ** 2 * sds
+    svs = w * sds
+    sas = w ** 2 * sds
     sas = np.where(periods < dt * 6, absmax(motion), sas)
     return sds, svs, sas
 
