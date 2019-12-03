@@ -45,8 +45,9 @@ class Signal(object):
         self.label = label
         self._smooth_freq_range = smooth_freq_range
         self._npts = len(self.values)
-        self._smooth_fa_spectrum = np.zeros((self.smooth_freq_points))
-        self._smooth_fa_frequencies = np.zeros(self.smooth_freq_points)
+        lf = np.log10(smooth_freq_range)
+        self._smooth_fa_frequencies = np.logspace(lf[0], lf[1], 30, base=10)
+        self._smooth_fa_spectrum = np.zeros(30)
         self.ccbox = ccbox
 
     @property
@@ -96,27 +97,40 @@ class Signal(object):
 
     @property
     def smooth_freq_range(self):
-        return self._smooth_freq_range
+        deprecation('AccSignal.smooth_freq_range is deprecated. Use AccSignal.smooth_fa_frequencies')
+        return self.smooth_fa_frequencies[0], self.smooth_fa_frequencies[-1]
 
     @smooth_freq_range.setter
     def smooth_freq_range(self, limits):
+        deprecation('AccSignal.smooth_freq_range is deprecated. Set AccSignal.smooth_fa_frequencies directly')
+        lf = np.log10(np.array(limits))
+        self.smooth_fa_frequencies = np.logspace(lf[0], lf[1], self.smooth_freq_points, base=10)
+
+    def set_smooth_fa_frequecies_by_range(self, limits, n_points):
+        lf = np.log10(limits)
+        self._smooth_fa_frequencies = np.logspace(lf[0], lf[1], n_points, base=10)
         self._smooth_freq_range = np.array(limits)
         self._cached_smooth_fa = False
 
     @property
     def smooth_freq_points(self):
-        return self._smooth_freq_points
+        deprecation('AccSignal.smooth_freq_points is deprecated. Use len(AccSignal.smooth_fa_frequencies)')
+        return len(self.smooth_fa_frequencies)
 
     @smooth_freq_points.setter
     def smooth_freq_points(self, value):
-        self._smooth_freq_points = value
-        self._cached_smooth_fa = False
+        deprecation('AccSignal.smooth_freq_points is deprecated. Set AccSignal.smooth_fa_frequencies directly')
+        lf = np.log10(self.smooth_freq_range)
+        self.smooth_fa_frequencies = np.logspace(lf[0], lf[1], int(value), base=10)
 
     @property
     def smooth_fa_frequencies(self):
-        if not self._cached_smooth_fa:
-            self.generate_smooth_fa_spectrum()
         return self._smooth_fa_frequencies
+
+    @smooth_fa_frequencies.setter
+    def smooth_fa_frequencies(self, frequencies):
+        self._smooth_fa_frequencies = np.array(frequencies, dtype=np.float)
+        self._cached_smooth_fa = False
 
     @property
     def smooth_fa_spectrum(self):
@@ -139,14 +153,8 @@ class Signal(object):
         band: int
             range to smooth over
         """
-        lf = np.log10(self.smooth_freq_range)
-
-        fa_frequencies = self.fa_frequencies
-        fa_spectrum = self.fa_spectrum
-        smooth_fa_frequencies = np.logspace(lf[0], lf[1], self.smooth_freq_points, base=10)
-        self._smooth_fa_spectrum = generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies,
-                                                               fa_spectrum, band=band)
-        self._smooth_fa_frequencies = smooth_fa_frequencies
+        self._smooth_fa_spectrum = generate_smooth_fa_spectrum(self.smooth_fa_frequencies, self.fa_frequencies,
+                                                               self.fa_spectrum, band=band)
         self._cached_smooth_fa = True
 
     def butter_pass(self, cut_off=(0.1, 15), **kwargs):

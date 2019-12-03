@@ -642,22 +642,49 @@ def time_indices(npts, dt, start, end, index):
 
 
 def generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies, fa_spectrum, band=40):
-    smooth_fa_spectrum = np.zeros_like(smooth_fa_frequencies)
-    for i in range(smooth_fa_frequencies.size):
-        f_centre = smooth_fa_frequencies[i]
-        amp_array = np.log10((fa_frequencies / f_centre) ** band)
+    """
+    Calculates the smoothed Fourier Amplitude Spectrum using the method by Konno and Ohmachi (1998)
 
-        amp_array[0] = 0
+    Parameters
+    ----------
+    smooth_fa_frequencies: array_like
+        Frequencies to compute the smoothed amplitude
+    fa_frequencies: array_like
+        Frequencies of the Fourier amplitude spectrum
+    fa_spectrum: array_like
+        Amplitudes of the Fourier amplitude spectrum
+    band:
+        window parameter
 
-        wb_vals = np.zeros((len(amp_array)))
-        for j in range(len(amp_array)):
-            if amp_array[j] == 0:
-                wb_vals[j] = 1
-            else:
-                wb_vals[j] = (np.sin(amp_array[j]) / amp_array[j]) ** 4
+    Returns
+    -------
+    smoothed_fa_spectrum: array_like
+        Amplitudes of smoothed Fourier spectrum at specified frequencies
+    """
+    if fa_frequencies[0] == 0:
+        fa_frequencies = fa_frequencies[1:]
+        fa_spectrum = fa_spectrum[1:]
 
-        smooth_fa_spectrum[i] = (sum(abs(fa_spectrum) * wb_vals) / sum(wb_vals))
+    amp_array = band * np.log10(fa_frequencies[:, np.newaxis] / smooth_fa_frequencies[np.newaxis, :])
+    wb_vals = (np.sin(amp_array) / amp_array) ** 4
+    wb_vals = np.where(amp_array == 0, 1, wb_vals)
+
+    smooth_fa_spectrum = np.sum(abs(fa_spectrum)[:, np.newaxis] * wb_vals, axis=0) / np.sum(wb_vals, axis=0)
     return smooth_fa_spectrum
+
+
+# def dep_generate_smooth_fa_spectrum(smooth_fa_frequencies, fa_frequencies, fa_spectrum, band=40):
+#     if fa_frequencies[0] == 0:
+#         fa_frequencies = fa_frequencies[1:]
+#         fa_spectrum = fa_spectrum[1:]
+#     smooth_fa_spectrum = np.zeros_like(smooth_fa_frequencies)  # TODO: remove for loop
+#     for i in range(smooth_fa_frequencies.size):
+#         f_centre = smooth_fa_frequencies[i]
+#         amp_array = band * np.log10(fa_frequencies / f_centre)
+#         wb_vals = np.where(amp_array == 0, 1, (np.sin(amp_array) / amp_array) ** 4)
+#
+#         smooth_fa_spectrum[i] = (np.sum(abs(fa_spectrum) * wb_vals) / np.sum(wb_vals))
+#     return smooth_fa_spectrum
 
 
 def calc_step_fn_vals_error(values, pow=1, dir=None):

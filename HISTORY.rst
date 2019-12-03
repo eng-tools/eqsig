@@ -2,11 +2,15 @@
 History
 =======
 
-1.1.X (2019-X-X)
+1.2.0 (2019-11-03)
 -------------------
 
-* Added `interp2d` allows interpolation of a 2D array to obtain a new 2D array
+* Added `interp2d` fast interpolation of a 2D array to obtain a new 2D array
 * No longer raises warning when period is 0.0 for computing response spectrum
+* Fixed issue with computation of smoothed response spectrum for dealing with zeroth frequency
+* Increased speed of`generate_smooth_fa_spectrum`
+* Can now directly set `AccSignal.smooth_fa_frequencies`
+* Deprecated `AccSignal.smooth_freq_points` and `AccSignal.smooth_freq_range` will be removed in later version
 
 1.1.2 (2019-10-31)
 -------------------
