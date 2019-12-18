@@ -529,8 +529,7 @@ class AccSignal(Signal):
         """
         Calculates the displacement and velocity time series
         """
-        self._velocity, self._displacement = sd.velocity_and_displacement_from_acceleration(self.values,
-                                                                                          self.dt, trap=trap)
+        self._velocity, self._displacement = sd.calc_velo_and_disp_from_accel_arr(self.values, self.dt, trap=trap)
         self._cached_disp_and_velo = True
 
     @property

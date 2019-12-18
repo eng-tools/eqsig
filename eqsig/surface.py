@@ -77,11 +77,13 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
     # if not hasattr(down_red, '__len__'):
     #     down_red = down_red * np.ones(len(travel_times))
     if not hasattr(travel_times, '__len__'):
+        travel_times = np.array([travel_times])
+    else:
         travel_times = np.array(travel_times)
-    shifts = np.array(2 * travel_times / asig.dt)
+    shifts = 2 * travel_times / asig.dt
     max_shift = int(np.max(shifts))
     up_wave = np.pad(asig.values, (0, max_shift), mode='constant', constant_values=0)
-    dshifted = np.arange(asig.npts + max_shift)[np.newaxis, :] - shifts[:, np.newaxis]
+    dshifted = np.arange(asig.npts + max_shift)[np.newaxis, :] - shifts[:, np.newaxis]  # TODO: not needed if shifts is scalar
     down_waves = np.interp(dshifted, np.arange(asig.npts), asig.values, left=0)
     if hasattr(up_red, '__len__'):
         up_wave = up_wave[np.newaxis, :] * up_red[:, np.newaxis]  # 1d
@@ -95,7 +97,11 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
         acc_series = down_waves + up_wave
     velocity = scipy.integrate.cumtrapz(acc_series, dx=asig.dt, initial=0, axis=1)
     e = 0.5 * velocity * np.abs(velocity)
-    return trim_to_length(e, asig.npts, travel_times, asig.dt, trim=trim, start=start, s2s_travel_time=stt)
+    e = trim_to_length(e, asig.npts, travel_times, asig.dt, trim=trim, start=start, s2s_travel_time=stt)
+    if len(travel_times) == 1:
+        return e[0]
+    else:
+        return e
 
 
 # def dep_calc_surface_energy(asig, travel_times, nodal=True, up_red=1, down_red=1, stt=0.0, trim=False, start=False):
@@ -140,9 +146,8 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
 def calc_cum_abs_surface_energy(asig, travel_times, nodal=True, up_red=1, down_red=1, stt=0.0, trim=False, start=False):
     energy = calc_surface_energy(asig, travel_times, nodal=nodal, up_red=up_red, down_red=down_red, stt=stt,
                                  trim=trim, start=start)
-    diff = np.zeros_like(energy)
-    diff[:, 1:] = np.diff(energy, axis=1)
-    return np.cumsum(np.abs(diff), axis=1)
+    diff = np.diff(energy, axis=-1, prepend=0)
+    return np.cumsum(np.abs(diff), axis=-1)
 
 
 if __name__ == '__main__':

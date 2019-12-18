@@ -27,7 +27,7 @@ setup(name='eqsig',
       ],
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       install_requires=[
-        "numpy",
+        "numpy>=1.16",
         "scipy>=1.2.1",
     ],
       # List additional groups of dependencies here (e.g. development

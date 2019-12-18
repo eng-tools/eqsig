@@ -45,8 +45,7 @@ def calc_sig_dur_vals(motion, dt, start=0.05, end=0.95, se=False):
     tuple (start_time, end_time)
     """
 
-    acc2 = motion ** 2
-    cum_acc2 = np.cumsum(acc2)
+    cum_acc2 = np.cumsum(motion ** 2)
     ind2 = np.where((cum_acc2 > start * cum_acc2[-1]) & (cum_acc2 < end * cum_acc2[-1]))
     start_time = ind2[0][0] * dt
     end_time = ind2[0][-1] * dt
@@ -126,8 +125,7 @@ def calc_sir(acc_sig):
 
 
 def _raw_calc_arias_intensity(acc, dt):
-    acc2 = acc ** 2
-    return np.pi / (2 * 9.81) * scipy.integrate.cumtrapz(acc2, dx=dt, initial=0)
+    return np.pi / (2 * 9.81) * scipy.integrate.cumtrapz(acc ** 2, dx=dt, initial=0)
 
 
 def calc_arias_intensity(acc_sig):
