@@ -72,15 +72,23 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
     -------
 
     """
-    if not hasattr(up_red, '__len__'):
-        up_red = up_red * np.ones(len(travel_times))
-    if not hasattr(down_red, '__len__'):
-        down_red = down_red * np.ones(len(travel_times))
+    # if not hasattr(up_red, '__len__'):
+    #     up_red = up_red * np.ones(len(travel_times))
+    # if not hasattr(down_red, '__len__'):
+    #     down_red = down_red * np.ones(len(travel_times))
+    if not hasattr(travel_times, '__len__'):
+        travel_times = np.array(travel_times)
     shifts = np.array(2 * travel_times / asig.dt)
-    max_shift = int(max(shifts))
-    up_wave = np.pad(asig.values, (0, max_shift), mode='constant', constant_values=0)[np.newaxis, :] * up_red[:, np.newaxis]  # 1d
+    max_shift = int(np.max(shifts))
+    up_wave = np.pad(asig.values, (0, max_shift), mode='constant', constant_values=0)
     dshifted = np.arange(asig.npts + max_shift)[np.newaxis, :] - shifts[:, np.newaxis]
-    down_waves = np.interp(dshifted, np.arange(asig.npts), asig.values, left=0) * down_red[:, np.newaxis]
+    down_waves = np.interp(dshifted, np.arange(asig.npts), asig.values, left=0)
+    if hasattr(up_red, '__len__'):
+        up_wave = up_wave[np.newaxis, :] * up_red[:, np.newaxis]  # 1d
+        down_waves *= down_red[:, np.newaxis]
+    else:
+        up_wave = up_wave * up_red  # 1d  # TODO: may need to increase dimensions here
+        down_waves *= down_red
     if nodal:
         acc_series = - down_waves + up_wave
     else:

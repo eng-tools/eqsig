@@ -2,6 +2,12 @@
 History
 =======
 
+1.2.1 (2019-X-X)
+-------------------
+
+* Added `response_period_range` to AccSignal object initial inputs to define response periods using an upper and lower limit
+* Improved speed of surface energy calculation `calc_surface_energy` and returns correct size based on input dimensions (WIP)
+
 1.2.0 (2019-11-03)
 -------------------
 

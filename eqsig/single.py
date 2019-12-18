@@ -43,11 +43,11 @@ class Signal(object):
         self._dt = dt
         self._values = np.array(values)
         self.label = label
-        self._smooth_freq_range = smooth_freq_range
-        self._npts = len(self.values)
-        lf = np.log10(smooth_freq_range)
-        self._smooth_fa_frequencies = np.logspace(lf[0], lf[1], 30, base=10)
+        self.set_smooth_fa_frequecies_by_range(smooth_freq_range, 30)
         self._smooth_fa_spectrum = np.zeros(30)
+        self._npts = len(self.values)
+        # lf = np.log10(smooth_freq_range)
+        # self._smooth_fa_frequencies = np.logspace(lf[0], lf[1], 30, base=10)
         self.ccbox = ccbox
 
     @property
@@ -356,7 +356,8 @@ class Signal(object):
 
 class AccSignal(Signal):
 
-    def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, response_times=(0.1, 5), ccbox=0):
+    def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, response_period_range=(0.1, 5),
+                 response_times=None, ccbox=0):
         """
         A time series object
 
@@ -377,8 +378,8 @@ class AccSignal(Signal):
             colour index for plotting
         """
         super(AccSignal, self).__init__(values, dt, label=label, smooth_freq_range=smooth_freq_range, verbose=verbose, ccbox=ccbox)
-        if len(response_times) == 2:
-            self.response_times = np.linspace(response_times[0], response_times[1], 100)
+        if response_times is None:
+            self.response_times = np.linspace(response_period_range[0], response_period_range[1], 100)
         else:
             self.response_times = np.array(response_times)
         self._velocity = np.zeros(self.npts)
@@ -420,7 +421,11 @@ class AccSignal(Signal):
 
         if xi == -1:
             xi = self._cached_xi
-        self._s_d, self._s_v, self._s_a = dh.pseudo_response_spectra(values_interp, dt_interp, self.response_times, xi)
+        try:
+            self._s_d, self._s_v, self._s_a = dh.pseudo_response_spectra(values_interp, dt_interp, self.response_times, xi)
+        except MemoryError:
+            raise MemoryError('Out of memory. Length of acc (%i) and length of response_times (%i) too large, '
+                              'set larger min_dt_ratio.' % (len(values_interp), len(self.response_times)))
         self._cached_response_spectra = True
 
     @property
