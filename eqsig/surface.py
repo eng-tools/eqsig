@@ -1,6 +1,4 @@
 import numpy as np
-import scipy.integrate
-from eqsig import functions as fn
 
 
 def trim_to_length(values, npts, surf2depth_travel_times, dt, trim=False, start=False, s2s_travel_time=0.0):
@@ -72,6 +70,7 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
     -------
 
     """
+    from scipy.integrate import cumtrapz
     # if not hasattr(up_red, '__len__'):
     #     up_red = up_red * np.ones(len(travel_times))
     # if not hasattr(down_red, '__len__'):
@@ -95,7 +94,7 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
         acc_series = - down_waves + up_wave
     else:
         acc_series = down_waves + up_wave
-    velocity = scipy.integrate.cumtrapz(acc_series, dx=asig.dt, initial=0, axis=1)
+    velocity = cumtrapz(acc_series, dx=asig.dt, initial=0, axis=1)
     e = 0.5 * velocity * np.abs(velocity)
     e = trim_to_length(e, asig.npts, travel_times, asig.dt, trim=trim, start=start, s2s_travel_time=stt)
     if len(travel_times) == 1:
@@ -149,14 +148,14 @@ def calc_cum_abs_surface_energy(asig, travel_times, nodal=True, up_red=1, down_r
     diff = np.diff(energy, axis=-1, prepend=0)
     return np.cumsum(np.abs(diff), axis=-1)
 
-
-if __name__ == '__main__':
-    a = np.linspace(0, 10, 100)
-    b = np.sin(a)
-    import eqsig
-    accsig = eqsig.AccSignal(b, 0.1)
-    t_times = np.array([0.1, 0.2])
-    ke = calc_cum_abs_surface_energy(accsig, t_times, stt=0.3, nodal=True, up_red=1, down_red=1, trim=True)
-
-    ke = calc_cum_abs_surface_energy(accsig, t_times, stt=0.3, nodal=True, up_red=tshifts, down_red=tshifts, trim=True)
+#
+# if __name__ == '__main__':
+#     a = np.linspace(0, 10, 100)
+#     b = np.sin(a)
+#     import eqsig
+#     accsig = eqsig.AccSignal(b, 0.1)
+#     t_times = np.array([0.1, 0.2])
+#     ke = calc_cum_abs_surface_energy(accsig, t_times, stt=0.3, nodal=True, up_red=1, down_red=1, trim=True)
+#
+#     ke = calc_cum_abs_surface_energy(accsig, t_times, stt=0.3, nodal=True, up_red=tshifts, down_red=tshifts, trim=True)
 

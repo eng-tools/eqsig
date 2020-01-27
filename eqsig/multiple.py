@@ -1,7 +1,6 @@
 __author__ = 'maximmillen'
 
 from collections import OrderedDict
-# from sortedcontainers import SortedDict
 import numpy as np
 
 from eqsig.single import Signal, AccSignal

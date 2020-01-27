@@ -1,12 +1,10 @@
 import numpy as np
-import scipy.signal as ss
-import scipy
+from scipy import fft
 
 from eqsig import exceptions
 from eqsig.functions import get_section_average, generate_smooth_fa_spectrum, interp_array_to_approx_dt
 import eqsig.sdof as dh
 import eqsig.displacements as sd
-import eqsig.im as sm
 from eqsig import im
 from eqsig.exceptions import deprecation
 
@@ -83,7 +81,7 @@ class Signal(object):
 
     def generate_fa_spectrum(self):
         n_factor = 2 ** int(np.ceil(np.log2(self.npts)))
-        fa = scipy.fft(self.values, n=n_factor)
+        fa = fft(self.values, n=n_factor)
         points = int(n_factor / 2)
         self._fa_spectrum = fa[range(points)] * self.dt
         self._fa_frequencies = np.arange(points) / (2 * points * self.dt)
@@ -182,6 +180,7 @@ class Signal(object):
             each increment of the value doubles the record length using zero padding.
         :return:
         """
+        from scipy.signal import butter, filtfilt
         if isinstance(cut_off, list) or isinstance(cut_off, tuple) or isinstance(cut_off, np.Array):
             pass
         else:
@@ -234,8 +233,8 @@ class Signal(object):
             f_len = org_len
 
         wp = cut_off / nyq
-        b, a = ss.butter(filter_order, wp, btype=filter_type)
-        mote = ss.filtfilt(b, a, mote)
+        b, a = butter(filter_order, wp, btype=filter_type)
+        mote = filtfilt(b, a, mote)
         # removing extra zeros from gibbs effect
         mote = mote[s_len:f_len]  # TODO: don't use -1
 
@@ -462,8 +461,9 @@ class AccSignal(Signal):
 
         # self.remove_average()
         # self.butter_pass([0.1, 10])
+        from scipy.signal import detrend
 
-        disp = ss.detrend(self.displacement)
+        disp = detrend(self.displacement)
         vel = np.zeros(self.npts)
         acc = np.zeros(self.npts)
         for i in range(self.npts - 1):  # MEANS THAT ACC has a pulse at the end.
@@ -558,7 +558,7 @@ class AccSignal(Signal):
         if "pga" in self._cached_params:
             return self._cached_params["pga"]
         else:
-            pga = sm.calc_peak(self.values)
+            pga = im.calc_peak(self.values)
             self._cached_params["pga"] = pga
             return pga
 
@@ -568,7 +568,7 @@ class AccSignal(Signal):
         if "pgv" in self._cached_params:
             return self._cached_params["pgv"]
         else:
-            pgv = sm.calc_peak(self.velocity)
+            pgv = im.calc_peak(self.velocity)
             self._cached_params["pgv"] = pgv
             return pgv
 
@@ -578,7 +578,7 @@ class AccSignal(Signal):
         if "pgd" in self._cached_params:
             return self._cached_params["pgd"]
         else:
-            pgd = sm.calc_peak(self.displacement)
+            pgd = im.calc_peak(self.displacement)
             self._cached_params["pgd"] = pgd
             return pgd
 
@@ -619,7 +619,7 @@ class AccSignal(Signal):
             self.a_rms10 = -1.
 
         # Trifunac and Brady
-        self.sd_start, self.sd_end = sm.calc_sig_dur_vals(self.values, self.dt, se=True)
+        self.sd_start, self.sd_end = im.calc_sig_dur_vals(self.values, self.dt, se=True)
 
         self.t_595 = self.sd_end - self.sd_start
 

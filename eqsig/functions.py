@@ -1,6 +1,4 @@
 import numpy as np
-import scipy
-
 import eqsig
 from eqsig import exceptions
 
@@ -316,14 +314,15 @@ def generate_fa_spectrum(sig, n_pad=True):
     fa_frequencies: array_like
         Frequencies of the spectrum
     """
+    from scipy import fft
     npts = sig.npts
     if n_pad:
         n_factor = 2 ** int(np.ceil(np.log2(npts)))
-        fa = scipy.fft(sig.values, n=n_factor)
+        fa = fft(sig.values, n=n_factor)
         points = int(n_factor / 2)
         assert len(fa) == n_factor
     else:
-        fa = scipy.fft(sig.values)
+        fa = fft(sig.values)
         points = int(sig.npts / 2)
     fa_spectrum = fa[range(points)] * sig.dt
     fa_frequencies = np.arange(points) / (2 * points * sig.dt)
@@ -391,6 +390,7 @@ def resample_to_approx_dt(asig, target_dt=0.01, even=True):
     -------
 
     """
+    from scipy.signal import resample
     factor = asig.dt / target_dt
     if factor == 1:
         pass
@@ -401,7 +401,7 @@ def resample_to_approx_dt(asig, target_dt=0.01, even=True):
     new_npts = factor * asig.npts
     if even:
         new_npts = 2 * int(new_npts / 2)
-    acc_interp = scipy.signal.resample(asig.values, new_npts)
+    acc_interp = resample(asig.values, new_npts)
     return eqsig.AccSignal(acc_interp, asig.dt / factor)
 
 
@@ -435,7 +435,7 @@ def get_switched_peak_array_indices(values):
     -------
     array_like
     """
-    peak_indices = eqsig.get_peak_array_indices(values)
+    peak_indices = get_peak_array_indices(values)
     peak_values = np.take(values, peak_indices)
 
     last = peak_values[0]

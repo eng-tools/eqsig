@@ -1,7 +1,4 @@
 import numpy as np
-import scipy
-import scipy.fftpack
-import scipy.signal
 import eqsig.multiple
 
 
@@ -134,6 +131,8 @@ def transform(acc, interp=False):
     :param acc: array_like
     :return:
     """
+    from scipy.linalg import toeplitz
+    from scipy.fftpack import fft, ifft  # Try use scipy.fft
     # Interpolate here because function drops a time step
     if interp:
         t_int = np.arange(len(acc))
@@ -147,11 +146,11 @@ def transform(acc, interp=False):
     gaussian = generate_gaussian(n_d2)
     # st0 = np.mean(acc) * np.ones(n_factor)
 
-    fa = scipy.fftpack.fft(acc_db, n_factor, overwrite_x=True)
-    diag_con = scipy.linalg.toeplitz(np.conj(fa[:n_d2 + 1]), fa)
+    fa = fft(acc_db, n_factor, overwrite_x=True)
+    diag_con = toeplitz(np.conj(fa[:n_d2 + 1]), fa)
     diag_con = diag_con[1:n_d2 + 1, :]  # first line is zero frequency
     skip_is = 0  # can skip more low frequencies since they tend to be zero
-    stock = np.flipud(scipy.fftpack.ifft(diag_con[skip_is:, :] * gaussian[skip_is:, :], axis=1))
+    stock = np.flipud(ifft(diag_con[skip_is:, :] * gaussian[skip_is:, :], axis=1))
 
     # stock = np.insert(stock, 0, st0, 0)
     for i in range(skip_is):
@@ -162,7 +161,8 @@ def transform(acc, interp=False):
 
 def itransform(stock):
     """Performs an inverse Stockwell Transform"""
-    return np.real(scipy.fftpack.ifft(np.sum(stock, axis=1)))
+    from scipy.fftpack import ifft  # Try use scipy.fft
+    return np.real(ifft(np.sum(stock, axis=1)))
 
 
 def get_max_stockwell_freq(asig):

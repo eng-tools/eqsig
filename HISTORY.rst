@@ -7,6 +7,7 @@ History
 
 * Added `response_period_range` to AccSignal object initial inputs to define response periods using an upper and lower limit
 * Improved speed of surface energy calculation `calc_surface_energy` and returns correct size based on input dimensions
+* Removed global import of scipy - done at function level
 
 1.2.0 (2019-11-03)
 -------------------

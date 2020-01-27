@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.integrate
+
 from eqsig import sdof, functions
 from eqsig.exceptions import deprecation
 
@@ -125,7 +125,8 @@ def calc_sir(acc_sig):
 
 
 def _raw_calc_arias_intensity(acc, dt):
-    return np.pi / (2 * 9.81) * scipy.integrate.cumtrapz(acc ** 2, dx=dt, initial=0)
+    from scipy.integrate import cumtrapz
+    return np.pi / (2 * 9.81) * cumtrapz(acc ** 2, dx=dt, initial=0)
 
 
 def calc_arias_intensity(acc_sig):
@@ -153,8 +154,9 @@ def calc_cav(acc_sig):
     Electrical Power Research Institute. Standardization of the Cumulative
     Absolute Velocity. 1991. EPRI TR-100082-1'2, Palo Alto, California.
     """
+    from scipy.integrate import cumtrapz
     abs_acc = np.abs(acc_sig.values)
-    return scipy.integrate.cumtrapz(abs_acc, dx=acc_sig.dt, initial=0)
+    return cumtrapz(abs_acc, dx=acc_sig.dt, initial=0)
 
 
 def calc_cav_dp(asig):
@@ -169,6 +171,7 @@ def calc_cav_dp(asig):
     :param asig:
     :return:
     """
+    from scipy.integrate import trapz
     start = 0
     pga_max = 0
     cav_dp = 0
@@ -195,7 +198,7 @@ def calc_cav_dp(asig):
         x_upper = end * asig.dt  # the upper limit of x
         x_int = interval_time[np.where((x_lower <= interval_time) * (interval_time <= x_upper))]
         y_int = np.abs(np.array(abs_acc_interval)[np.where((x_lower <= interval_time) * (interval_time <= x_upper))])
-        int_acc = scipy.integrate.trapz(y_int, x_int)
+        int_acc = trapz(y_int, x_int)
 
         # calculation of pga (g)
         pga = (max(abs_acc_interval))
@@ -224,7 +227,8 @@ def calc_isv(acc_sig):
     See Kokusho (2013)
     :return:
     """
-    return scipy.integrate.cumtrapz(acc_sig.velocity ** 2, dx=acc_sig.dt, initial=0)
+    from scipy.integrate import cumtrapz
+    return cumtrapz(acc_sig.velocity ** 2, dx=acc_sig.dt, initial=0)
 
 
 def cumulative_response_spectra(acc_signal, fun_name, periods=None, xi=None):
@@ -435,7 +439,7 @@ def calc_n_cyc_array_w_power_law(values, a_ref, b, cut_off=0.01):
     -------
     array_like
     """
-
+    from scipy.interpolate import interp1d
     peak_indices = functions.get_switched_peak_array_indices(values)
     csr_peaks = np.abs(np.take(values, peak_indices))
     csr_peaks = np.where(csr_peaks < cut_off * np.max(abs(values)), 1.0e-14, csr_peaks)
@@ -447,7 +451,7 @@ def calc_n_cyc_array_w_power_law(values, a_ref, b, cut_off=0.01):
     n_eq = np.insert(n_eq, len(n_eq)-1, n_eq[-1], axis=0)
     peak_indices = np.insert(peak_indices, len(n_eq)-1, len(values), axis=0)
 
-    f = scipy.interpolate.interp1d(peak_indices, n_eq, kind='previous', axis=0)
+    f = interp1d(peak_indices, n_eq, kind='previous', axis=0)
     n_series = f(np.arange(len(values)))
     return n_series
 
