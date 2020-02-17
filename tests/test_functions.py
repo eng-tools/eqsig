@@ -2,6 +2,7 @@ import numpy as np
 import eqsig
 import scipy
 from eqsig import functions as fns
+import pytest
 
 from tests.conftest import TEST_DATA_DIR
 
@@ -310,6 +311,23 @@ def test_interp2d_2():
     assert f_interp[1][2] == f[1][2]
     assert np.isclose(f_interp[2][0], f[2][0] + 8 * 0.2)
     assert np.isclose(f_interp[3][2], 6.)
+
+
+def test_interp_left():
+    x0 = [0, 1, 5]
+    x = [0, 2, 6]
+    y = [1.5, 2.5, 3.5]
+    y_new = fns.interp_left(x0, x, y)
+    expected = np.array([1.5, 1.5, 2.5])
+    assert np.isclose(y_new, expected).all(), y_new
+
+    x0 = [0, 2, 6]
+    y_new = fns.interp_left(x0, x, y)
+    expected = np.array([1.5, 2.5, 3.5])
+    assert np.isclose(y_new, expected).all(), y_new
+    x0 = [-1, 2, 6]
+    with pytest.raises(AssertionError):
+        y_new = fns.interp_left(x0, x, y)
 
 
 if __name__ == '__main__':

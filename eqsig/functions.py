@@ -805,9 +805,42 @@ def interp2d(y, yf, f):
     return s1[:, np.newaxis] * f0 + s0[:, np.newaxis] * f1
 
 
+def interp_left(x0, x, y):
+    """
+    Interpolation takes the lower value
+
+    Parameters
+    ----------
+    x0
+    x
+    y
+
+    Returns
+    -------
+
+    """
+    y = np.array(y)
+    assert min(x0) >= x[0]
+    inds = np.searchsorted(x, x0, side='right') - 1
+    return y[inds]
 
 
 
-# if __name__ == '__main__':
-#     atest_interp2d()
+if __name__ == '__main__':
+    x0 = [0, 1, 5]
+    x = [0, 2, 6]
+    y = [1.5, 2.5, 3.5]
+    y_new = interp_left(x0, x, y)
+    expected = np.array([1.5, 1.5, 2.5])
+    assert np.isclose(y_new, expected).all(), y_new
+
+    x0 = [0, 2, 6]
+    y_new = interp_left(x0, x, y)
+    expected = np.array([1.5, 2.5, 3.5])
+    assert np.isclose(y_new, expected).all(), y_new
+    x0 = [-1, 2, 6]
+    y_new = interp_left(x0, x, y)
+    expected = np.array([1.5, 2.5, 3.5])
+    # assert np.isclose(y_new, expected).all(), y_new
+    print(y_new)
 

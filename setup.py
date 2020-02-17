@@ -25,7 +25,7 @@ setup(name='eqsig',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3',
       ],
-      packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+      packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples', '.circleci']),
       install_requires=[
         "numpy>=1.16",
         "scipy>=1.2.1",
