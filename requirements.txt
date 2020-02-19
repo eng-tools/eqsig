@@ -1,4 +1,4 @@
-numpy
+numpy>=1.16
 scipy>=1.2.1
 
 # testing
