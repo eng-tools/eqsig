@@ -21,6 +21,9 @@
    :target: https://zenodo.org/badge/latestdoi/125842866
    :alt: DOI
 
+.. image:: https://pepy.tech/badge/eqsig
+   :target: https://pepy.tech/project/eqsig
+
 *****
 eqsig
 *****

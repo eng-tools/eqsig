@@ -811,10 +811,12 @@ def interp_left(x0, x, y):
 
     Parameters
     ----------
-    x0
-    x
-    y
-
+    x0: array_like
+        Values to be interpolated on x-axis
+    x: array_like
+        Existing values on x-axis
+    y: array_like
+        Existing y-axis values
     Returns
     -------
 
