@@ -7,9 +7,27 @@ from eqsig.single import Signal, AccSignal
 
 
 class Cluster(object):
+    """
+    This object represents a group of Signals or AccSignals that have the same time step
 
-    def __init__(self, values, dt, names=[], master_index=0, stypes="custom", **kwargs):
+    Parameters
+    ----------
+    values: 2d_array_like
+        An array containing arrays of values that represent time series
+    dt: float
+        Time step of time series
+    names: list
+        A list of names for each time series
+    master_index: int
+        The index of the master time series - used in some signal matching methods
+    stypes: str or list of str
+        The signal type for each time series, if 'acc' then AccSignal, else Signal.
+    kwargs
+    """
 
+    def __init__(self, values, dt, names=None, master_index=0, stypes="custom", **kwargs):
+        if names is None:
+            names = []
         self.freq_range = np.array(kwargs.get('freq_range', [0.1, 20]))
         lvt = np.log10(1.0 / self.freq_range)
         if stypes == "custom" or stypes == "acc":
@@ -18,7 +36,7 @@ class Cluster(object):
         if master_index < 0:
             raise ValueError("master_index must be positive")
         if master_index > len(values) - 1:
-            raise ValueError("master_index: %i, out of bounds, maximum value: %i" % (master_index, len(signals) - 1))
+            raise ValueError("master_index: %i, out of bounds, maximum value: %i" % (master_index, len(values) - 1))
         self.master_index = master_index
         # if len(signals) != len(steps):
         #     raise ValueError("Length of signals: %i, must match length of steps: %i" % (len(signals), len(steps)))

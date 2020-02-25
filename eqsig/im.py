@@ -309,7 +309,7 @@ def calc_bandwidth_f_min(asig, ratio=0.707):
     ----------
     asig: eqsig.AccSignal
         Acceleration time series object
-    ratio:
+    ratio: float
         ratio of maximum value where bandwidth should be computed
 
     Returns
@@ -332,7 +332,7 @@ def calc_bandwidth_f_max(asig, ratio=0.707):
         ----------
         asig: eqsig.AccSignal
             Acceleration time series object
-        ratio:
+        ratio: float
             ratio of maximum value where bandwidth should be computed
 
         Returns
@@ -348,6 +348,7 @@ def calc_bandwidth_f_max(asig, ratio=0.707):
 
 
 def calc_bracketed_duration(asig, threshold):
+    """DEPRECATED: Use calc_brac_dur"""
     deprecation("Use calc_brac_dur")
     return calc_brac_dur(asig, threshold)
 
@@ -398,6 +399,7 @@ def calc_acc_rms(asig, threshold):
 
 
 def calc_a_rms(asig, threshold):
+    """DEPRECATED"""
     raise ValueError('calc_a_rms has been removed, use calc_acc_rms note that threshold changed to m/s2')
 
 

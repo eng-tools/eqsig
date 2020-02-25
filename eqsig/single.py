@@ -10,33 +10,34 @@ from eqsig.exceptions import deprecation
 
 
 class Signal(object):
+    """
+    A time series object
+
+    Parameters
+    ----------
+    values: array_like
+        values of the time series
+    dt: float
+        the time step
+    label: str, optional
+        A name for the signal
+    smooth_freq_range: tuple, optional
+        The frequency range for computing the smooth FAS
+    verbose: int, optional
+        Level of console output
+    ccbox: int, optional
+        colour id for plotting
+    """
     _npts = None
     _smooth_freq_points = 61
     _fa_spectrum = None
     _fa_frequencies = None
     _cached_fa = False
     _cached_smooth_fa = False
+    _smooth_fa_frequencies = None
+    _smooth_freq_range = None
 
     def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, ccbox=0):
-        """
-        A time series object
-
-        Parameters
-        ----------
-        values: array_like
-            values of the time series
-        dt: float
-            the time step
-        label: str, optional
-            A name for the signal
-        smooth_freq_range: tuple, optional
-            The frequency range for computing the smooth FAS
-        verbose: int, optional
-            Level of console output
-        ccbox: int, optional
-            colour id for plotting
-        :return:
-        """
         self.verbose = verbose
         self._dt = dt
         self._values = np.array(values)
@@ -295,8 +296,10 @@ class Signal(object):
         """
         Adds a single value to every value in the signal.
 
-        :param constant:
-        :return:
+        Parameters
+        ----------
+        constant: float
+            Value to be added to time series
         """
         self.reset_values(self.values + constant)
 
@@ -304,8 +307,10 @@ class Signal(object):
         """
         Adds a series of values to the values in the signal.
 
-        :param series: A series of values
-        :return:
+        Parameters
+        ----------
+        series: array_like
+            A series of values
         """
         if len(series) == self.npts:
             self.reset_values(self.values + series)
@@ -333,7 +338,10 @@ class Signal(object):
         Averages the values over a width (chunk of numbers)
         replaces the value in the centre of the chunk.
 
-        :param width: The range over which values are averaged
+        Parameters
+        ----------
+        width: int
+            The number of points over which values are averaged
         """
 
         mot = self.values
@@ -354,28 +362,29 @@ class Signal(object):
 
 
 class AccSignal(Signal):
+    """
+    A time series object
+
+    Parameters
+    ----------
+    values: array_like
+        Acceleration time series - should be in m/s2
+    dt: float
+        Time step
+    label: str (default='m1')
+        Used for plotting
+    smooth_freq_range: tuple [floats] (default=(0.1, 30))
+        lower and upper bound of frequency range to compute the smoothed Fourier amplitude spectrum
+    verbose: int (default=0)
+        Level of output verbosity
+    response_times: tuple of floats (default=(0.1, 5))
+    ccbox: int
+        colour index for plotting
+    """
 
     def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, response_period_range=(0.1, 5),
                  response_times=None, ccbox=0):
-        """
-        A time series object
 
-        Parameters
-        ----------
-        values: array_like
-            Acceleration time series - should be in m/s2
-        dt: float
-            Time step
-        label: str (default='m1')
-            Used for plotting
-        smooth_freq_range: tuple [floats] (default=(0.1, 30))
-            lower and upper bound of frequency range to compute the smoothed Fourier amplitude spectrum
-        verbose: int (default=0)
-            Level of output verbosity
-        response_times: tuple of floats (default=(0.1, 5))
-        ccbox: int
-            colour index for plotting
-        """
         super(AccSignal, self).__init__(values, dt, label=label, smooth_freq_range=smooth_freq_range, verbose=verbose, ccbox=ccbox)
         if response_times is None:
             self.response_times = np.linspace(response_period_range[0], response_period_range[1], 100)
@@ -401,7 +410,18 @@ class AccSignal(Signal):
     def generate_response_spectrum(self, response_times=None, xi=-1, min_dt_ratio=4):
         """
         Generate the response spectrum for the response_times for a given
-        damping (xi). default xi = 0.05
+        damping (xi).
+
+        Parameters
+        ----------
+        response_times: array_like
+            Time periods of SDOFs that response should be computed for
+        xi: float (default=0.05 or previously set)
+            Ratio of critical damping
+        min_dt_ratio: float
+            Smallest ratio between response period and integration time step,
+            acceleration time series will be interpolated to reach appropriate integration time step if
+            not achieved using the acceleration time series time step.
         """
         if self.verbose:
             print('Generating response spectra')
@@ -429,38 +449,27 @@ class AccSignal(Signal):
 
     @property
     def s_a(self):
-        """
-        Pseudo spectral response acceleration of linear SDOF
-        """
+        """Pseudo maximum response accelerations of linear SDOFs"""
         if not self._cached_response_spectra:
             self.generate_response_spectrum()
         return self._s_a
 
     @property
     def s_v(self):
-        """
-        Pseudo spectral response velocity of linear SDOF
-        """
+        """Pseudo maximum response velocities of linear SDOFs"""
         if not self._cached_response_spectra:
             self.generate_response_spectrum()
         return self._s_v
 
     @property
     def s_d(self):
-        """
-        Spectral response displacement of linear SDOF
-        """
+        """Maximum response displacements of linear SDOFs"""
         if not self._cached_response_spectra:
             self.generate_response_spectrum()
         return self._s_d
 
     def correct_me(self):
-        """
-        This provides a correction to an acceleration time series
-        """
-
-        # self.remove_average()
-        # self.butter_pass([0.1, 10])
+        """This provides a correction to an acceleration time series"""
         from scipy.signal import detrend
 
         disp = detrend(self.displacement)
@@ -481,10 +490,6 @@ class AccSignal(Signal):
             motion type to apply method to
         freq_window: int
             window for applying the rolling average
-
-        Returns
-        -------
-
         """
         if mtype == "velocity":
             mot = self.velocity
@@ -515,9 +520,7 @@ class AccSignal(Signal):
         self.clear_cache()
 
     def rebase_displacement(self):
-        """
-        Correction to make the displacement zero at the end of the record
-        """
+        """Correction to make the displacement zero at the end of the record"""
 
         end_disp = self.displacement[-1]
 
@@ -526,9 +529,7 @@ class AccSignal(Signal):
         self.clear_cache()
 
     def generate_displacement_and_velocity_series(self, trap=True):
-        """
-        Calculates the displacement and velocity time series
-        """
+        """Calculates the displacement and velocity time series"""
         self._velocity, self._displacement = sd.calc_velo_and_disp_from_accel_arr(self.values, self.dt, trap=trap)
         self._cached_disp_and_velo = True
 
@@ -548,7 +549,7 @@ class AccSignal(Signal):
 
     def generate_peak_values(self):
         """
-        Determines the peak signal values
+        DEPRECATED: all peak values are lazy loaded - this method does not need to be run.
         """
         deprecation("generate_peak_values() is no longer in use, all peak values are lazy loaded.")
 

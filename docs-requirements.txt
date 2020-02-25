@@ -1,5 +1,6 @@
 sphinx
 sphinx-autobuild
+sphinxcontrib-bibtex
 
 mock
 autodoc

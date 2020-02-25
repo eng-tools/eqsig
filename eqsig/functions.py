@@ -9,11 +9,25 @@ def time_series_from_motion(motion, dt):
 
 
 def determine_indices_of_peaks_for_cleaned(values):
+    """DEPRECATED: Use determine_indices_of_peaks_for_cleaned_array()"""
+    return determine_indices_of_peaks_for_cleaned_array(values)
+
+
+def determine_indices_of_peaks_for_cleaned_array(values):
     """
     Determines the position of values that form a local peak in a signal.
 
-    :param values:
-    :return:
+    Warning: data must be cleaned so that adjacent points have the same value
+
+    Parameters
+    ----------
+    values: array_like
+        Array of values that peaks will be found in
+
+    Returns
+    -------
+    peak_indices: array_like of int
+        Array of indices of peaks
     """
     diff = np.ediff1d(values, to_begin=0)
     # if negative then direction has switched
@@ -25,26 +39,7 @@ def determine_indices_of_peaks_for_cleaned(values):
     return peak_indices
 
 
-# def determine_indices_of_zero_crossings_for_cleaned(values):
-#     """
-#     Determines the position of values that are equal or have just passed through zero.
-#
-#     :param values:
-#     :return:
-#     """
-#     diff = np.diff(values)
-#     # if negative then direction has switched
-#     direction_switch = diff[1:] * diff[:-1]
-#     direction_switch = np.insert(direction_switch, 0, 0)
-#     peaks = np.where(direction_switch < 0)
-#     peak_indices = peaks[0]
-#     peak_indices = np.insert(peak_indices, 0, 0)  # Include first and last value
-#     peak_indices = np.insert(peak_indices, len(peak_indices), len(values) - 1)
-#
-#     return peak_indices
-
-
-def determine_peak_only_series_4_cleaned_data(values):
+def _determine_peak_only_series_4_cleaned_data(values):
     """
     Determines the
 
@@ -53,7 +48,7 @@ def determine_peak_only_series_4_cleaned_data(values):
     :param values:
     :return:
     """
-    peak_indices = determine_indices_of_peaks_for_cleaned(values)
+    peak_indices = determine_indices_of_peaks_for_cleaned_array(values)
     peak_values = np.take(values, peak_indices)
     signs = np.where(np.mod(np.arange(len(peak_values)), 2), -1, 1)
     delta_peaks = np.where(-signs * peak_values < 0, -np.abs(peak_values), np.abs(peak_values))
@@ -72,7 +67,7 @@ def determine_peak_only_delta_series_4_cleaned_data(values):
     :param values:
     :return:
     """
-    peak_indices = determine_indices_of_peaks_for_cleaned(values)
+    peak_indices = determine_indices_of_peaks_for_cleaned_array(values)
     peak_values = np.take(values, peak_indices)
     delta_peaks = np.diff(peak_values)
     delta_peaks = np.insert(delta_peaks, 0, 0)
@@ -121,7 +116,7 @@ def get_peak_array_indices(values, ptype='all'):
     # remove all non-changing values
     cleaned_values, non_zero_indices = clean_out_non_changing(values)
     # cleaned_values *= np.sign(cleaned_values[1])  # ensure first value is increasing
-    peak_cleaned_indices = determine_indices_of_peaks_for_cleaned(cleaned_values)
+    peak_cleaned_indices = determine_indices_of_peaks_for_cleaned_array(cleaned_values)
     peak_full_indices = np.take(non_zero_indices, peak_cleaned_indices)
     if ptype == 'min':
         if values[1] - values[0] <= 0:
@@ -269,7 +264,7 @@ def determine_pseudo_cyclic_peak_only_series(values):
     cleaned_values, non_zero_indices = clean_out_non_changing(values)
     cleaned_values *= np.sign(cleaned_values[1])  # ensure first value is increasing
     # compute delta peaks for cleaned data
-    cleaned_delta_peak_series = determine_peak_only_series_4_cleaned_data(cleaned_values)
+    cleaned_delta_peak_series = _determine_peak_only_series_4_cleaned_data(cleaned_values)
     # re-index data to uncleaned array
     delta_peaks_series = np.zeros_like(values)
     np.put(delta_peaks_series, non_zero_indices, cleaned_delta_peak_series)
@@ -280,9 +275,14 @@ def fas2signal(fas, dt, stype="signal"):
     """
     Convert a fourier spectrum to time series signal
 
-    :param fas: positive part only
-    :param dt: time step of time series
-    :return:
+    Parameters
+    ----------
+    fas: array_like of img floats
+        Positive part only
+    dt: float
+        time step of time series
+    stype: str
+        If 'signal' then return Signal, else return AccSignal
     """
     from eqsig.single import Signal, AccSignal
     n = 2 * len(fas)
@@ -330,6 +330,32 @@ def generate_fa_spectrum(sig, n_pad=True):
 
 
 def interp_array_to_approx_dt(values, dt, target_dt=0.01, even=True):
+    """
+    Interpolate an array of values to a new time step
+
+    Similar to ``interp_to_approx_dt``
+
+    Only a target time step is provided and the algorithm determines
+     what time step is best to minimise loss of data from aliasing
+
+    Parameters
+    ----------
+    values: array_like
+        values of time series
+    dt: float
+        Time step
+    target_dt: float
+        Target time step
+    even: bool
+        If true then forces the number of time steps to be an even number
+
+    Returns
+    -------
+    new_values: array_like
+        Interpolated value of time series
+    new_dt: float
+        New time step of interpolate time series
+    """
     factor = dt / target_dt
     if factor == 1:
         pass
@@ -364,7 +390,8 @@ def interp_to_approx_dt(asig, target_dt=0.01, even=True):
 
     Returns
     -------
-
+    new_asig: eqsig.AccSignal
+        Acceleration time series object of interpolated time series
     """
     acc_interp, dt_interp = interp_array_to_approx_dt(asig.values, asig.dt, target_dt=target_dt, even=even)
     return eqsig.AccSignal(acc_interp, dt_interp)

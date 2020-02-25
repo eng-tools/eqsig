@@ -1,29 +1,54 @@
 eqsig package
 =============
 
-Submodules
-----------
+The eqsig package is based around the AccSignal and Signal objects to represent acceleration time series and other
+time series data. These objects hold commonly used signal parameters and use caching to avoid expensive recalculations.
 
-eqsig.single module
--------------------
+Single time series objects
+--------------------------
 
 .. automodule:: eqsig.single
     :members:
     :undoc-members:
     :show-inheritance:
 
-eqsig.multiple module
----------------------
+Multiple time series objects
+--------------------------
 
 .. automodule:: eqsig.multiple
     :members:
     :undoc-members:
     :show-inheritance:
 
-eqsig.im module
----------------
+Intensity measure functions
+---------------------------
 
 .. automodule:: eqsig.im
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Signal processing and analysis functions
+----------------------------------------
+
+.. automodule:: eqsig.functions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Loading and saving functions
+----------------------------
+
+.. automodule:: eqsig.loader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.sdof module
+-----------------
+
+.. automodule:: eqsig.sdof
     :members:
     :undoc-members:
     :show-inheritance:
@@ -32,30 +57,6 @@ eqsig.displacements module
 --------------------------
 
 .. automodule:: eqsig.displacements
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.functions module
-----------------------------
-
-.. automodule:: eqsig.functions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.loader module
-----------------------------
-
-.. automodule:: eqsig.loader
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eqsig.duhamels module
----------------------
-
-.. automodule:: eqsig.duhamels
     :members:
     :undoc-members:
     :show-inheritance:
