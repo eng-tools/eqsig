@@ -29,18 +29,10 @@ def show_response_spectra_at_high_frequencies():
     record_filename = 'test_motion_dt0p01.txt'
     motion_step = 0.01
     rec = np.loadtxt(record_path + record_filename)
-    # acc_signal = AccSignal(rec, motion_step, response_times=times)
-    # s_a = acc_signal.s_a
-    #
-    # a_times = acc_signal.response_times
-    # s_d, s_v, s_a = dh.pseudo_response_spectra(rec, motion_step, times, xi=0.05)
-    # s_d, s_v, s_a = dh.true_response_spectra(rec, motion_step, times, xi=0.05)
     acc_signal = AccSignal(rec, motion_step, response_times=times)
     s_a = acc_signal.s_a
 
     s_a_in_g = s_a / 9.81
-
-    # srss1 = sum(abs(s_a_in_g - ss_s_a))
     plt.plot(times, s_a_in_g, label="eqsig")
     plt.plot(times, ss_s_a, label="true-ish")
     plt.legend()
