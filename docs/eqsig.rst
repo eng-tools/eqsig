@@ -90,17 +90,3 @@ eqsig.exceptions module
     :undoc-members:
     :show-inheritance:
 
-
-
-
-
-
-
-
-Module contents
----------------
-
-.. automodule:: eqsig
-    :members:
-    :undoc-members:
-    :show-inheritance:
