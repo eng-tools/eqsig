@@ -13,7 +13,7 @@ Single time series objects
     :show-inheritance:
 
 Multiple time series objects
---------------------------
+----------------------------
 
 .. automodule:: eqsig.multiple
     :members:

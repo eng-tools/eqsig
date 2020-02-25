@@ -39,6 +39,7 @@ Features
 
    eqsig
    install
+   examples
 
 * :ref:`genindex`
 
