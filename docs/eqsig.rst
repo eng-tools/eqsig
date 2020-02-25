@@ -1,7 +1,7 @@
 eqsig package
 =============
 
-The eqsig package is based around the AccSignal and Signal objects to represent acceleration time series and other
+The eqsig package is based around the ``AccSignal`` and ``Signal`` objects to represent acceleration time series and other
 time series data. These objects hold commonly used signal parameters and use caching to avoid expensive recalculations.
 
 Single time series objects
@@ -40,6 +40,11 @@ Signal processing and analysis functions
 Loading and saving functions
 ----------------------------
 
+The eqsig format is:
+ - First line: name of signal
+ - Second line: Number of points and time steps, separated by a space
+ - Remaining lines: Each line contains one value of time series
+
 .. automodule:: eqsig.loader
     :members:
     :undoc-members:
@@ -57,6 +62,14 @@ eqsig.displacements module
 --------------------------
 
 .. automodule:: eqsig.displacements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eqsig.stockwell module
+----------------------------
+
+.. automodule:: eqsig.stockwell
     :members:
     :undoc-members:
     :show-inheritance:

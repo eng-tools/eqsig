@@ -18,7 +18,7 @@ def load_values_and_dt(ffp):
     dt: float
         Time step
 
-        """
+    """
     data = np.genfromtxt(ffp, skip_header=1, delimiter=",", names=True, usecols=0)
     dt = data.dtype.names[0].split("_")[-1]
     dt = "." + dt[1:]
@@ -52,10 +52,6 @@ def save_values_and_dt(ffp, values, dt, label):
         Time step
     label: str
         A label of the data
-
-    Returns
-    -------
-
     """
     para = [label, "%i %.4f" % (len(values), dt)]
     for i in range(len(values)):
@@ -74,11 +70,39 @@ def load_signal(ffp, astype='sig'):
 
 
 def load_sig(ffp):
+    """
+    Loads a ``Signal`` that was saved in eqsig input format.
+
+    Parameters
+    ----------
+    ffp: str
+        Full file path to output file
+
+    Returns
+    -------
+    sig: eqsig.Signal
+    """
     vals, dt = load_values_and_dt(ffp)
     return Signal(vals, dt)
 
 
 def load_asig(ffp, load_label=False, m=1.0):
+    """
+    Loads an ``AccSignal`` that was saved in eqsig input format.
+
+    Parameters
+    ----------
+    ffp: str
+        Full file path to output file
+    load_label: bool
+        if true then get label from file
+    m: float (default=1.0)
+        Scale factor to apply to time series data when loading
+
+    Returns
+    -------
+    asig: eqsig.AccSignal
+    """
     vals, dt = load_values_and_dt(ffp)
     if load_label:
         a = open(ffp)
@@ -90,6 +114,15 @@ def load_asig(ffp, load_label=False, m=1.0):
 
 
 def save_signal(ffp, signal):
+    """
+    Saves a ``Signal`` or ``AccSignal`` to the eqsig format
+
+    Parameters
+    ----------
+    ffp: str
+        Full file path to output file
+    signal
+    """
     save_values_and_dt(ffp, signal.values, signal.dt, signal.label)
 
 
