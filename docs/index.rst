@@ -34,6 +34,9 @@ Features
 * Butterworth filter (using scipy), running average, polynomial fitting
 * Fast loading of, and saving of, plain text to and from Signal objects
 
+Package contents
+----------------
+
 .. toctree::
    :maxdepth: 2
 
