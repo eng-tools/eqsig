@@ -71,6 +71,10 @@ class Cluster(object):
         return key_value_pair[0]
 
     @property
+    def n_signals(self):
+        return len(self.signals)
+
+    @property
     def time(self):
         sig0 = self.signal_by_index(0)
         return sig0.time
