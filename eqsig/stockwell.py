@@ -159,10 +159,23 @@ def transform(acc, interp=False):
     return stock
 
 
-def itransform(stock):
+def dep_itransform(stock):
     """Performs an inverse Stockwell Transform"""
     from scipy.fftpack import ifft  # Try use scipy.fft
     return np.real(ifft(np.sum(stock, axis=1)))
+
+
+def itransform(stock):
+    """Performs an inverse Stockwell Transform"""
+    ss = np.sum(stock, axis=1)
+    n = 2 * len(ss)
+    fas_ss = np.zeros(2 * len(ss), dtype=complex)
+    fas_ss[1:n // 2] = np.flip(np.conj(ss[1:]), axis=0)
+    fas_ss[n // 2 + 1:] = ss[1:]
+
+    acc_new = np.fft.ifft(fas_ss)
+    npts = int(2 ** (np.log(n) / np.log(2)))
+    return acc_new[:npts]
 
 
 def get_max_stockwell_freq(asig):
