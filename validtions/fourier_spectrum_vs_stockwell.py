@@ -31,8 +31,11 @@ acc_np = s[:npts]
 
 
 st = eqsig.stockwell.transform(acc)
+st_dep = eqsig.stockwell.dep_transform(acc)
 
 ss = np.sum(st, axis=1)
+ss_dep = np.sum(st_dep, axis=1)
+print(len(ss), len(ss_dep))
 n = 2 * len(ss)
 fas_ss = np.zeros(2 * len(ss), dtype=complex)
 fas_ss[1:n // 2] = np.flip(np.conj(ss[1:]), axis=0)
@@ -44,10 +47,10 @@ sps[0].plot(fas_ss, c='r')
 
 acc_new = np.fft.ifft(fas_ss)
 npts = int(2 ** (np.log(n) / np.log(2)))
-acc_new = acc_new[:npts]
-acc_new_m = eqsig.stockwell.itransform(st)
+# acc_new = acc_new[:npts][::-1]
+acc_new_m = eqsig.stockwell.itransform(st_dep)
 sps[1].plot(dt * np.arange(len(acc)), acc, c='k')
 sps[1].plot(dt * np.arange(len(acc_new)), acc_new, c='r')
-sps[1].plot(dt * np.arange(len(acc_np)), acc_np, c='b')
-sps[1].plot(dt * np.arange(len(acc_new_m)), acc_new_m, c='g')
+sps[1].plot(dt * np.arange(len(acc_np)), acc_np, c='b', lw=0.7, ls='-.')
+sps[1].plot(dt * np.arange(len(acc_new_m)), acc_new_m, c='g', ls='--')
 plt.show()

@@ -122,7 +122,7 @@ def generate_gaussian(n_d2):
     return np.exp(-p ** 2 / 2).transpose()  # * np.exp(1j * p / n_d2)
 
 
-def transform(acc, interp=False):
+def transform_w_scipy_fft(acc, interp=False):
     """
     Performs a Stockwell transform on an array
 
@@ -133,28 +133,41 @@ def transform(acc, interp=False):
     """
     from scipy.linalg import toeplitz
     from scipy.fftpack import fft, ifft  # Try use scipy.fft
-    # Interpolate here because function drops a time step
-    if interp:
-        t_int = np.arange(len(acc))
-        t_db = np.arange(2 * len(acc)) / 2
-        acc_db = np.interp(t_db, t_int, acc)
-        n_d2 = int(len(acc))
-    else:
-        acc_db = acc
-        n_d2 = int(len(acc) / 2)
+
+    acc_db = acc
+    n_d2 = int(len(acc) / 2)
     n_factor = 2 * n_d2
     gaussian = generate_gaussian(n_d2)
-    # st0 = np.mean(acc) * np.ones(n_factor)
 
     fa = fft(acc_db, n_factor, overwrite_x=True)
     diag_con = toeplitz(np.conj(fa[:n_d2 + 1]), fa)
     diag_con = diag_con[1:n_d2 + 1, :]  # first line is zero frequency
-    skip_is = 0  # can skip more low frequencies since they tend to be zero
-    stock = np.flipud(ifft(diag_con[skip_is:, :] * gaussian[skip_is:, :], axis=1))
+    stock = np.flipud(ifft(diag_con * gaussian, axis=1))
+    #
+    return stock
 
-    # stock = np.insert(stock, 0, st0, 0)
-    for i in range(skip_is):
-        stock = np.insert(stock, 0, 0, 0)
+
+def transform(acc, interp=False):
+    """
+    Performs a Stockwell transform on an array
+
+    Assumes m = 1, p = 1
+
+    :param acc: array_like
+    :return:
+    """
+    from scipy.linalg import toeplitz
+
+    acc_db = acc
+    n_d2 = int(len(acc) / 2)
+    n_factor = 2 * n_d2
+    gaussian = generate_gaussian(n_d2)
+
+    fa = np.fft.fft(acc_db, n_factor)
+    diag_con = toeplitz(np.conj(fa[:n_d2 + 1]), fa)
+    diag_con = diag_con[1:n_d2 + 1, :]  # first line is zero frequency
+
+    stock = np.flipud(np.fft.ifft(diag_con * gaussian, axis=1))
 
     return stock
 
@@ -175,7 +188,7 @@ def itransform(stock):
 
     acc_new = np.fft.ifft(fas_ss)
     npts = int(2 ** (np.log(n) / np.log(2)))
-    return acc_new[:npts]
+    return np.real(acc_new[:npts])
 
 
 def get_max_stockwell_freq(asig):
