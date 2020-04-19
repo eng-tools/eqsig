@@ -540,12 +540,22 @@ class AccSignal(Signal):
             self.generate_displacement_and_velocity_series()
         return self._velocity
 
+    # @property
+    # def zeroed_velocity(self):
+    #     """Velocity time series with linear correction to have zero velocity at end"""
+    #     return self.velocity - np.arange(self.npts) * self.velocity[-1] / self.npts
+
     @property
     def displacement(self):
         """Displacement time series"""
         if not self._cached_disp_and_velo:
             self.generate_displacement_and_velocity_series()
         return self._displacement
+
+    # @property
+    # def zeroed_displacement(self):
+    #     """Displacement time series with linear correction to have zero displacement at end"""
+    #     return self.displacement - np.arange(self.npts) * self.displacement[-1] / self.npts
 
     def generate_peak_values(self):
         """

@@ -849,9 +849,24 @@ def interp_left(x0, x, y):
 
     """
     y = np.array(y)
-    assert min(x0) >= x[0]
+    assert min(x0) >= x[0], (min(x0), x[0])
     inds = np.searchsorted(x, x0, side='right') - 1
     return y[inds]
+
+
+def remove_poly(values, poly_fit=0):
+    """
+    Calculates best fit polynomial and removes it from the record
+    """
+
+    x = np.linspace(0, 1.0, len(values))
+    cofs = np.polyfit(x, values, poly_fit)
+    y_cor = 0 * x
+    for co in range(len(cofs)):
+        mods = x ** (poly_fit - co)
+        y_cor += cofs[co] * mods
+
+    return values - y_cor
 
 
 
