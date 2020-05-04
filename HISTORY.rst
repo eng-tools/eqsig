@@ -2,13 +2,20 @@
 History
 =======
 
-1.2.1 (2019-X-X)
+1.2.1 (2020-05-05)
 -------------------
 
 * Added `response_period_range` to AccSignal object initial inputs to define response periods using an upper and lower limit
 * Improved speed of surface energy calculation `calc_surface_energy` and returns correct size based on input dimensions
 * Removed global import of scipy - done at function level
-* Added an `interp_left` function to take previous value
+* Added an `interp_left` function to interpolate an array and take lower value
+* Fixed issue with inverse of stockwell transform `stockwell.itransform`, it no longer doubles the time step
+* Increased speed of stockwell transform `stockwell.transform`.
+* Added `remove_poly` function to remove a polynomial fit from an array
+* Added option to access `fa_frequencies` and `smooth_fa_frequencies` as `fa_freqs` and `smooth_fa_freqs`.
+* Added option for computing smoothed FAS with extra zero padding
+* Added function for computing smoothed fas using a custom smoothing matrix.
+
 
 1.2.0 (2019-11-03)
 -------------------

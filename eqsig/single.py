@@ -46,7 +46,7 @@ class Signal(object):
         if smooth_fa_freqs is not None:
             self.smooth_fa_freqs = smooth_fa_freqs
         else:
-            self.set_smooth_fa_frequecies_by_range(smooth_freq_range, 30)
+            self.set_smooth_fa_frequecies_by_range(smooth_freq_range, 50)
         self._smooth_fa_spectrum = np.zeros(len(self.smooth_fa_freqs))
         self._npts = len(self.values)
         # lf = np.log10(smooth_freq_range)
@@ -421,10 +421,11 @@ class AccSignal(Signal):
         colour index for plotting
     """
 
-    def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, response_period_range=(0.1, 5),
+    def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), smooth_fa_freqs=None, verbose=0, response_period_range=(0.1, 5),
                  response_times=None, ccbox=0):
 
-        super(AccSignal, self).__init__(values, dt, label=label, smooth_freq_range=smooth_freq_range, verbose=verbose, ccbox=ccbox)
+        super(AccSignal, self).__init__(values, dt, label=label, smooth_freq_range=smooth_freq_range,
+                                        smooth_fa_freqs=smooth_fa_freqs, verbose=verbose, ccbox=ccbox)
         if response_times is None:
             self.response_times = np.linspace(response_period_range[0], response_period_range[1], 100)
         else:
