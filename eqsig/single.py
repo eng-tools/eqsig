@@ -2,7 +2,7 @@ import numpy as np
 from scipy import fft
 
 from eqsig import exceptions
-from eqsig.functions import get_section_average, generate_smooth_fa_spectrum, interp_array_to_approx_dt
+from eqsig.functions import get_section_average, calc_smooth_fa_spectrum, interp_array_to_approx_dt
 import eqsig.sdof as dh
 import eqsig.displacements as sd
 from eqsig import im
@@ -31,19 +31,23 @@ class Signal(object):
     _npts = None
     _smooth_freq_points = 61
     _fa_spectrum = None
-    _fa_frequencies = None
+    _fa_freqs = None
     _cached_fa = False
     _cached_smooth_fa = False
-    _smooth_fa_frequencies = None
+    _smooth_fa_freqs = None
     _smooth_freq_range = None
 
-    def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), verbose=0, ccbox=0):
+    def __init__(self, values, dt, label='m1', smooth_freq_range=(0.1, 30), smooth_fa_freqs=None,
+                 verbose=0, ccbox=0):
         self.verbose = verbose
         self._dt = dt
         self._values = np.array(values)
         self.label = label
-        self.set_smooth_fa_frequecies_by_range(smooth_freq_range, 30)
-        self._smooth_fa_spectrum = np.zeros(30)
+        if smooth_fa_freqs is not None:
+            self.smooth_fa_freqs = smooth_fa_freqs
+        else:
+            self.set_smooth_fa_frequecies_by_range(smooth_freq_range, 30)
+        self._smooth_fa_spectrum = np.zeros(len(self.smooth_fa_freqs))
         self._npts = len(self.values)
         # lf = np.log10(smooth_freq_range)
         # self._smooth_fa_frequencies = np.logspace(lf[0], lf[1], 30, base=10)
@@ -75,60 +79,90 @@ class Signal(object):
 
     @property
     def fa_spectrum(self):
-        """Generate the one-sided Fourier Amplitude spectrum"""
+        """The one-sided Fourier Amplitude spectrum"""
         if not self._cached_fa:
             self.generate_fa_spectrum()
         return self._fa_spectrum
 
-    def generate_fa_spectrum(self):
-        n_factor = 2 ** int(np.ceil(np.log2(self.npts)))
+    def gen_fa_spectrum(self, n_plus=0, n=None):
+        """
+        Sets the one-sided Fourier Amplitude spectrum and frequencies
+
+        Parameters
+        ----------
+        n_plus: int (default=0)
+            Additional increments of `n` such that length of signal used is 2^n and n=`ceil(log2(self.npts) + n_plus))`.
+        n: int (optional)
+            If specified the signal length for FAS is `2^n`
+
+        """
+        if n is not None:
+            n_factor = n
+        else:
+            n_factor = 2 ** int(np.ceil(np.log2(self.npts)) + n_plus)
         fa = fft(self.values, n=n_factor)
         points = int(n_factor / 2)
         self._fa_spectrum = fa[range(points)] * self.dt
-        self._fa_frequencies = np.arange(points) / (2 * points * self.dt)
+        self._fa_freqs = np.arange(points) / (2 * points * self.dt)
         self._cached_fa = True
+
+    def generate_fa_spectrum(self):
+        self.gen_fa_spectrum()
 
     @property
     def fa_frequencies(self):
+        return self.fa_freqs
+
+    @property
+    def fa_freqs(self):
         if not self._cached_fa:
-            self.generate_fa_spectrum()
-        return self._fa_frequencies
+            self.gen_fa_spectrum()
+        return self._fa_freqs
 
     @property
     def smooth_freq_range(self):
-        deprecation('AccSignal.smooth_freq_range is deprecated. Use AccSignal.smooth_fa_frequencies')
-        return self.smooth_fa_frequencies[0], self.smooth_fa_frequencies[-1]
+        deprecation('AccSignal.smooth_freq_range is deprecated. Use AccSignal.smooth_fa_freqs')
+        return self.smooth_fa_freqs[0], self.smooth_fa_freqs[-1]
 
     @smooth_freq_range.setter
     def smooth_freq_range(self, limits):
-        deprecation('AccSignal.smooth_freq_range is deprecated. Set AccSignal.smooth_fa_frequencies directly')
+        deprecation('AccSignal.smooth_freq_range is deprecated. Set AccSignal.smooth_fa_freqs directly')
         lf = np.log10(np.array(limits))
-        self.smooth_fa_frequencies = np.logspace(lf[0], lf[1], self.smooth_freq_points, base=10)
+        self.smooth_fa_freqs = np.logspace(lf[0], lf[1], self.smooth_freq_points, base=10)
 
     def set_smooth_fa_frequecies_by_range(self, limits, n_points):
         lf = np.log10(limits)
-        self._smooth_fa_frequencies = np.logspace(lf[0], lf[1], n_points, base=10)
+        self._smooth_fa_freqs = np.logspace(lf[0], lf[1], n_points, base=10)
         self._smooth_freq_range = np.array(limits)
         self._cached_smooth_fa = False
 
     @property
     def smooth_freq_points(self):
-        deprecation('AccSignal.smooth_freq_points is deprecated. Use len(AccSignal.smooth_fa_frequencies)')
-        return len(self.smooth_fa_frequencies)
+        deprecation('AccSignal.smooth_freq_points is deprecated. Use len(AccSignal.smooth_fa_freqs)')
+        return len(self.smooth_fa_freqs)
 
     @smooth_freq_points.setter
     def smooth_freq_points(self, value):
-        deprecation('AccSignal.smooth_freq_points is deprecated. Set AccSignal.smooth_fa_frequencies directly')
+        deprecation('AccSignal.smooth_freq_points is deprecated. Set AccSignal.smooth_fa_freqs directly')
         lf = np.log10(self.smooth_freq_range)
-        self.smooth_fa_frequencies = np.logspace(lf[0], lf[1], int(value), base=10)
+        self.smooth_fa_freqs = np.logspace(lf[0], lf[1], int(value), base=10)
+
+    @property
+    def smooth_fa_freqs(self):
+        return self._smooth_fa_freqs
 
     @property
     def smooth_fa_frequencies(self):
-        return self._smooth_fa_frequencies
+        return self._smooth_fa_freqs
 
     @smooth_fa_frequencies.setter
-    def smooth_fa_frequencies(self, frequencies):
-        self._smooth_fa_frequencies = np.array(frequencies, dtype=np.float)
+    def smooth_fa_frequencies(self, frequencies):  # backward compatible using 'frequencies'
+        self._smooth_fa_freqs = np.array(frequencies, dtype=np.float)
+        self._cached_smooth_fa = False
+
+    @smooth_fa_freqs.setter
+    def smooth_fa_freqs(self, freqs):
+        self._smooth_fa_freqs = np.array(freqs, dtype=np.float)
         self._cached_smooth_fa = False
 
     @property
@@ -143,6 +177,9 @@ class Signal(object):
         self._cached_fa = False
 
     def generate_smooth_fa_spectrum(self, band=40):
+        self.gen_smooth_fa_spectrum(band=band)
+
+    def gen_smooth_fa_spectrum(self, smooth_fa_freqs=None, band=40):
         """
         Calculates the smoothed Fourier Amplitude Spectrum
         using the method by Konno and Ohmachi 1998
@@ -152,8 +189,10 @@ class Signal(object):
         band: int
             range to smooth over
         """
-        self._smooth_fa_spectrum = generate_smooth_fa_spectrum(self.smooth_fa_frequencies, self.fa_frequencies,
-                                                               self.fa_spectrum, band=band)
+        if smooth_fa_freqs is not None:
+            self._smooth_fa_freqs = smooth_fa_freqs
+        self._smooth_fa_spectrum = calc_smooth_fa_spectrum(self.fa_freqs,
+                                                               self.fa_spectrum, self.smooth_fa_freqs, band=band)
         self._cached_smooth_fa = True
 
     def butter_pass(self, cut_off=(0.1, 15), **kwargs):
@@ -407,7 +446,7 @@ class AccSignal(Signal):
         self._cached_disp_and_velo = False
         self.reset_all_motion_stats()
 
-    def generate_response_spectrum(self, response_times=None, xi=-1, min_dt_ratio=4):
+    def gen_response_spectrum(self, response_times=None, xi=-1, min_dt_ratio=4):
         """
         Generate the response spectrum for the response_times for a given
         damping (xi).
@@ -446,6 +485,9 @@ class AccSignal(Signal):
             raise MemoryError('Out of memory. Length of acc (%i) and length of response_times (%i) too large, '
                               'set larger min_dt_ratio.' % (len(values_interp), len(self.response_times)))
         self._cached_response_spectra = True
+
+    def generate_response_spectrum(self, response_times=None, xi=-1, min_dt_ratio=4):
+        self.gen_response_spectrum(response_times=response_times, xi=xi, min_dt_ratio=min_dt_ratio)
 
     @property
     def s_a(self):

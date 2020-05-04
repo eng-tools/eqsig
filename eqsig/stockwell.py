@@ -38,7 +38,7 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=Non
     kwargs = {}
     if cmap is not None:
         kwargs['cmap'] = cmap  # rainbow, gnuplot2, plasma
-    splot.imshow(b, aspect='auto', extent=extent, **kwargs)
+    return splot.imshow(b, aspect='auto', extent=extent, **kwargs)
 
 
 def plot_tifq_vals(subplot, tifq_vals, dt, norm_all=False, norm_x=False, cmap=None):
@@ -143,7 +143,7 @@ def transform_w_scipy_fft(acc, interp=False):
     diag_con = toeplitz(np.conj(fa[:n_d2 + 1]), fa)
     diag_con = diag_con[1:n_d2 + 1, :]  # first line is zero frequency
     stock = np.flipud(ifft(diag_con * gaussian, axis=1))
-    #
+
     return stock
 
 
@@ -169,6 +169,34 @@ def transform(acc, interp=False):
 
     stock = np.flipud(np.fft.ifft(diag_con * gaussian, axis=1))
 
+    return stock
+
+
+def transform_slow(acc, interp=False, ith=0):
+    """
+    Performs a Stockwell transform on an array
+
+    Assumes m = 1, p = 1
+
+    :param acc: array_like
+    :return:
+    """
+    from scipy.linalg import toeplitz
+
+    acc_db = acc
+    n_d2 = int(len(acc) / 2)
+    n_factor = 2 * n_d2
+    gaussian = generate_gaussian(n_d2)
+
+    fa = np.fft.fft(acc_db, n_factor)
+    diag_con = toeplitz(np.conj(fa[:n_d2 + 1]), fa)
+    diag_con = diag_con[1:n_d2 + 1, :]  # first line is zero frequency
+    skip_is = 0  # can skip more low frequencies since they tend to be zero
+    aa = diag_con[skip_is:, :] * gaussian[skip_is:, :]
+    upstock = np.zeros_like(aa)
+    aa = aa[:-ith, :]
+    upstock[:-ith, :] = np.fft.ifft(aa, axis=1)
+    stock = np.flipud(upstock)
     return stock
 
 

@@ -31,7 +31,7 @@ acc_np = s[:npts]
 
 
 st = eqsig.stockwell.transform(acc)
-st_dep = eqsig.stockwell.dep_transform(acc)
+st_dep = eqsig.stockwell.transform_w_scipy_fft(acc)
 
 ss = np.sum(st, axis=1)
 ss_dep = np.sum(st_dep, axis=1)
