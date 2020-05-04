@@ -2,6 +2,10 @@
 History
 =======
 
+1.2.2 (2020-05-05)
+-------------------
+* Switched to numpy for computing the Fourier amplitude spectrum
+
 1.2.1 (2020-05-05)
 -------------------
 

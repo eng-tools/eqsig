@@ -1,5 +1,4 @@
 import numpy as np
-from scipy import fft
 
 from eqsig import exceptions
 from eqsig.functions import get_section_average, calc_smooth_fa_spectrum, interp_array_to_approx_dt
@@ -100,7 +99,7 @@ class Signal(object):
             n_factor = n
         else:
             n_factor = 2 ** int(np.ceil(np.log2(self.npts)) + n_plus)
-        fa = fft(self.values, n=n_factor)
+        fa = np.fft.fft(self.values, n=n_factor)
         points = int(n_factor / 2)
         self._fa_spectrum = fa[range(points)] * self.dt
         self._fa_freqs = np.arange(points) / (2 * points * self.dt)

@@ -1,6 +1,5 @@
 import numpy as np
 import eqsig
-import scipy
 from eqsig import functions as fns
 import pytest
 
@@ -137,7 +136,7 @@ def test_fa_spectrum_conversion():
 
     npts = len(values)
     n_factor = 2 ** int(np.ceil(np.log2(npts)))
-    fa = scipy.fft(values, n=n_factor)
+    fa = np.fft.fft(values, n=n_factor)
     points = int(n_factor / 2)
     fas = fa[range(points)] * dt
     faf = np.arange(points) / (2 * points * dt)

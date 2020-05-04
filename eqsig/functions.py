@@ -339,15 +339,47 @@ def generate_fa_spectrum(sig, n_pad=True):
     fa_frequencies: array_like
         Frequencies of the spectrum
     """
-    from scipy import fft
+
     npts = sig.npts
     if n_pad:
         n_factor = 2 ** int(np.ceil(np.log2(npts)))
-        fa = fft(sig.values, n=n_factor)
+        fa = np.fft.fft(sig.values, n=n_factor)
         points = int(n_factor / 2)
         assert len(fa) == n_factor
     else:
-        fa = fft(sig.values)
+        fa = np.fft.fft(sig.values)
+        points = int(sig.npts / 2)
+    fa_spectrum = fa[range(points)] * sig.dt
+    fa_frequencies = np.arange(points) / (2 * points * sig.dt)
+    return fa_spectrum, fa_frequencies
+
+
+def calc_fa_spectrum(sig, n=None, n_plus=None):
+    """
+    Produces the Fourier amplitude spectrum
+
+    Parameters
+    ----------
+    sig: eqsig.Signal
+
+    Returns
+    -------
+    fa_spectrum: complex array_like
+        Complex values of the spectrum
+    fa_frequencies: array_like
+        Frequencies of the spectrum
+    """
+    npts = sig.npts
+    if n_plus is not None or n is not None:
+        if n is not None:
+            n_factor = n
+        else:
+            n_factor = 2 ** int(np.ceil(np.log2(npts)) + n_plus)
+        fa = np.fft.fft(sig.values, n=n_factor)
+        points = int(n_factor / 2)
+        assert len(fa) == n_factor
+    else:
+        fa = np.fft.fft(sig.values)
         points = int(sig.npts / 2)
     fa_spectrum = fa[range(points)] * sig.dt
     fa_frequencies = np.arange(points) / (2 * points * sig.dt)
