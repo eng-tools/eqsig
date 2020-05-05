@@ -83,22 +83,22 @@ class Signal(object):
             self.generate_fa_spectrum()
         return self._fa_spectrum
 
-    def gen_fa_spectrum(self, n_plus=0, n=None):
+    def gen_fa_spectrum(self, p2_plus=0, n=None):
         """
         Sets the one-sided Fourier Amplitude spectrum and frequencies
 
         Parameters
         ----------
-        n_plus: int (default=0)
-            Additional increments of `n` such that length of signal used is 2^n and n=`ceil(log2(self.npts) + n_plus))`.
+        p2_plus: int (default=0)
+            Additional increments of `n` such that length of signal used is `n` and `n=ceil(log2(self.npts) + p2_plus))`.
         n: int (optional)
-            If specified the signal length for FAS is `2^n`
+            If specified the signal length is padded with zeros before computing FAS
 
         """
         if n is not None:
             n_factor = n
         else:
-            n_factor = 2 ** int(np.ceil(np.log2(self.npts)) + n_plus)
+            n_factor = 2 ** int(np.ceil(np.log2(self.npts)) + p2_plus)
         fa = np.fft.fft(self.values, n=n_factor)
         points = int(n_factor / 2)
         self._fa_spectrum = fa[range(points)] * self.dt

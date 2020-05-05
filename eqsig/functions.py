@@ -354,7 +354,7 @@ def generate_fa_spectrum(sig, n_pad=True):
     return fa_spectrum, fa_frequencies
 
 
-def calc_fa_spectrum(sig, n=None, n_plus=None):
+def calc_fa_spectrum(sig, n=None, p2_plus=None):
     """
     Produces the Fourier amplitude spectrum
 
@@ -370,14 +370,14 @@ def calc_fa_spectrum(sig, n=None, n_plus=None):
         Frequencies of the spectrum
     """
     npts = sig.npts
-    if n_plus is not None or n is not None:
+    if p2_plus is not None or n is not None:
         if n is not None:
-            n_factor = n
+            n_vals = n
         else:
-            n_factor = 2 ** int(np.ceil(np.log2(npts)) + n_plus)
-        fa = np.fft.fft(sig.values, n=n_factor)
-        points = int(n_factor / 2)
-        assert len(fa) == n_factor
+            n_vals = 2 ** int(np.ceil(np.log2(npts)) + p2_plus)
+        fa = np.fft.fft(sig.values, n=n_vals)
+        points = int(n_vals / 2)
+        assert len(fa) == n_vals
     else:
         fa = np.fft.fft(sig.values)
         points = int(sig.npts / 2)

@@ -9,7 +9,7 @@ def create():
 
     bf, sps = plt.subplots(nrows=2)
     sps[0].plot(asig.time, asig.values, c='k', lw=1)
-    asig.gen_fa_spectrum(n_plus=0)
+    asig.gen_fa_spectrum(p2_plus=0)
     sps[1].loglog(asig.fa_freqs, abs(asig.fa_spectrum), c='b', label='FAS')
     sps[1].loglog(asig.smooth_fa_freqs, asig.smooth_fa_spectrum, c='r', label='band=40 (default)')
     asig.gen_smooth_fa_spectrum(band=100)
