@@ -83,7 +83,7 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
     max_shift = int(np.max(shifts))
     up_wave = np.pad(asig.values, (0, max_shift), mode='constant', constant_values=0)
     dshifted = np.arange(asig.npts + max_shift)[np.newaxis, :] - shifts[:, np.newaxis]  # TODO: not needed if shifts is scalar
-    down_waves = np.interp(dshifted, np.arange(asig.npts), asig.values, left=0)
+    down_waves = np.interp(dshifted, np.arange(asig.npts), asig.values, left=0, right=0)
     if hasattr(up_red, '__len__'):
         up_wave = up_wave[np.newaxis, :] * up_red[:, np.newaxis]  # 1d
         down_waves *= down_red[:, np.newaxis]

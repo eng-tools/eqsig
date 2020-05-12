@@ -66,14 +66,23 @@ def test_calc_cum_abs_surface_energy_w_sine_wave():
 
 def test_calc_cum_abs_surface_energy():
     accsig = conftest.t_asig()
-    tshifts = np.array([0.01, 0.2, 0.5])
-    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, tshifts, nodal=True, up_red=1, down_red=1, stt=0.0,
-                                                      trim=True, start=False)
+    accsig = eqsig.AccSignal(accsig.values * 1e6, accsig.dt)
+    tshifts = np.array([0, 0.01, 0.2, 1.5])
+    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, tshifts, nodal=True, up_red=1, down_red=1, stt=0.,
+                                                      trim=False, start=False)
     expected_cases = _time_shifted_response_series(accsig, 2 * tshifts, up_red=1, down_red=1, add=False, trim=True)
-    assert len(cases[0]) == accsig.npts
+    assert np.isclose(cases[0][-1], 0.0)
     assert np.isclose(cases[0][-1], expected_cases[0][-1])
     assert np.isclose(cases[1][-1], expected_cases[1][-1])
     assert np.isclose(cases[2][-1], expected_cases[2][-1])
+    assert np.isclose(cases[3][-1], expected_cases[3][-1])
+    cases = eqsig.surface.calc_cum_abs_surface_energy(accsig, tshifts, nodal=True, up_red=1, down_red=1, stt=0.,
+                                                      trim=True, start=False)
+    assert np.isclose(cases[0][-1], 0.0)
+    assert np.isclose(cases[0][-1], expected_cases[0][-1])
+    assert np.isclose(cases[1][-1], expected_cases[1][-1])
+    assert np.isclose(cases[2][-1], expected_cases[2][-1])
+    assert np.isclose(cases[3][-1], expected_cases[3][-1])
 
 
 def test_calc_cum_abs_surface_energy_start_check_same_energy():
@@ -223,7 +232,7 @@ def test_calc_surface_energy_array_sizing():
 
 if __name__ == '__main__':
     # test_calc_cum_abs_surface_energy_start_check_same_energy()
-    test_calc_surface_energy_array_sizing()
+    test_calc_cum_abs_surface_energy()
     # skip_plot()
     # test_calc_cum_abs_surface_energy()
 

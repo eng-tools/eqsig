@@ -2,6 +2,10 @@
 History
 =======
 
+1.2.X (2020-X-X)
+-------------------
+* Fixed issue with computation of surface energy spectra
+
 1.2.3 (2020-05-05)
 -------------------
 * Fixed docs for generation of FAS, changed kwarg `n_plus` to `p2_plus` since this adds to the power of 2.
