@@ -312,6 +312,19 @@ def test_interp2d_2():
     assert np.isclose(f_interp[3][2], 6.)
 
 
+def test_interp2d_at_edge():
+    f = np.array([[0, 0, 0],  # 0
+                  [10, 10, 10]  # 30
+                  ])
+    xf = np.array([0, 3])
+
+    x = np.array([0.0, 3.0])
+    f_interp = fns.interp2d(x, xf, f)
+    print(f_interp)
+    assert f_interp[0][0] == 0
+    assert f_interp[1][0] == 10.
+
+
 def test_interp_left():
     x0 = [0, 1, 5]
     x = [0, 2, 6]
@@ -331,7 +344,8 @@ def test_interp_left():
 
 if __name__ == '__main__':
 
-    test_interp2d()
+    # test_interp2d()
+    test_interp2d_at_edge()
     # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()

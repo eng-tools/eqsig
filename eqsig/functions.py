@@ -912,31 +912,52 @@ def calc_roll_av_vals(values, steps, mode='forward'):
     return (csum[steps:] - csum[:-steps]) / steps
 
 
-def interp2d(y, yf, f):
+def interp2d(x, xf, f):
     """
-    Can interpolate a array of values in 2D
+    Can interpolate a to get an array of values in 2D
 
     Parameters
     ----------
-    y
-    yf
-    f
+    x: array_like
+        1d array of values to be interpolated
+    xf: 1d array of values
+    f: array_like
+        2d array of function values size=(len(x), n)
 
     Returns
     -------
 
+    Examples
+    --------
+    >>> f = np.array([[0, 0, 0],
+    >>>              [0, 1, 4],
+    >>>              [2, 6, 2],
+    >>>              [10, 10, 10]
+    >>>              ])
+    >>> yf = np.array([0, 1, 2, 3])
+
+    >>> y = np.array([0.5, 1, 2.2, 2.5])
+    >>> f_interp = fns.interp2d(y, yf, f)
+    >>> print(f_interp[0][0])
+    0.0
+    >>> print(f_interp[0][1])
+    0.5
+    >>> print(f_interp[0][2])
+    2.0
     """
-    ind = np.argmin(np.abs(y[:, np.newaxis] - yf), axis=1)
-    y_ind = yf[ind]
-    ind0 = np.where(y_ind > y, ind - 1, ind)
-    ind1 = np.where(y_ind > y, ind, ind + 1)
+    ind = np.argmin(np.abs(x[:, np.newaxis] - xf), axis=1)
+    x_ind = xf[ind]
+    ind0 = np.where(x_ind > x, ind - 1, ind)
+    ind1 = np.where(x_ind > x, ind, ind + 1)
     ind0 = np.clip(ind0, 0, None)
-    ind1 = np.clip(ind1, None, len(yf) - 1)
+    ind1 = np.clip(ind1, None, len(xf) - 1)
     f0 = f[ind0]
     f1 = f[ind1]
-    a0 = yf[ind0]
-    a1 = yf[ind1]
-    s0 = (y - a0) / (a1 - a0)
+    a0 = xf[ind0]
+    a1 = xf[ind1]
+    denom = (a1 - a0)
+    denom_adj = np.clip(denom, 1e-10, None)  # to avoid divide by zero warning
+    s0 = np.where(denom > 0, (x - a0) / denom_adj, 1)  # if denom less than 0, then out of bounds
     s1 = 1 - s0
     return s1[:, np.newaxis] * f0 + s0[:, np.newaxis] * f1
 
