@@ -2,9 +2,10 @@
 History
 =======
 
-1.2.X (2020-X-X)
+1.2.4 (2020-07-20)
 -------------------
 * Fixed issue with computation of surface energy spectra
+* Support for numpy==1.19
 
 1.2.3 (2020-05-05)
 -------------------

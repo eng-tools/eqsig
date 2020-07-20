@@ -19,10 +19,16 @@ def load_values_and_dt(ffp):
         Time step
 
     """
-    data = np.genfromtxt(ffp, skip_header=1, delimiter=",", names=True, usecols=0)
-    dt = data.dtype.names[0].split("_")[-1]
-    dt = "." + dt[1:]
-    dt = float(dt)
+    # This is broken in numpy version 1.19 since string converter switches to complex
+    try:
+        data = np.genfromtxt(ffp, skip_header=1, delimiter=",", names=True, usecols=0)
+        dt = data.dtype.names[0].split("_")[-1]
+        dt = "." + dt[1:]
+        dt = float(dt)
+    except TypeError:  # needed for numpy==1.19
+        data = np.genfromtxt(ffp, skip_header=2, delimiter=",", usecols=0)
+        with open(ffp) as ifile:
+            dt = float(ifile.read().splitlines()[1].split()[1])
     values = data.astype(np.float)
     return values, dt
 

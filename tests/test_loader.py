@@ -12,5 +12,10 @@ def test_load_signal():
     assert asig.dt == 0.01
 
 
+def test_load_asignal():
+    asig = loader.load_asig(TEST_DATA_DIR + "test_motion_dt0p01.txt", load_label=True)
+    assert asig.dt == 0.01
+
+
 if __name__ == '__main__':
-    test_load()
+    test_load_asignal()
