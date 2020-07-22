@@ -999,6 +999,32 @@ def remove_poly(values, poly_fit=0):
     return values - y_cor
 
 
+def gen_ricker_wavelet_asig(omega, t0, duration, dt):
+    """
+    Generates an acceleration time series that is a Ricker wavelet
+
+    Parameters
+    ----------
+    omega
+    t0
+    duration: float
+        Total duration of motion
+    dt: float
+        Time step of motion
+
+    Returns
+    -------
+
+    """
+    t = np.arange(0, duration, dt)
+
+    vel_amp = (2.0 * (np.pi ** 2.0) * (omega ** 2.0) * ((t - t0) ** 2.0) - 1.0) * np.exp(
+        - (np.pi ** 2.0) * (omega ** 2.0) * (t - t0) ** 2.0)
+    acc = np.zeros_like(vel_amp)
+    acc[1:] = np.diff(vel_amp) / dt
+    return eqsig.AccSignal(acc, dt)
+
+
 
 if __name__ == '__main__':
     x0 = [0, 1, 5]

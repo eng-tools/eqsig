@@ -2,6 +2,10 @@
 History
 =======
 
+1.2.X (2020-07-X)
+-------------------
+* Added `gen_ricker_wavelet_asig` to create an acceleration signal that is a Ricker wavelet
+
 1.2.4 (2020-07-20)
 -------------------
 * Fixed issue with computation of surface energy spectra
