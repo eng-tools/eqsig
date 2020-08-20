@@ -914,7 +914,7 @@ def calc_roll_av_vals(values, steps, mode='forward'):
 
 def interp2d(x, xf, f):
     """
-    Can interpolate a to get an array of values in 2D
+    Can interpolate a table to get an array of values in 2D
 
     Parameters
     ----------
@@ -934,10 +934,10 @@ def interp2d(x, xf, f):
     >>>              [2, 6, 2],
     >>>              [10, 10, 10]
     >>>              ])
-    >>> yf = np.array([0, 1, 2, 3])
+    >>> xf = np.array([0, 1, 2, 3])
 
-    >>> y = np.array([0.5, 1, 2.2, 2.5])
-    >>> f_interp = fns.interp2d(y, yf, f)
+    >>> x = np.array([0.5, 1, 2.2, 2.5])
+    >>> f_interp = interp2d(x, xf, f)
     >>> print(f_interp[0][0])
     0.0
     >>> print(f_interp[0][1])

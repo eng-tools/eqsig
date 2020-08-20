@@ -2,7 +2,7 @@ import numpy as np
 import eqsig.multiple
 
 
-def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=None):
+def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=None, vmin=None, vmax=None):
     """
     Plots the Stockwell transform of an acceleration signal
 
@@ -38,6 +38,10 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=Non
     kwargs = {}
     if cmap is not None:
         kwargs['cmap'] = cmap  # rainbow, gnuplot2, plasma
+    if vmin is not None:
+        kwargs['vmin'] = vmin
+    if vmax is not None:
+        kwargs['vmax'] = vmax
     return splot.imshow(b, aspect='auto', extent=extent, **kwargs)
 
 
@@ -215,7 +219,7 @@ def itransform(stock):
     fas_ss[n // 2 + 1:] = ss[1:]
 
     acc_new = np.fft.ifft(fas_ss)
-    npts = int(2 ** (np.log(n) / np.log(2)))
+    npts = int(np.ceil(2 ** (np.log(n) / np.log(2))))
     return np.real(acc_new[:npts])
 
 

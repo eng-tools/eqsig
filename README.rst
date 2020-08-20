@@ -95,7 +95,9 @@ How do I get set up?
 Package conventions
 -------------------
 
-* A function that calculates a property the takes a signal as an input, should be named as `calc_<property>`, if the calculation has multiple different implementations, then include the citation as author and year as well `calc_<property>_<author>_<year>`
+* A function that calculates a property that takes a Signal object as an input, should be named as `calc_<property>`,
+  if the calculation has multiple different implementations, then include the citation as author and year
+  as well `calc_<property>_<author>_<year>`
 * If the function takes a raw array then it should contain the word array (or values or vals).
 
 
