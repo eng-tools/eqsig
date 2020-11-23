@@ -75,7 +75,7 @@ def load_signal(ffp, astype='sig'):
         return AccSignal(vals, dt)
 
 
-def load_sig(ffp):
+def load_sig(ffp, m=1.0):
     """
     Loads a ``Signal`` that was saved in eqsig input format.
 
@@ -87,9 +87,11 @@ def load_sig(ffp):
     Returns
     -------
     sig: eqsig.Signal
+    m: float (default=1.0)
+        Scale factor to apply to time series data when loading
     """
     vals, dt = load_values_and_dt(ffp)
-    return Signal(vals, dt)
+    return Signal(vals * m, dt)
 
 
 def load_asig(ffp, load_label=False, m=1.0):

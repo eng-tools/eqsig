@@ -268,6 +268,18 @@ def calc_resp_uke_spectrum(acc_signal, periods=None, xi=None):
     return cum_delta_energy
 
 
+def calc_input_energy_spectrum(acc_signal, periods=None, xi=None, series=False):
+    if periods is None:
+        periods = acc_signal.response_times
+    if xi is None:
+        xi = 0.05
+    resp_u, resp_v, resp_a = response_series(acc_signal.values, acc_signal.dt, periods, xi)
+    if series:
+        return np.cumsum(acc_signal.values * resp_v * acc_signal.dt, axis=1)
+    else:
+        return np.sum(acc_signal.values * resp_v * acc_signal.dt, axis=1)
+
+
 if __name__ == '__main__':
 
     # time_response_spectra()

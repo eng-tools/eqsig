@@ -962,7 +962,7 @@ def interp2d(x, xf, f):
     return s1[:, np.newaxis] * f0 + s0[:, np.newaxis] * f1
 
 
-def interp_left(x0, x, y):
+def interp_left(x0, x, y=None):
     """
     Interpolation takes the lower value
 
@@ -978,9 +978,18 @@ def interp_left(x0, x, y):
     -------
 
     """
-    y = np.array(y)
+    if y is None:
+        y = np.arange(len(x))
+    else:
+        y = np.array(y)
+    is_scalar = False
+    if not hasattr(x0, '__len__'):
+        is_scalar = True
+        x0 = [x0]
     assert min(x0) >= x[0], (min(x0), x[0])
     inds = np.searchsorted(x, x0, side='right') - 1
+    if is_scalar:
+        return y[inds][0]
     return y[inds]
 
 

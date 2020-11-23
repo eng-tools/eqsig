@@ -2,9 +2,12 @@
 History
 =======
 
-1.2.X (2020-07-X)
+1.2.5 (2020-11-24)
 -------------------
 * Added `gen_ricker_wavelet_asig` to create an acceleration signal that is a Ricker wavelet
+* Added `eqsig.sdof.calc_input_energy_spectrum` to compute the input energy into an SDOF
+* Can now load a Signal with a scale factor by passing in the keyword `m=<scale factor>`
+* The left interpolation function interp_left now returns the same size as x, which can be a scalar, and if `y` is None then assumes index (0,1,2,...,n)
 
 1.2.4 (2020-07-20)
 -------------------

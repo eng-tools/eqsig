@@ -38,9 +38,8 @@ setup(name='eqsig',
           'test': ['pytest'],
       },
       python_requires='>=3',
-      package_data={
-          'models': ['models_data.dat'],
-      },
+      package_data={},
+      include_package_data=True,
       zip_safe=False)
 
 
