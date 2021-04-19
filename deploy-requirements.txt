@@ -1,5 +1,7 @@
 coverage
 codecov
 pylint
+# issue with version 3.3 requiring Rust
+SecretStorage==3.2.0
 twine
 
