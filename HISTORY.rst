@@ -1,8 +1,7 @@
-=======
 History
 =======
 
-1.2.9 (2020-11-24)
+1.2.10 (2020-11-24)
 -------------------
 * Adjusted `eqsig.stockwell.plot_stock`, since min freq was out by factor of 0.5.
 
