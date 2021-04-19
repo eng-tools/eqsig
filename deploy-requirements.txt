@@ -3,7 +3,7 @@ codecov
 pylint
 # issue with version 3.3 requiring Rust
 SecretStorage==3.2.0
-cryptography==3.2.1
+cryptography==3.3.2
 keyring==15.1
 twine==3.2.0
 
