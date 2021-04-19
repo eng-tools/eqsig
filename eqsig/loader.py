@@ -29,7 +29,7 @@ def load_values_and_dt(ffp):
         data = np.genfromtxt(ffp, skip_header=2, delimiter=",", usecols=0)
         with open(ffp) as ifile:
             dt = float(ifile.read().splitlines()[1].split()[1])
-    values = data.astype(np.float)
+    values = data.astype(float)
     return values, dt
 
 

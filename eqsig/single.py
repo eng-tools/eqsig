@@ -156,12 +156,12 @@ class Signal(object):
 
     @smooth_fa_frequencies.setter
     def smooth_fa_frequencies(self, frequencies):  # backward compatible using 'frequencies'
-        self._smooth_fa_freqs = np.array(frequencies, dtype=np.float)
+        self._smooth_fa_freqs = np.array(frequencies, dtype=float)
         self._cached_smooth_fa = False
 
     @smooth_fa_freqs.setter
     def smooth_fa_freqs(self, freqs):
-        self._smooth_fa_freqs = np.array(freqs, dtype=np.float)
+        self._smooth_fa_freqs = np.array(freqs, dtype=float)
         self._cached_smooth_fa = False
 
     @property

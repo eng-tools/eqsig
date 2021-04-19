@@ -121,23 +121,23 @@ def nigam_and_jennings_response(acc, dt, periods, xi):
     :return: response displacement, response velocity, response acceleration
     """
 
-    acc = -np.array(acc, dtype=np.float)
-    periods = np.array(periods, dtype=np.float)
+    acc = -np.array(acc, dtype=float)
+    periods = np.array(periods, dtype=float)
     if periods[0] == 0:
         s = 1
     else:
         s = 0
     w = 6.2831853 / periods[s:]
 
-    dt = np.float(dt)
-    xi = np.float(xi)
+    dt = float(dt)
+    xi = float(xi)
 
     # implement: delta_t should be less than period / 20
 
     a, b = compute_a_and_b(xi, w, dt)
 
-    resp_u = np.zeros([len(periods), len(acc)], dtype=np.float)
-    resp_v = np.zeros([len(periods), len(acc)], dtype=np.float)
+    resp_u = np.zeros([len(periods), len(acc)], dtype=float)
+    resp_v = np.zeros([len(periods), len(acc)], dtype=float)
 
     for i in range(len(acc) - 1):  # possibly speed up using scipy.signal.lfilter
         # x_i+1 = A cross (u, v) + B cross (acc_i, acc_i+1)  # Eq 2.7a
@@ -146,7 +146,7 @@ def nigam_and_jennings_response(acc, dt, periods, xi):
 
     w2 = w ** 2
     if s:
-        sdof_acc = np.zeros_like(resp_u, dtype=np.float)
+        sdof_acc = np.zeros_like(resp_u, dtype=float)
         sdof_acc[s:] = -2 * xi * w[:, np.newaxis] * resp_v[s:] - w2[:, np.newaxis] * resp_u[s:]
         sdof_acc[0] = acc
     else:
@@ -171,7 +171,7 @@ def pseudo_response_spectra(motion, dt, periods, xi):
     :param xi: float, fraction of critical damping (e.g. 0.05)
     :return: tuple floats, (spectral displacement, pseudo spectral velocity, pseudo spectral acceleration)
     """
-    periods = np.array(periods, dtype=np.float)
+    periods = np.array(periods, dtype=float)
     if periods[0] == 0:
         s = 1
         w = np.ones_like(periods)

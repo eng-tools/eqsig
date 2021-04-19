@@ -15,6 +15,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
+            echo -e "CRYPTOGRAPHY_DONT_BUILD_RUST=1"
             pip install -r deploy-requirements.txt
       - save_cache:
           key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "eqsig/__about__.py" }}
@@ -44,6 +45,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
+            echo -e "CRYPTOGRAPHY_DONT_BUILD_RUST=1"
             pip install -r deploy-requirements.txt
       - save_cache:
           key: v1-dependency-cache-{{ checksum "setup.py" }}-{{ checksum "eqsig/__about__.py" }}
