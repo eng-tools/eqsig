@@ -209,6 +209,30 @@ def get_zero_crossings_indices(asig):
     return get_zero_crossings_array_indices(asig.values)
 
 
+def get_major_change_indices(y, rtol=1.0e-8, atol=1.0e-5, already_diff=False, dx=1):
+    """Get indices where a significant change in slope occurs"""
+    if already_diff:
+        dydx = y
+    else:
+        dydx = np.diff(y, prepend=y[0]) / dx
+    inds = [0]
+    z_cur = 0
+    npts = len(dydx)
+    i = 1
+    while z_cur + i < npts - 1:
+        end_z = z_cur + i
+        av_dydx = np.mean(dydx[z_cur: end_z])
+
+        if not np.isclose(av_dydx, dydx[end_z + 1], rtol=rtol, atol=atol):
+            inds.append(end_z)
+            z_cur = end_z + 1
+            i = 0
+
+        i += 1
+    inds.append(npts - 1)
+    return inds
+
+
 def determine_peaks_only_delta_series(values):
     """
     Creates an array with the changes between peak values and zeros for non-peak values.
@@ -897,6 +921,7 @@ def calc_roll_av_vals(values, steps, mode='forward'):
     -------
     array_like (len same as input array)
     """
+    values = np.array(values)
     steps = int(steps)
     if mode == 'forward':
         x_ext = np.concatenate([values, values[-1] * np.ones(steps - 1)])

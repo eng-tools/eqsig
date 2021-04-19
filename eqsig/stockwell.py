@@ -31,7 +31,7 @@ def plot_stock(splot, asig, norm_x=False, norm_all=False, interp=False, cmap=Non
     max_freq = 1 / asig.dt / 2
     # if interp:
     #     max_freq /= 2
-    min_freq = 1.0 / (len(asig.swtf) * asig.dt)
+    min_freq = 1.0 / (len(asig.swtf) * asig.dt * 2)
 
     extent = (0, asig.time[-1], min_freq, max_freq)
 
@@ -268,9 +268,27 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import eqsig
 
-    asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
-    asig = eqsig.interp_to_approx_dt(asig, 0.05)
-    bf, sps = plt.subplots()
-    plot_stock(sps, asig, norm_x=True, interp=True, cmap='plasma')
-    # , times = (10, 30), freqs = (0, 7)
-    plt.show()
+    # asig = load_signal(conftest.TEST_DATA_DIR + "test_motion_dt0p01.txt", astype="acc_sig")
+    # asig = eqsig.interp_to_approx_dt(asig, 0.05)
+    # bf, sps = plt.subplots(nrows=3)
+    # plot_stock(sps[0], asig, norm_x=True, interp=True, cmap='plasma')
+    # vals = itransform(asig.swtf)
+    # sps[1].plot(asig.time, vals)
+    # asig1 = eqsig.AccSignal(vals, asig.dt, lw=1)
+    # sps[1].plot(asig.time, asig.values, lw=1)
+    # sps[2].plot(asig1.fa_frequencies, asig1.fa_spectrum, lw=1)
+    # sps[2].plot(asig.fa_frequencies, asig.fa_spectrum, lw=1)
+    # plt.show()
+    # f = 5.0
+    # t = np.linspace(0, 10, 5001)
+    #
+    # w = chirp(t, f0=12.5, f1=2.5, t1=10, method='linear')
+    #
+    # stock = transform(w)
+    # fig, ax = plt.subplots(2, 1, sharex=False)
+    # ax[0].plot(t, w)
+    # ax[0].set(ylabel='amplitude')
+    # ax[1].imshow(np.abs(stock), origin='lower')
+    # ax[1].axis('tight')
+    # ax[1].set(xlabel='samples', ylabel='frequency')
+    # plt.show()

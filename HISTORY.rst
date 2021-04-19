@@ -2,6 +2,10 @@
 History
 =======
 
+1.2.6 (2020-11-24)
+-------------------
+* Adjusted `eqsig.stockwell.plot_stock`, since min freq was out by factor of 0.5.
+
 1.2.5 (2020-11-24)
 -------------------
 * Added `gen_ricker_wavelet_asig` to create an acceleration signal that is a Ricker wavelet
