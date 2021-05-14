@@ -56,6 +56,10 @@ class Signal(object):
     def values(self):
         return self._values
 
+    @values.setter
+    def values(self, vals):
+        return ValueError('Cannot directly modify values, use self.reset_values()')
+
     def reset_values(self, new_values):
         self._values = new_values
         self._npts = len(new_values)
@@ -307,6 +311,21 @@ class Signal(object):
 
         self.reset_values(self.values - y_cor)
 
+    def set_zero_residual_velocity(self):
+        post_vel = self.velocity[-1]
+        nsteps = int(abs(post_vel) / (self.pga * self.dt / 100)) + 1
+        delta_acc = post_vel / self.dt / nsteps
+        vals = self.values
+        vals[-nsteps:] -= delta_acc
+        self.reset_values(vals)
+
+    def set_zero_residual_displacement(self):
+        post_disp = self.displacement[-1]
+        delta_acc = post_disp * 2 / self.time[-1] ** 2
+        vals = self.values
+        vals -= delta_acc
+        self.reset_values(vals)
+
     def get_section_average(self, start=0, end=-1, index=False):
         """
         Gets the average value of a part of series.
@@ -519,7 +538,12 @@ class AccSignal(Signal):
         acc = np.zeros(self.npts)
         for i in range(self.npts - 1):  # MEANS THAT ACC has a pulse at the end.
             vel[i + 1] = (disp[i + 1] - disp[i]) / self.dt
+            # vel[i + 1] = 2 * (disp[i + 1] - disp[i]) / self.dt - vel[i]
             acc[i + 1] = (vel[i + 1] - vel[i]) / self.dt
+            # acc[i + 1] = 2 * (vel[i + 1] - vel[i]) / self.dt - acc[i]
+        # init_acc = np.mean(acc[:10])
+        acc[:10] = np.mean(acc[:10])
+
         self.reset_values(acc)
 
     def remove_rolling_average(self, mtype="velocity", freq_window=5):
