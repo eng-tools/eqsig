@@ -44,7 +44,7 @@ def show_fourier_spectra_stable_against_aliasing():
 
     record_filename = 'test_motion_dt0p01.txt'
     motion_step = 0.01
-    rec = np.loadtxt(record_path + record_filename)
+    rec = np.loadtxt(record_path + record_filename, skiprows=2)
     rec2 = np.zeros(2 ** 13)
     rec2[:len(rec)] = rec
     org_signal = AccSignal(rec, motion_step)
@@ -67,3 +67,7 @@ def show_fourier_spectra_stable_against_aliasing():
 
     plt.legend()
     plt.show()
+
+
+if __name__ == '__main__':
+    show_fourier_spectra_stable_against_aliasing()

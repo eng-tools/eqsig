@@ -200,6 +200,8 @@ def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
     through_zero_indices = np.where(sign_switch < 0)[0]
     all_zc_indices = np.concatenate((zero_indices, through_zero_indices))
     all_zc_indices.sort()
+    if len(all_zc_indices) == 0:
+        return np.array([0])
     if all_zc_indices[0] != 0:
         all_zc_indices = np.insert(all_zc_indices, 0, 0)  # slow
     return all_zc_indices

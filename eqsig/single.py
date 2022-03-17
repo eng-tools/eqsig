@@ -87,6 +87,13 @@ class Signal(object):
             self.generate_fa_spectrum()
         return self._fa_spectrum
 
+    @property
+    def fa_spectrum_abs(self):
+        """The one-sided Fourier Amplitude spectrum"""
+        if not self._cached_fa:
+            self.generate_fa_spectrum()
+        return abs(self._fa_spectrum)
+
     def gen_fa_spectrum(self, p2_plus=0, n=None):
         """
         Sets the one-sided Fourier Amplitude spectrum and frequencies
@@ -310,21 +317,6 @@ class Signal(object):
             y_cor += cofs[co] * mods
 
         self.reset_values(self.values - y_cor)
-
-    def set_zero_residual_velocity(self):
-        post_vel = self.velocity[-1]
-        nsteps = int(abs(post_vel) / (self.pga * self.dt / 100)) + 1
-        delta_acc = post_vel / self.dt / nsteps
-        vals = self.values
-        vals[-nsteps:] -= delta_acc
-        self.reset_values(vals)
-
-    def set_zero_residual_displacement(self):
-        post_disp = self.displacement[-1]
-        delta_acc = post_disp * 2 / self.time[-1] ** 2
-        vals = self.values
-        vals -= delta_acc
-        self.reset_values(vals)
 
     def get_section_average(self, start=0, end=-1, index=False):
         """
@@ -593,6 +585,21 @@ class AccSignal(Signal):
         acceleration_correction = 2 * end_disp / (self.dt * self.npts)
         self._values -= acceleration_correction
         self.clear_cache()
+
+    def set_zero_residual_velocity(self):
+        post_vel = self.velocity[-1]
+        nsteps = int(abs(post_vel) / (self.pga * self.dt / 100)) + 1
+        delta_acc = post_vel / self.dt / nsteps
+        vals = self.values
+        vals[-nsteps:] -= delta_acc
+        self.reset_values(vals)
+
+    def set_zero_residual_displacement(self):
+        post_disp = self.displacement[-1]
+        delta_acc = post_disp * 2 / self.time[-1] ** 2
+        vals = self.values
+        vals -= delta_acc
+        self.reset_values(vals)
 
     def generate_displacement_and_velocity_series(self, trap=True):
         """Calculates the displacement and velocity time series"""

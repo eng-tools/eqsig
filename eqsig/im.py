@@ -131,7 +131,7 @@ def _raw_calc_arias_intensity(acc, dt):
 
 def calc_arias_intensity(acc_sig):
     """
-    Calculates the Arias Intensity
+    Calculates the Arias Intensity [m/s]
 
     Parameters
     ----------
