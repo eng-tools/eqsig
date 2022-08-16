@@ -586,19 +586,76 @@ class AccSignal(Signal):
         self._values -= acceleration_correction
         self.clear_cache()
 
-    def set_zero_residual_velocity(self):
+    def set_zero_residual_velocity(self, timezone=None):
         post_vel = self.velocity[-1]
-        nsteps = int(abs(post_vel) / (self.pga * self.dt / 100)) + 1
+        if timezone is None:
+            nsteps = int(abs(post_vel) / (self.pga * self.dt / 100)) + 1
+            si = -nsteps
+            ei = None
+        else:
+            si = int(timezone[0] / self.dt)
+            if timezone[1] is not None:
+                ei = int(timezone[1] / self.dt)
+                nsteps = ei - si
+            else:
+                ei = None
+                nsteps = len(self.values) - si
         delta_acc = post_vel / self.dt / nsteps
         vals = self.values
-        vals[-nsteps:] -= delta_acc
+        vals[si:ei] -= delta_acc
         self.reset_values(vals)
 
-    def set_zero_residual_displacement(self):
+    def set_zero_residual_displacement(self, timezone=None):
+        if timezone is None:
+            si = None
+            ei = None
+            ttime = self.time[-1]
+        else:
+            raise ValueError('Not supported')
+            si = int(timezone[0] / self.dt)
+            ei = int(timezone[1] / self.dt)
+            ttime = timezone[1] - timezone[0]
         post_disp = self.displacement[-1]
-        delta_acc = post_disp * 2 / self.time[-1] ** 2
+        delta_acc = post_disp * 2 / ttime ** 2
         vals = self.values
-        vals -= delta_acc
+        vals[si:ei] -= delta_acc
+        self.reset_values(vals)
+        
+        
+    def set_zero_residual_displacement_and_velocity(self, timezone=None):
+        pdisp = self.displacement[-1]
+        pvel = self.velocity[-1]
+        if timezone is None:
+            si = None
+            ei = None
+            ttime = self.time[-1]
+        else:
+            si = int(timezone[0] / self.dt)
+            if timezone[1] is not None:
+                ei = int(timezone[1] / self.dt)
+                pvel = 0  # if using a timezone the end velocity should be zero
+                ttime = timezone[1] - timezone[0]
+            else:
+                ei = None
+                ttime = self.time[-1] - timezone[0]
+
+
+        # acc = 2 * a + 6 * b * t
+        # vel = 2 * a * t + 3 * b * t ** 2
+        # disp = a * t ** 2 + b * t ** 3
+        # rearrange: a = (post_disp - b * ttime ** 3) / ttime ** 2
+        b = (-2*pdisp + pvel*ttime)/ttime**3
+        a = (pdisp - b * ttime ** 3) / ttime ** 2
+        # use a parabola (acc = a*t^2 + b*t + c)
+        # res_disp = 
+
+        tincs = self.time[:ei]
+        if si is not None:
+            tincs = tincs[si:]
+            tincs -= tincs[0]
+        delta_acc = 2 * a + 6 * b * tincs
+        vals = self.values
+        vals[si:ei] -= delta_acc
         self.reset_values(vals)
 
     def generate_displacement_and_velocity_series(self, trap=True):

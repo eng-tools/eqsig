@@ -1,6 +1,8 @@
 __author__ = 'maximmillen'
 
 from collections import OrderedDict
+
+import eqsig.im
 import numpy as np
 
 from eqsig.single import Signal, AccSignal
@@ -248,8 +250,9 @@ def compute_rotated(acc_sig_ns, acc_sig_we, angle_off_ns=0.0, parameter=None, fu
     for i in range(len(degrees)):
         new_sig = combine_at_angle(acc_sig_ns, acc_sig_we, degrees[i])
         if parameter == "arias_intensity":
-            new_sig.generate_all_motion_stats()
-        if parameter is not None:
+            pvalues.append(eqsig.im.calc_arias_intensity(new_sig)[-1])
+            # new_sig.generate_all_motion_stats()
+        elif parameter is not None:
             assert func is None
             pvalues.append(getattr(new_sig, parameter))
         elif func is not None:

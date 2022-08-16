@@ -211,6 +211,55 @@ def get_zero_crossings_indices(asig):
     return get_zero_crossings_array_indices(asig.values)
 
 
+def get_zero_and_peak_array_indices(pvals, zvals=None, min_step=0):
+    """
+
+    :param pvals:
+    :param zvals:
+    :param min_step: int
+        number of extra steps between zero crossing and peak
+    :return:
+    """
+    if zvals is None:
+        zvals = pvals
+    peak_indices = get_switched_peak_array_indices(pvals)
+    ci = get_zero_crossings_array_indices(zvals)
+    cc = 0
+    new_ci = []
+    new_pi = []
+    for i in range(1, len(ci)):
+        if i - cc + 1 == len(peak_indices):
+            break
+        p0 = peak_indices[i - 1 - cc]
+        p1 = peak_indices[i - cc]
+        c = ci[i]
+
+        if c >= p1 - min_step:
+            cc -= 1
+            continue
+        if p0 == c:
+            continue
+        if p0 < c < p1:
+            new_ci.append(c)
+            new_pi.append(p1)
+            if len(new_pi) > 1:
+                assert new_pi[-2] < new_ci[-1]
+            assert new_pi[-1] > new_ci[-1], (i, new_pi[-1], new_ci[-1])
+        else:
+            cc += 1
+
+    ci = np.array(new_ci)
+    piz = np.array(new_pi)
+    if len(ci) < 2:
+        return [], []
+    assert min(piz - ci) > 0
+    assert max(piz[:-1] - ci[1:]) < 0
+    assert min(np.diff(piz)) > 0
+    assert min(np.diff(ci)) > 0
+
+    return ci, piz
+
+
 def get_major_change_indices(y, rtol=1.0e-8, atol=1.0e-5, already_diff=False, dx=1):
     """Get indices where a significant change in slope occurs"""
     if already_diff:

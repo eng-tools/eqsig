@@ -159,3 +159,53 @@ def calc_cum_abs_surface_energy(asig, travel_times, nodal=True, up_red=1, down_r
 #
 #     ke = calc_cum_abs_surface_energy(accsig, t_times, stt=0.3, nodal=True, up_red=tshifts, down_red=tshifts, trim=True)
 
+
+def get_time_shift_motions(asig, travel_times, nodal=True, up_red=1., down_red=1., stt=0.0, trim=False, start=False):
+    """
+    Calculates the energy at different travel times from a surface
+
+    Parameters
+    ----------
+    asig: eqsig.AccSignal object
+    travel_times: array_like
+        Travel times from surface to depth of interest
+    nodal: bool
+        If true then surface is nodal (minima)
+    up_red: float or array_like
+        upward wave reduction factors
+    down_red: float or array_like
+        downward wave reduction factors
+    trim: bool
+        if true then forces array to be same length as values array
+    start: bool
+        if true then forces array to have the same start time as values array
+    stt: float
+        Travel time from input motion location to the surface
+
+    Returns
+    -------
+
+    """
+    if not hasattr(travel_times, '__len__'):
+        travel_times = np.array([travel_times])
+    else:
+        travel_times = np.array(travel_times)
+    shifts = 2 * travel_times / asig.dt
+    max_shift = int(np.max(shifts))
+    up_wave = np.pad(asig.values, (0, max_shift), mode='constant', constant_values=0)
+    dshifted = np.arange(asig.npts + max_shift)[np.newaxis, :] - shifts[:, np.newaxis]  # TODO: not needed if shifts is scalar
+    down_waves = np.interp(dshifted, np.arange(asig.npts), asig.values, left=0, right=0)
+    if hasattr(up_red, '__len__'):
+        up_wave = up_wave[np.newaxis, :] * up_red[:, np.newaxis]  # 1d
+        down_waves *= down_red[:, np.newaxis]
+    else:
+        up_wave = up_wave * up_red  # 1d  # TODO: may need to increase dimensions here
+        down_waves *= down_red
+    if nodal:
+        acc_series = - down_waves + up_wave
+    else:
+        acc_series = down_waves + up_wave
+    acc_series = trim_to_length(acc_series, asig.npts, travel_times, asig.dt, trim=trim, start=start, s2s_travel_time=stt)
+    if len(travel_times) == 1:
+        return acc_series[0]
+    return acc_series
