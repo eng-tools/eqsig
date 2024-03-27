@@ -1,7 +1,9 @@
 import numpy as np
 
 from eqsig import exceptions
-from eqsig.functions import get_section_average, calc_smooth_fa_spectrum, interp_array_to_approx_dt
+from eqsig.fns.average import get_section_average
+from eqsig.fns.time_step import interp_array_to_approx_dt
+from eqsig.fns.frequency import calc_smooth_fa_spectrum
 import eqsig.sdof as dh
 import eqsig.displacements as sd
 from eqsig import im

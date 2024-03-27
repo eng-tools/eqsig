@@ -1,6 +1,7 @@
 import numpy as np
 
-from eqsig import im, functions
+import eqsig.fns.peaks_and_crossings
+from eqsig import im
 
 from tests import conftest
 
@@ -20,10 +21,10 @@ def test_calc_cyclic_amp_combined_arrays_w_power_law():
     csr_array1 = asig.values
     b = 0.34
     csr_n15_series = im.calc_cyc_amp_combined_arrays_w_power_law(csr_array0, csr_array1, n_cyc=15, b=b)
-    a1_peak_inds_end = functions.get_switched_peak_array_indices(csr_array0)
+    a1_peak_inds_end = eqsig.fns.peaks_and_crossings.get_switched_peak_array_indices(csr_array0)
     a1_csr_peaks_end = np.abs(np.take(csr_array0, a1_peak_inds_end))
 
-    a2_peak_inds_end = functions.get_switched_peak_array_indices(csr_array1)
+    a2_peak_inds_end = eqsig.fns.peaks_and_crossings.get_switched_peak_array_indices(csr_array1)
     a2_csr_peaks_end = np.abs(np.take(csr_array1, a2_peak_inds_end))
 
     all_csr_peaks_end = np.array(list(a1_csr_peaks_end) + list(a2_csr_peaks_end))
@@ -56,7 +57,3 @@ def test_calc_unit_kinetic_energy():
     asig = conftest.t_asig()
     uke = im.calc_unit_kinetic_energy(asig)[-1]
     assert np.isclose(uke, 0.4504992), uke  # version 1.1.1
-
-
-if __name__ == '__main__':
-    test_calc_unit_kinetic_energy()

@@ -1,12 +1,13 @@
 import eqsig
 import matplotlib.pyplot as plt
 
+import eqsig.fns.time_step
 from tests import conftest
 
 
 def create():
     asig = eqsig.load_asig(conftest.TEST_DATA_DIR + 'test_motion_dt0p01.txt')
-    asig_small = eqsig.interp_to_approx_dt(asig, 0.001)
+    asig_small = eqsig.fns.time_step.interp_to_approx_dt(asig, 0.001)
 
     bf, sps = plt.subplots(nrows=2)
     sps[0].plot(asig.time, asig.values)

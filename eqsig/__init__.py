@@ -1,6 +1,6 @@
 from eqsig.single import Signal, AccSignal
 from eqsig import design_spectra
-from eqsig.functions import *
+from eqsig.fns import *
 from eqsig.multiple import Cluster, combine_at_angle, compute_rotated
 from eqsig.im import calc_significant_duration, calculate_peak  # deprecated load
 from eqsig import im as measures

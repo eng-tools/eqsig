@@ -1,6 +1,7 @@
 import numpy as np
 
-from eqsig import sdof, functions
+import eqsig.fns.peaks_and_crossings
+from eqsig import sdof
 from eqsig.exceptions import deprecation
 
 
@@ -442,7 +443,7 @@ def calc_n_cyc_array_w_power_law(values, a_ref, b, cut_off=0.01):
     array_like
     """
     from scipy.interpolate import interp1d
-    peak_indices = functions.get_switched_peak_array_indices(values)
+    peak_indices = eqsig.fns.peaks_and_crossings.get_switched_peak_array_indices(values)
     csr_peaks = np.abs(np.take(values, peak_indices))
     csr_peaks = np.where(csr_peaks < cut_off * np.max(abs(values)), 1.0e-14, csr_peaks)
     n_ref = 1
@@ -468,7 +469,7 @@ def calc_cyc_amp_array_w_power_law(values, n_cyc, b):
     :param b:
     :return:
     """
-    a1_peak_inds_end = functions.get_switched_peak_array_indices(values)
+    a1_peak_inds_end = eqsig.fns.peaks_and_crossings.get_switched_peak_array_indices(values)
     a1_csr_peaks_end = np.abs(np.take(values, a1_peak_inds_end))
     csr_peaks_s1 = np.zeros_like(values)
     np.put(csr_peaks_s1, a1_peak_inds_end, a1_csr_peaks_end)
@@ -517,10 +518,10 @@ def calc_cyc_amp_combined_arrays_w_power_law(values0, values1, n_cyc, b):
     -------
     array_like
     """
-    peak_inds_a0 = functions.get_switched_peak_array_indices(values0)
+    peak_inds_a0 = eqsig.fns.peaks_and_crossings.get_switched_peak_array_indices(values0)
     csr_peaks_a0 = np.abs(np.take(values0, peak_inds_a0))
 
-    peak_inds_a1 = functions.get_switched_peak_array_indices(values1)
+    peak_inds_a1 = eqsig.fns.peaks_and_crossings.get_switched_peak_array_indices(values1)
     csr_peaks_a1 = np.abs(np.take(values1, peak_inds_a1))
 
     csr_peaks_s0 = np.zeros_like(values0)

@@ -3,7 +3,7 @@ import numpy as np
 from eqsig.single import AccSignal
 from tests.conftest import TEST_DATA_DIR
 from eqsig import stockwell
-from eqsig.functions import interp_to_approx_dt
+from eqsig.fns.time_step import interp_to_approx_dt
 
 
 def test_stockwell_transform_then_inverse():
