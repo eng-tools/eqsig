@@ -97,7 +97,7 @@ def clean_out_non_changing(values):
 
 def get_peak_array_indices(values, ptype='all'):
     """
-    Find the indices for all of the local maxima and minima
+    Find the indices for all the local maxima and minima
 
     Parameters
     ----------
@@ -167,7 +167,7 @@ def get_peak_indices(asig):
     return get_peak_array_indices(asig.values)
 
 
-def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
+def get_zero_crossings_array_indices(values, keep_adj_zeros=False, tol=0.0):
     """
     Find the indices for values that are equal to zero or just passed through zero
 
@@ -177,6 +177,8 @@ def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
         array of values
     keep_adj_zeros: bool,
         if false then if adjacent zeros are found, only first is included
+    tol: float,
+        if positive tol then has to go ∆tol past zero, if neg, then does not need to cross zero.
     :return:
 
     Examples
@@ -186,6 +188,8 @@ def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
     >>> get_zero_crossings_array_indices(values, keep_adj_zeros=False)
     np.array([0, 4, 5, 6, 10, 12])
     """
+    if tol < 0:
+        raise NotImplemented('not implemented')
     # enforce array type
     values = np.array(values, dtype=float)
     # get all zero values
@@ -204,6 +208,16 @@ def get_zero_crossings_array_indices(values, keep_adj_zeros=False):
         return np.array([0])
     if all_zc_indices[0] != 0:
         all_zc_indices = np.insert(all_zc_indices, 0, 0)  # slow
+    if tol > 0:
+        rem_i = []
+        for k, ind in enumerate(all_zc_indices[:-1]):
+            if k in rem_i:
+                continue
+            ind1 = all_zc_indices[k+1]
+            if max(abs(values[ind:ind1])) < tol:
+                rem_i += [k, k+1]
+        all_zc_indices = np.delete(all_zc_indices, rem_i)
+
     return all_zc_indices
 
 
@@ -582,13 +596,15 @@ def get_switched_peak_indices(asig):
     return get_switched_peak_array_indices(values)
 
 
-def get_switched_peak_array_indices(values):
+def get_switched_peak_array_indices(values, tol=0.0):
     """
     Find the indices for largest peak between each zero crossing
 
     Parameters
     ----------
     values: array_like
+    tol: float,
+        if positive tol then has to go ∆tol past zero, if neg, then does not need to cross zero.
 
     Returns
     -------
@@ -602,7 +618,9 @@ def get_switched_peak_array_indices(values):
     peak_values_set = [0]
     peak_indices_set = [0]
     for i in range(1, len(peak_values)):
-        if peak_values[i] * last <= 0:  # only add index if sign changes (negative number)
+        sgn = np.sign(peak_values[i])
+        adj = tol * sgn  # if val is -ve then this will make value more +ve
+        if (peak_values[i] - adj) * last <= 0:  # only add index if sign changes (negative number)
             i_max_set = np.argmax(np.abs(peak_values_set))
             new_peak_indices.append(peak_indices_set[i_max_set])
 

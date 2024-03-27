@@ -178,6 +178,19 @@ def test_get_peak_indices():
     assert np.sum(abs(peak_indices - expected)) == 0
 
 
+def test_get_peak_indices_w_tol():
+    values = np.array([0, 2, 1, 2, -0.01, 1, 1, 0.3, -0.009, 0.2, 1.5, 0.2])
+    peak_indices = fns.get_switched_peak_array_indices(values)
+    expected = np.array([0, 1, 4, 5, 8, 10])
+    assert len(peak_indices) == len(expected), peak_indices
+    assert np.sum(abs(peak_indices - expected)) == 0, peak_indices
+
+    values = np.array([0, 2, 1, 2, -0.01, 1, 1, 0.3, -0.009, 0.2, 1.5, 0.2])
+    peak_indices = fns.get_switched_peak_array_indices(values, tol=0.01)
+    expected = np.array([0, 1, 4, 10])
+    assert len(peak_indices) == len(expected), peak_indices
+    assert np.sum(abs(peak_indices - expected)) == 0, peak_indices
+
 
 def test_get_zero_crossings_array_indices():
     vs = np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
@@ -198,6 +211,12 @@ def test_get_zero_crossings_array_indices():
     assert np.array_equal(zci, expected), zci
 
 
+def test_get_zero_crossings_array_indices_w_tol():
+    # expect no change at -0.009
+    vs = np.array([0, 2, 1, 2, -1, 0.02, -0.02, 0, 1, 0.3, 0, -0.009, 0.2, 1, 0.2])
+    zci = fns.get_zero_crossings_array_indices(vs, keep_adj_zeros=True, tol=0.01)
+    expected = np.array([0, 4, 5, 6, 7])
+    assert np.array_equal(zci, expected)
 
 def test_put_array_in_2d_array():
     vals = np.arange(1, 5)
@@ -345,7 +364,8 @@ def test_interp_left():
 if __name__ == '__main__':
 
     # test_interp2d()
-    test_interp2d_at_edge()
+    # test_interp2d_at_edge()
+    test_get_zero_crossings_array_indices_w_tol()
     # test_put_array_in_2d_array()
     # test_fa_spectrum_conversion()
     # test_determine_peaks_only_series_with_sine_wave()

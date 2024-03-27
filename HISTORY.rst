@@ -1,6 +1,10 @@
 History
 =======
 
+1.2.11 (2024-03-28)
+-------------------
+* Added tol threshold for zero crossing and peak indices algorithms
+
 1.2.10 (2020-11-24)
 -------------------
 * Adjusted `eqsig.stockwell.plot_stock`, since min freq was out by factor of 0.5.
