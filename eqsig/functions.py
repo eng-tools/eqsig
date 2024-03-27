@@ -618,9 +618,9 @@ def get_switched_peak_array_indices(values, tol=0.0):
     peak_values_set = [0]
     peak_indices_set = [0]
     for i in range(1, len(peak_values)):
-        sgn = np.sign(peak_values[i])
-        adj = tol * sgn  # if val is -ve then this will make value more +ve
-        if (peak_values[i] - adj) * last <= 0:  # only add index if sign changes (negative number)
+        sgn = np.sign(last)
+        adj_val = peak_values[i] + tol * sgn  # if val is -ve then this will make value more +ve
+        if adj_val * last <= 0:  # only add index if sign changes (negative number)
             i_max_set = np.argmax(np.abs(peak_values_set))
             new_peak_indices.append(peak_indices_set[i_max_set])
 
@@ -1130,20 +1130,26 @@ def gen_ricker_wavelet_asig(omega, t0, duration, dt):
 
 
 if __name__ == '__main__':
-    x0 = [0, 1, 5]
-    x = [0, 2, 6]
-    y = [1.5, 2.5, 3.5]
-    y_new = interp_left(x0, x, y)
-    expected = np.array([1.5, 1.5, 2.5])
-    assert np.isclose(y_new, expected).all(), y_new
-
-    x0 = [0, 2, 6]
-    y_new = interp_left(x0, x, y)
-    expected = np.array([1.5, 2.5, 3.5])
-    assert np.isclose(y_new, expected).all(), y_new
-    x0 = [-1, 2, 6]
-    y_new = interp_left(x0, x, y)
-    expected = np.array([1.5, 2.5, 3.5])
+    # x0 = [0, 1, 5]
+    # x = [0, 2, 6]
+    # y = [1.5, 2.5, 3.5]
+    # y_new = interp_left(x0, x, y)
+    # expected = np.array([1.5, 1.5, 2.5])
     # assert np.isclose(y_new, expected).all(), y_new
-    print(y_new)
+    #
+    # x0 = [0, 2, 6]
+    # y_new = interp_left(x0, x, y)
+    # expected = np.array([1.5, 2.5, 3.5])
+    # assert np.isclose(y_new, expected).all(), y_new
+    # x0 = [-1, 2, 6]
+    # y_new = interp_left(x0, x, y)
+    # expected = np.array([1.5, 2.5, 3.5])
+    # # assert np.isclose(y_new, expected).all(), y_new
+    # print(y_new)
+
+    values = np.array([0, 2, 1, 2, -0.01, 1, 1, 0.3, -0.009, 0.001, -0.009, 0.2, 1.5, 0.2])
+    peak_indices = get_switched_peak_array_indices(values, tol=0.01)
+    expected = np.array([0, 1, 4, 12])
+    assert len(peak_indices) == len(expected), peak_indices
+    assert np.sum(abs(peak_indices - expected)) == 0, peak_indices
 

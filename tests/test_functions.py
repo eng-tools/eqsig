@@ -191,6 +191,18 @@ def test_get_peak_indices_w_tol():
     assert len(peak_indices) == len(expected), peak_indices
     assert np.sum(abs(peak_indices - expected)) == 0, peak_indices
 
+    values = np.array([0, 2, 1, 2, -0.01, 1, 1, 0.3, -0.009, 0.001, -0.009, 0.2, 1.5, 0.2])
+    peak_indices = fns.get_switched_peak_array_indices(values, tol=0.01)
+    expected = np.array([0, 1, 4, 12])
+    assert len(peak_indices) == len(expected), peak_indices
+    assert np.sum(abs(peak_indices - expected)) == 0, peak_indices
+
+    values = np.array([0, 2, 1, 2, -0.01, 1, 1, 0.3, -0.009, 0.001, -0.01, 0.2, 1.5, 0.2])
+    peak_indices = fns.get_switched_peak_array_indices(values, tol=0.01)
+    expected = np.array([0, 1, 4, 5, 10, 12])
+    assert len(peak_indices) == len(expected), peak_indices
+    assert np.sum(abs(peak_indices - expected)) == 0, peak_indices
+
 
 def test_get_zero_crossings_array_indices():
     vs = np.array([0, 2, 1, 2, -1, 1, 0, 0, 1, 0.3, 0, -1, 0.2, 1, 0.2])
