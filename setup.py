@@ -28,7 +28,7 @@ setup(name='eqsig',
       packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples', '.circleci']),
       install_requires=[
         "numpy>=1.16",
-        "scipy>=1.5",
+        "scipy>=1.6",
     ],
       # List additional groups of dependencies here (e.g. development
       # dependencies). You can install these using the following syntax,

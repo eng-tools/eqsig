@@ -1,5 +1,5 @@
 numpy>=1.16
-scipy>=1.5
+scipy>=1.6
 
 # testing
 pytest
