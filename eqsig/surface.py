@@ -70,7 +70,7 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
     -------
 
     """
-    from scipy.integrate import cumtrapz
+    from scipy.integrate import cumulative_trapezoid
     # if not hasattr(up_red, '__len__'):
     #     up_red = up_red * np.ones(len(travel_times))
     # if not hasattr(down_red, '__len__'):
@@ -94,7 +94,7 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
         acc_series = - down_waves + up_wave
     else:
         acc_series = down_waves + up_wave
-    velocity = cumtrapz(acc_series, dx=asig.dt, initial=0, axis=1)
+    velocity = cumulative_trapezoid(acc_series, dx=asig.dt, initial=0, axis=1)
     e = 0.5 * velocity * np.abs(velocity)
     e = trim_to_length(e, asig.npts, travel_times, asig.dt, trim=trim, start=start, s2s_travel_time=stt)
     if len(travel_times) == 1:
@@ -137,7 +137,7 @@ def calc_surface_energy(asig, travel_times, nodal=True, up_red=1., down_red=1., 
 #         acc_series = - down_waves + up_wave
 #     else:
 #         acc_series = down_waves + up_wave
-#     velocity = scipy.integrate.cumtrapz(acc_series, dx=asig.dt, initial=0, axis=1)
+#     velocity = scipy.integrate.cumulative_trapezoid(acc_series, dx=asig.dt, initial=0, axis=1)
 #     e = 0.5 * velocity * np.abs(velocity)
 #     return trim_to_length(e, asig.npts, travel_times, asig.dt, trim=trim, start=start, s2s_travel_time=stt)
 

@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.integrate import cumulative_trapezoid
 import eqsig.fns.peaks_and_crossings
 from eqsig import sdof
 from eqsig.exceptions import deprecation
@@ -126,8 +126,8 @@ def calc_sir(acc_sig):
 
 
 def _raw_calc_arias_intensity(acc, dt):
-    from scipy.integrate import cumtrapz
-    return np.pi / (2 * 9.81) * cumtrapz(acc ** 2, dx=dt, initial=0)
+    from scipy.integrate import cumulative_trapezoid
+    return np.pi / (2 * 9.81) * cumulative_trapezoid(acc ** 2, dx=dt, initial=0)
 
 
 def calc_arias_intensity(acc_sig):
@@ -155,9 +155,9 @@ def calc_cav(acc_sig):
     Electrical Power Research Institute. Standardization of the Cumulative
     Absolute Velocity. 1991. EPRI TR-100082-1'2, Palo Alto, California.
     """
-    from scipy.integrate import cumtrapz
+    from scipy.integrate import cumulative_trapezoid
     abs_acc = np.abs(acc_sig.values)
-    return cumtrapz(abs_acc, dx=acc_sig.dt, initial=0)
+    return cumulative_trapezoid(abs_acc, dx=acc_sig.dt, initial=0)
 
 
 def calc_cav_dp(asig):
@@ -172,7 +172,7 @@ def calc_cav_dp(asig):
     :param asig:
     :return:
     """
-    from scipy.integrate import trapz
+    from scipy.integrate import trapezoid
     start = 0
     pga_max = 0
     cav_dp = 0
@@ -199,7 +199,7 @@ def calc_cav_dp(asig):
         x_upper = end * asig.dt  # the upper limit of x
         x_int = interval_time[np.where((x_lower <= interval_time) * (interval_time <= x_upper))]
         y_int = np.abs(np.array(abs_acc_interval)[np.where((x_lower <= interval_time) * (interval_time <= x_upper))])
-        int_acc = trapz(y_int, x_int)
+        int_acc = trapezoid(y_int, x_int)
 
         # calculation of pga (g)
         pga = (max(abs_acc_interval))
@@ -228,8 +228,8 @@ def calc_isv(acc_sig):
     See Kokusho (2013)
     :return:
     """
-    from scipy.integrate import cumtrapz
-    return cumtrapz(acc_sig.velocity ** 2, dx=acc_sig.dt, initial=0)
+    from scipy.integrate import cumulative_trapezoid
+    return cumulative_trapezoid(acc_sig.velocity ** 2, dx=acc_sig.dt, initial=0)
 
 
 def cumulative_response_spectra(acc_signal, fun_name, periods=None, xi=None):
@@ -550,3 +550,40 @@ def calc_unit_kinetic_energy(acc_signal):
     delta_energy = np.insert(delta_energy, 0, kin_energy[0])
     cum_delta_energy = np.cumsum(abs(delta_energy))
     return cum_delta_energy
+
+
+
+
+def calc_asi(asig, xi=0.05, periods=None):
+    """Acceleration Spectrum Intensity"""
+    if periods is None:
+        periods = np.arange(0.1, 1.51, 0.01)
+    sds, psv, psa = sdof.pseudo_response_spectra(asig.values, asig.dt, periods, xi=xi)
+    return max(0.01*cumulative_trapezoid(abs(psa)))/9.81  # in g*sec
+
+
+def calc_vsi(asig, xi=0.05, periods=None):
+    """Velocity Spectrum Intensity"""
+    if periods is None:
+        periods = np.arange(0.1, 2.51, 0.01)
+    sds, psv, psa = sdof.pseudo_response_spectra(asig.values, asig.dt, periods, xi=xi)
+    return max(0.01*cumulative_trapezoid(abs(psv)))  # in m
+
+
+def calc_vsi(asig, xi=0.05, periods=None):
+    """Velocity Spectrum Intensity"""
+    if periods is None:
+        periods = np.arange(0.1, 2.51, 0.01)
+    sds, psv, psa = sdof.pseudo_response_spectra(asig.values, asig.dt, periods, xi=xi)
+    return max(0.01*cumulative_trapezoid(abs(psv)))  # in m
+
+
+def calc_vsi_temporal(asig, xi=0.05, periods=None):
+    if periods is None:
+        periods = np.arange(0.1, 2.51, 0.01)
+    resp_u, resp_v, resp_a = sdof.nigam_and_jennings_response(asig.values, asig.dt, periods, xi)
+    sds_time = np.maximum.accumulate(resp_u, axis=1)
+    w = 2 * np.pi / periods
+    psv = w[:, np.newaxis] * sds_time
+    c = np.trapz(abs(psv), axis=0)
+    return 0.01 * np.trapz(abs(psv), axis=0)  # in m

@@ -21,7 +21,7 @@ def calc_velo_and_disp_from_accel_arr(acceleration, dt, trap=True):
     displacement: array_like (len=len(acceleration))
         displacement time series
     """
-    from scipy.integrate import cumtrapz
+    from scipy.integrate import cumulative_trapezoid
     if trap is False:
         velocity = np.zeros(len(acceleration) + 1)
         velocity[1:] = acceleration * dt  # computes the increments
@@ -34,8 +34,8 @@ def calc_velo_and_disp_from_accel_arr(acceleration, dt, trap=True):
         displacement = displacement[:-1]
     else:
 
-        velocity = cumtrapz(acceleration, dx=dt, initial=0)
-        displacement = cumtrapz(velocity, dx=dt, initial=0)
+        velocity = cumulative_trapezoid(acceleration, dx=dt, initial=0)
+        displacement = cumulative_trapezoid(velocity, dx=dt, initial=0)
 
     return velocity, displacement
 
